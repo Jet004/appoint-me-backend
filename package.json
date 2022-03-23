@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose --ci --reporters=default --coverage",
+    "test": "jest --verbose --ci --reporters=default",
     "dev": "NODE_ENV=test nodemon server.js"
   },
   "keywords": [],
