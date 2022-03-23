@@ -4,16 +4,18 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "start": "nodemon server.js"
+    "test": "jest --verbose --ci --reporters=default --coverage",
+    "dev": "NODE_ENV=test nodemon server.js"
   },
   "keywords": [],
   "author": "Jacob Turner",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
-    "mongoose": "^6.2.8"
+    "mongoose": "^6.2.8",
+    "node-fetch": "^2.6.7"
   },
   "devDependencies": {
     "jest": "^27.5.1"

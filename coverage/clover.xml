@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1648044649338" clover="3.2.0">
+  <project timestamp="1648044649338" name="All files">
+    <metrics statements="43" coveredstatements="43" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="7" elements="50" coveredelements="50" complexity="0" loc="43" ncloc="43" packages="2" files="8" classes="8"/>
+    <package name="__test__">
+      <metrics statements="26" coveredstatements="26" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="7"/>
+      <file name="database.js" path="/Users/jet/Documents/TAFE/semester-2/project_implementation/assessments/proj2/appoint-me-backend/__test__/database.js">
+        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+      </file>
+      <file name="mockTempUsers.js" path="/Users/jet/Documents/TAFE/semester-2/project_implementation/assessments/proj2/appoint-me-backend/__test__/mockTempUsers.js">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+      </file>
+      <file name="mockUsers.js" path="/Users/jet/Documents/TAFE/semester-2/project_implementation/assessments/proj2/appoint-me-backend/__test__/mockUsers.js">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="39" count="1" type="stmt"/>
+      </file>
+      <file name="pushMockData.js" path="/Users/jet/Documents/TAFE/semester-2/project_implementation/assessments/proj2/appoint-me-backend/__test__/pushMockData.js">
+        <metrics statements="14" coveredstatements="14" conditionals="0" coveredconditionals="0" methods="6" coveredmethods="6"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="models">
+      <metrics statements="17" coveredstatements="17" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="addressSchema.js" path="/Users/jet/Documents/TAFE/semester-2/project_implementation/assessments/proj2/appoint-me-backend/models/addressSchema.js">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+      </file>
+      <file name="appointmentSchema.js" path="/Users/jet/Documents/TAFE/semester-2/project_implementation/assessments/proj2/appoint-me-backend/models/appointmentSchema.js">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="39" count="1" type="stmt"/>
+      </file>
+      <file name="tempUserModel.js" path="/Users/jet/Documents/TAFE/semester-2/project_implementation/assessments/proj2/appoint-me-backend/models/tempUserModel.js">
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="39" count="1" type="stmt"/>
+      </file>
+      <file name="userModel.js" path="/Users/jet/Documents/TAFE/semester-2/project_implementation/assessments/proj2/appoint-me-backend/models/userModel.js">
+        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

@@ -1,8 +1,7 @@
 const mongoose = require('mongoose')
 const addressSchema = require('./addressSchema')
-const appointmentSchema = require('./appointmentSchema')
 
-const userSchema = new mongoose.Schema({
+const tempUserSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
@@ -31,13 +30,10 @@ const userSchema = new mongoose.Schema({
     dob: {
         type: Date,
     },
-    appointments: {
-        type: [appointmentSchema],
-    },
 },{
     timestamps: true,
 })
 
-const User = mongoose.model('User', userSchema)
+const TempUser = mongoose.model('TempUser', tempUserSchema)
 
-module.exports = User
+module.exports = TempUser
