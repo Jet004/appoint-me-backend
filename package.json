@@ -1,0 +1,21 @@
+{
+  "name": "appoint-me-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "Jacob Turner",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mongoose": "^6.2.8"
+  },
+  "devDependencies": {
+    "jest": "^27.5.1"
+  }
+}
