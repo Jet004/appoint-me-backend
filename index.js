@@ -1,22 +1,24 @@
-const express = require('express')
+import express from 'express'
 const server = express()
 
 // Access environment variables
-const dotenv = require('dotenv')
+import dotenv from 'dotenv'
 dotenv.config()
 
 // Connect to database with mongoose
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
+let dbURL
+
 process.env.NODE_ENV === 'test' ? dbURL = process.env.TEST_DB_URL : dbURL = process.env.DB_URL
-mongoose.connect(dbURL, 
-    {
-        useNewUrlParser: true, 
-        useUnifiedTopology: true 
-    })
-    .then(() => console.log(`Database --> Connected to database "${mongoose.connection.name}"`))
-    .catch(err => {
-        console.log(err)
-    })
+
+mongoose.connect(dbURL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+
+mongoose.connection.on('open', () => console.log(`Database --> Connected to database "${mongoose.connection.name}"`))
+
+mongoose.connection.on('error', (err) => console.log(`Database --> Error connecting to database "${mongoose.connection.name}"`, err))
 
 // Log request information for every request
 server.use((req, res, next) => {
@@ -30,8 +32,8 @@ server.use(express.urlencoded({ extended: true }))
 
 
 // Import Routes
-const userRoutes = require('./routes/userRoutes')
-server.use('/api/user', userRoutes)
+import userRoutes from './routes/userRoutes'
+server.use('/api/users', userRoutes)
 
 
 

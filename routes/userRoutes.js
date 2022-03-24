@@ -1,7 +1,8 @@
-const router = require('express').Router();
+import express from 'express'
+const router = express.Router()
 
 // Controllers
-const { getAllUsers, getUserByEmail, createUser, updateUser, deleteUser } = require('../controllers/userController')
+import { getAllUsers, getUserByEmail, createUser, updateUser, deleteUser } from '../controllers/userController'
 
 router.route('/')
     .get(getAllUsers)
