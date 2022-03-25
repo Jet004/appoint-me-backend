@@ -4,8 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose --ci --reporters=default",
+    "test": "jest --verbose --ci --reporters=default --coverage",
     "dev": "NODE_ENV=test nodemon index.js --exec babel-node -e js"
+  },
+  "jest": {
+      "testEnvironment": "node"
   },
   "keywords": [],
   "author": "Jacob Turner",

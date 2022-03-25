@@ -1,83 +1,57 @@
-import User from '../models/userModel'
 
 
-export const getAllUsers = async (req, res) => {
+export const getAllUsers = (DbGetAllUsers) => async (req, res) => {
     try {
-        const users = await User.find({})
-        users.length > 0 
-            ? res.status(200).json({ status: "success", user: users })
-            : res.status(404).json({ status: "not found", user: [] });
+        const users = await DbGetAllUsers()
+        users ? res.status(200).json({ status: "success", user: users })
+            : res.status(500).json({ status: "error", message: "An unexpected error occurred" })
     } catch (e) {
-        console.log(e)
+        console.error(e)
         res.status(500).json({ status: "error", message: e.message });
     }
-    // User.find({})
-    //     .then(results => {
-    //         if(results.length > 0) {
-    //             res.status(200).json({ status: "success", user: results })
-    //         } else {
-    //             res.status(200).json({ status: "success", user: [] });
-    //         }
-    //     })
-    //     .catch(err => {
-    //         console.log(err)
-    //         res.status(500).json({ status: "error", message: "Query Error" })
-    //     })
 }
 
-export const getUserByEmail = async (req, res) => {
+export const getUserByEmail = (DbGetUserByEmail) => async (req, res) => {
     try {
-        const user = await User.findOne({ email: req.params.email })
+        const user = await DbGetUserByEmail(req.params.email)
         user ? res.status(200).json({ status: "success", user: user })
             : res.status(404).json({ status: "not found", user: [] })
     } catch (e) {
-        console.log(e)
+        console.error(e)
         res.status(500).json({ status: "error", message: e.message });
     }
-//    User.find({email: req.params.email})
-//         .then(results => {
-//             if(results.length > 0) {
-//                 res.status(200).json({ status: "success", user: results })
-//             } else {
-//                 res.status(200).json({ status: "success", user: [] })
-//             } 
-//         })
-//         .catch(err => {
-//             console.log(err)
-//             res.status(500).json({ status: "error", message: "Query Error" })
-//         })
 }
 
-export const createUser = async (req, res) => {
+export const createUser = (DbCreateUser) => async (req, res) => {
     try {
-        const newUser = new User(req.body)
-        const result = await newUser.save()
-        result ? res.status(200).json({ status: "success", user: result })
-            : res.status(500).json({ status: "error", message: "User not created" })
+        const result = await DbCreateUser(req.body)
+        result ? res.status(201).json({ status: "success", user: result })
+            : res.status(500).json({ status: "error", message: "An unexpected error occurred" })
     } catch (e) {
-        console.log(e)
+        console.error(e)
         res.status(500).json({ status: "error", message: e.message });
     }
-    // const newUser = new User(req.body);
-    // newUser.save()
-    //     .then(results => {
-    //         console.log(results._id)
-    //         if(results instanceof User) {
-    //             res.status(201).json({ status: "success", user: results })
-    //         } else {
-    //             res.status(500).json({ status: "error", message: "An unexpected error occurred" })
-    //         }
-    //     })
-    //     .catch(err => {
-    //         console.log(err)
-    //         res.status(500).json({ status: "error", error: err })
-    //     })
 }
 
-export const updateUser = (req, res) => {
-
+export const updateUser = (DbUpdateUser) => async (req, res) => {
+    try {
+        const result = await DbUpdateUser(req.params.id, req.body)
+        console.log(result)
+        result ? res.status(200).json({ status: "success", originalData: result })
+            : res.status(404).json({ status: "not found", user: [] })
+    } catch (e) {
+        console.error(e)
+        res.status(500).json({ status: "error", message: e.message });
+    }
 }
 
-export const deleteUser = (req, res) => {
-
+export const deleteUser = (DbDeleteUser) => async (req, res) => {
+    try {
+        const result = await DbDeleteUser(req.params.id)
+        result ? res.status(204).json()
+            : res.status(404).json({ status: "not found", user: [] })
+    } catch (e) {
+        console.error(e)
+        res.status(500).json({ status: "error", message: e.message });
+    }
 }

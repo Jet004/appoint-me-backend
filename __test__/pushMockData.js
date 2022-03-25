@@ -1,8 +1,7 @@
-
-const User = require('../models/userModel')
-const TempUser = require('../models/tempUserModel')
-const mockUsers = require('./mockUsers')
-const mockTempUsers = require('./mockTempUsers')
+import User from '../models/userModel'
+import TempUser from '../models/tempUserModel'
+import mockUsers from '../__test__/mockUsers'
+import mockTempUsers from '../__test__/mockTempUsers'
 
 module.exports.pushMockUsers = () => {
     const query = mockUsers.map(user => {
@@ -15,7 +14,7 @@ module.exports.pushMockUsers = () => {
 
     return User.bulkWrite(query)
         .then((res) => {
-            console.log('Mock users pushed to database: ', res.insertedCount)
+            // console.log('Mock users pushed to database: ', res.insertedCount)
         })
 }
 
@@ -30,6 +29,6 @@ module.exports.pushMockTempUsers = () => {
 
     return TempUser.bulkWrite(query)
         .then((res) => {
-            console.log('Mock temp users pushed to database: ', res.insertedCount)
+            // console.log('Mock temp users pushed to database: ', res.insertedCount)
         })
 }

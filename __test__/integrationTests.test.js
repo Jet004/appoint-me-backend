@@ -26,8 +26,8 @@ describe('Connects to database', () => {
 
     describe('User Routes', () => {
         
-        it('GET /api/user/', () => {
-            return fetch('http://localhost:8200/api/user/')
+        it('GET /api/users/', () => {
+            return fetch('http://localhost:8200/api/users/')
                 .then(res => {
                     expect(res.status).toBe(200)
                     return res.json()
@@ -44,8 +44,8 @@ describe('Connects to database', () => {
             
         })
 
-        it(`POST /api/user/ with valid user data`, () => {
-            return fetch('http://localhost:8200/api/user/', {
+        it(`POST /api/users/ with valid user data`, () => {
+            return fetch('http://localhost:8200/api/users/', {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json'
@@ -86,15 +86,15 @@ describe('Connects to database', () => {
         })
 
 
-        it('GET /api/user/:email with valid email', () => {
-            return fetch('http://localhost:8200/api/user/e.rodder@gmail.com')
+        it('GET /api/users/:email with valid email', () => {
+            return fetch('http://localhost:8200/api/users/e.rodder@gmail.com')
                 .then(res => {
                     expect(res.status).toBe(200)
                     return res.json()   
                 })
                 .then(data => {
-                    expect(data.user[0].email).toBe('e.rodder@gmail.com')
-                    expect(data.user[0].fname).toBe('Emily')
+                    expect(data.user.email).toBe('e.rodder@gmail.com')
+                    expect(data.user.fname).toBe('Emily')
                 })
         })
 

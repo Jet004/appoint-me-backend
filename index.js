@@ -8,16 +8,12 @@ dotenv.config()
 // Connect to database with mongoose
 import mongoose from 'mongoose'
 let dbURL
-
 process.env.NODE_ENV === 'test' ? dbURL = process.env.TEST_DB_URL : dbURL = process.env.DB_URL
-
 mongoose.connect(dbURL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
-
 mongoose.connection.on('open', () => console.log(`Database --> Connected to database "${mongoose.connection.name}"`))
-
 mongoose.connection.on('error', (err) => console.log(`Database --> Error connecting to database "${mongoose.connection.name}"`, err))
 
 // Log request information for every request
