@@ -2,20 +2,20 @@ const bcrypt = require('bcrypt');
 
 const tempUsers = [
     {
-        email: "e.rodder@gmail.com",
+        email: "temp.user@gmail.com",
         password: bcrypt.hashSync("sdfvdf", 6),
-        fname: "Emily",
-        lname: "Rodder",
+        fname: "Temp",
+        lname: "User",
         phone: "0473982982",
         address: {
             streetNumber: "32",
-            streetName: "High Street",
-            city: "Berkshire",
+            streetName: "Fake Street",
+            city: "Brisbane",
             state: "QLD",
-            postCode: "4557",
+            postCode: "4000",
             country: "Australia",
         },
-        dob: new Date(1972, 1, 12),
+        dob: new Date(1995, 1, 12),
     },
 ]
 

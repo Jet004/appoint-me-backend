@@ -61,7 +61,7 @@ describe("User controller unit tests:", () => {
     })
 
     describe('Test controller: getUserByEmail', () => {
-        it('returns user by email with valid input', async () => {
+        it('GET returns user by email with valid input', async () => {
             const fakeDbGetUserByEmail = jest.fn().mockReturnValue(users[0])
             const req = { params: { email: users[0].email } }
             const res = {
@@ -79,7 +79,7 @@ describe("User controller unit tests:", () => {
             expect(res.json).toHaveBeenCalledWith({ status: "success", user: users[0] })
         })
      
-        it('returns 404 Not Found when email not in DB', async () => {
+        it('GET returns 404 Not Found when email not in DB', async () => {
             const fakeDbGetUserByEmail = jest.fn().mockReturnValue(null)
             const req = { params: { email: '32987@gmail.com' } }
             const res = {
@@ -97,7 +97,7 @@ describe("User controller unit tests:", () => {
             expect(res.json).toHaveBeenCalledWith({ status: "not found", user: [] })
         })
 
-        it('returns 500 Internal Server Error on DB error', async () => {
+        it('GET returns 500 Internal Server Error on DB error', async () => {
             const fakeDbGetUserByEmail = jest.fn().mockImplementation(() => { throw new Error('DB error') })
             const req = { params: { email: users[0].email } }
             const res = {
@@ -114,13 +114,16 @@ describe("User controller unit tests:", () => {
             expect(res.status).toHaveBeenCalledWith(500)
             expect(res.json).toHaveBeenCalledWith({ status: "error", message: "DB error" })
         })
-
     })
 
     describe('Test controller: createUser', () => {
+        // Has the password for our mock user
+        const userToCreate = {...users[0]}
+        userToCreate.password = "12345678"
+
         it('returns 201 Created on success with valid input', async () => {
-            const fakeDbCreateUser = jest.fn().mockReturnValue(users[0])
-            const req = { body: users[0] }
+            const fakeDbCreateUser = jest.fn().mockReturnValue(userToCreate)
+            const req = { body: userToCreate }
             const res = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
@@ -131,14 +134,14 @@ describe("User controller unit tests:", () => {
 
             await controller(req, res)
             expect(fakeDbCreateUser).toHaveBeenCalledTimes(1)
-            expect(fakeDbCreateUser).toHaveBeenCalledWith(users[0])
+            expect(fakeDbCreateUser.mock.calls[0][0]).toBe(userToCreate)
             expect(res.status).toHaveBeenCalledWith(201)
-            expect(res.json).toHaveBeenCalledWith({ status: "success", user: users[0] })
+            expect(res.json).toHaveBeenCalledWith({ status: "success", user: userToCreate })
         })
 
         it('returns 500 Internal Server Error if no data returned from DB', async () => {
             const fakeDbCreateUser = jest.fn().mockReturnValue(null)
-            const req = { body: users[0] }
+            const req = { body: userToCreate }
             const res = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
@@ -149,32 +152,33 @@ describe("User controller unit tests:", () => {
 
             await controller(req, res)
             expect(fakeDbCreateUser).toHaveBeenCalledTimes(1)
-            expect(fakeDbCreateUser).toHaveBeenCalledWith(users[0])
+            expect(fakeDbCreateUser.mock.calls[0][0]).toBe(userToCreate)
             expect(res.status).toHaveBeenCalledWith(500)
             expect(res.json).toHaveBeenCalledWith({ status: "error", message: "An unexpected error occurred" })
         })
 
-        it('returns 500 Internal Server Error on bad input', async () => {
-            const fakeDbCreateUser = jest.fn().mockImplementation( () => { throw new Error('Bad Input') })
-            const req = { body: { email: '', password: '', name: '' } }
-            const res = {
-                status: jest.fn().mockReturnThis(),
-                json: jest.fn().mockReturnThis()
-            }
+        // This test will become a validation test as validation will take care of this once implemented
+        // it('returns 500 Internal Server Error on bad input', async () => {
+        //     const fakeDbCreateUser = jest.fn().mockImplementation( () => { throw new Error('Bad Input') })
+        //     const req = { body: { email: '', password } }
+        //     const res = {
+        //         status: jest.fn().mockReturnThis(),
+        //         json: jest.fn().mockReturnThis()
+        //     }
 
-            const controller = createUser(fakeDbCreateUser)
-            expect(typeof controller).toBe("function")
+        //     const controller = createUser(fakeDbCreateUser)
+        //     expect(typeof controller).toBe("function")
 
-            await controller(req, res)
-            expect(fakeDbCreateUser).toHaveBeenCalledTimes(1)
-            expect(fakeDbCreateUser).toHaveBeenCalledWith({ email: '', password: '', name: '' })
-            expect(res.status).toHaveBeenCalledWith(500)
-            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Bad Input" })
-        })
+        //     await controller(req, res)
+        //     expect(fakeDbCreateUser).toHaveBeenCalledTimes(1)
+        //     expect(fakeDbCreateUser).toHaveBeenCalledWith({ email: '' })
+        //     expect(res.status).toHaveBeenCalledWith(500)
+        //     expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Bad Input" })
+        // })
 
         it('returns 500 Internal Server Error on DB Error', async () => {
             const fakeDbCreateUser = jest.fn().mockImplementation( () => { throw new Error('DB error') })
-            const req = { body: users[0] }
+            const req = { body: userToCreate }
             const res = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
@@ -185,7 +189,7 @@ describe("User controller unit tests:", () => {
 
             await controller(req, res)
             expect(fakeDbCreateUser).toHaveBeenCalledTimes(1)
-            expect(fakeDbCreateUser).toHaveBeenCalledWith(users[0])
+            expect(fakeDbCreateUser.mock.calls[0][0]).toBe(userToCreate)
             expect(res.status).toHaveBeenCalledWith(500)
             expect(res.json).toHaveBeenCalledWith({ status: "error", message: "DB error" })   
         })

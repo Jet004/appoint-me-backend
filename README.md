@@ -6,9 +6,11 @@
 ## TODO
 
 - input sanitisation and validation in controllers
-- unit test cases for testing controller validation
+- Add appointment validator to user validators and adjust integration tests
+- unit test cases for testing controller validation - account for different validators (user, tempUser, businessRep)
 - unit test DB User model + address/appointments
-- Refactor how I handle different environment configs
+- Add logic to check if temp user exists when user created - divert all user data to user from temp user - delete temp user (ref crm collection)
+- Add logic to prevent business adding more than one temp user with the same email address (ref crm collection)
 
 ## Necessary changes to ERD
 
