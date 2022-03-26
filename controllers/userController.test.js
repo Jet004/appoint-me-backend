@@ -308,7 +308,7 @@ describe("User controller unit tests:", () => {
             expect(fakeDbDeleteUser).toHaveBeenCalledTimes(1)
             expect(fakeDbDeleteUser).toHaveBeenCalledWith(userID)
             expect(res.status).toHaveBeenCalledWith(404)
-            expect(res.json).toHaveBeenCalledWith({ status: "not found", user: [] })
+            expect(res.json).toHaveBeenCalledWith({ status: "not found" })
         })
 
         it('returns 500 Internal Server Error on DB Error', async () => {

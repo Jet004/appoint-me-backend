@@ -5,16 +5,13 @@ const server = express()
 import dotenv from 'dotenv'
 dotenv.config()
 
-// Connect to database with mongoose
+// Connect to MongoDB database
 import mongoose from 'mongoose'
-let dbURL
-process.env.NODE_ENV === 'test' ? dbURL = process.env.TEST_DB_URL : dbURL = process.env.DB_URL
-mongoose.connect(dbURL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+import connect from './models/database.js'
+connect(process.env.DB_URL)
 mongoose.connection.on('open', () => console.log(`Database --> Connected to database "${mongoose.connection.name}"`))
 mongoose.connection.on('error', (err) => console.log(`Database --> Error connecting to database "${mongoose.connection.name}"`, err))
+
 
 // Log request information for every request
 server.use((req, res, next) => {
@@ -30,9 +27,6 @@ server.use(express.urlencoded({ extended: true }))
 // Import Routes
 import userRoutes from './routes/userRoutes'
 server.use('/api/users', userRoutes)
-
-
-
 
 
 // Run server

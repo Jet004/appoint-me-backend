@@ -3,7 +3,7 @@ import TempUser from '../models/tempUserModel'
 import mockUsers from '../__test__/mockUsers'
 import mockTempUsers from '../__test__/mockTempUsers'
 
-module.exports.pushMockUsers = () => {
+export const pushMockUsers = async () => {
     const query = mockUsers.map(user => {
         return {
             insertOne: {
@@ -12,13 +12,11 @@ module.exports.pushMockUsers = () => {
         }
     })
 
-    return User.bulkWrite(query)
-        .then((res) => {
-            // console.log('Mock users pushed to database: ', res.insertedCount)
-        })
+    const result = await User.bulkWrite(query)
+    // console.log('Mock users pushed to database: ', result.insertedCount)
 }
 
-module.exports.pushMockTempUsers = () => {
+export const pushMockTempUsers = async () => {
     const query = mockTempUsers.map(tempUser => {
         return {
             insertOne: {
@@ -27,8 +25,13 @@ module.exports.pushMockTempUsers = () => {
         }
     })
 
-    return TempUser.bulkWrite(query)
-        .then((res) => {
-            // console.log('Mock temp users pushed to database: ', res.insertedCount)
-        })
+    const result = await TempUser.bulkWrite(query)
+    // console.log('Mock temp users pushed to database: ', result.insertedCount)
 }
+
+const pushMockData = async () => {
+    await pushMockUsers()
+    await pushMockTempUsers()
+}
+
+export default pushMockData

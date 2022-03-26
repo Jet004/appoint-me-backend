@@ -49,7 +49,7 @@ export const deleteUser = (DbDeleteUser) => async (req, res) => {
     try {
         const result = await DbDeleteUser(req.params.id)
         result ? res.status(204).json()
-            : res.status(404).json({ status: "not found", user: [] })
+            : res.status(404).json({ status: "not found" })
     } catch (e) {
         console.error(e)
         res.status(500).json({ status: "error", message: e.message });
