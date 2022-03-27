@@ -8,7 +8,7 @@ const tempUsers = [
         lname: "User",
         phone: "0473982982",
         address: {
-            streetNumber: "32",
+            streetNumber: 32,
             streetName: "Fake Street",
             city: "Brisbane",
             state: "QLD",
@@ -16,6 +16,21 @@ const tempUsers = [
             country: "Australia",
         },
         dob: new Date(1995, 1, 12),
+    },{
+        email: "temp.user1@gmail.com",
+        password: bcrypt.hashSync("sdfvdf", 6),
+        fname: "Temp",
+        lname: "User1",
+        phone: "0473982982",
+        address: {
+            streetNumber: "",
+            streetName: "",
+            city: "",
+            state: "",
+            postCode: "",
+            country: "",
+        },
+        dob: "",
     },
 ]
 

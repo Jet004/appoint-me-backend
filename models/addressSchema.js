@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 const addressSchema = new mongoose.Schema({
     unit: {
@@ -6,27 +6,27 @@ const addressSchema = new mongoose.Schema({
     },
     streetNumber: {
         type: Number,
-        required: true,
+        required: function() {this.parent() === "TempUser" ? false : true},
     },
     streetName: {
         type: String,
-        required: true,
+        required: function() {this.parent() === "TempUser" ? false : true},
     },
     city: {
         type: String,
-        required: true,
+        required: function() {this.parent() === "TempUser" ? false : true},
     },
     state: {
         type: String,
-        required: true,
+        required: function() {this.parent() === "TempUser" ? false : true},
     },
     postCode: {
         type: Number,
-        required: true,
+        required: function() {this.parent() === "TempUser" ? false : true},
     },
     country: {
         type: String,
-        required: true,
+        required: function() {this.parent() === "TempUser" ? false : true},
     }
 }, {
     timestamps: true,

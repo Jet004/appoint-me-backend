@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema({
     },
     dob: {
         type: Date,
+        required: true,
     },
     appointments: {
         type: [appointmentSchema],

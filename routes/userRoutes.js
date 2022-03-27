@@ -6,19 +6,22 @@ import { getAllUsers, getUserByEmail, createUser, updateUser, deleteUser } from 
 // ODM methods
 import { DbGetAllUsers, DbGetUserByEmail, DbCreateUser, DbUpdateUser, DbDeleteUser } from '../models/userModel'
 // Validators
-import { userValidator, emailValidator, passwordValidator, idValidator } from '../controllers/userValidators'
+import { userValidator, ubrValidator, emailValidator, passwordValidator, idValidator, checkKeys } from '../controllers/userValidators'
 // Validation checker - responds with 400 Bad Request if there are validation errors then prevents the request from continuing
 import validationCheck from '../controllers/checkValidators'
 
+// Validators and validation error checker run as route middleware
+// Controllers use dependency injection to inject ODM methods. This approach allows 
+// for easier unit testing of the controllers and their dependencies.
 router.route('/')
     .get(getAllUsers(DbGetAllUsers))
-    .post(userValidator, passwordValidator, validationCheck, createUser(DbCreateUser))
+    .post(userValidator, ubrValidator, passwordValidator, validationCheck, checkKeys, createUser(DbCreateUser))
 
 router.route('/:email')
     .get(emailValidator, validationCheck, getUserByEmail(DbGetUserByEmail))
 
 router.route('/:id')
-    .put(userValidator, idValidator, validationCheck, updateUser(DbUpdateUser))
+    .put(userValidator, ubrValidator, idValidator, validationCheck, checkKeys, updateUser(DbUpdateUser))
     .delete(idValidator, validationCheck, deleteUser(DbDeleteUser))
 
 export default router;

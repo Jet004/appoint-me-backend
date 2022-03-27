@@ -1,6 +1,5 @@
 import mongoose from 'mongoose'
 import addressSchema from './addressSchema'
-import { hashSync } from 'bcrypt'
 
 const tempUserSchema = new mongoose.Schema({
     email: {
