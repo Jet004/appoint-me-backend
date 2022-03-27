@@ -36,6 +36,8 @@ import userRoutes from './routes/userRoutes'
 server.use('/api/users', userRoutes)
 import tempUserRoutes from './routes/tempUserRoutes'
 server.use('/api/temp-users', tempUserRoutes)
+import businessRepRoutes from './routes/businessRepRoutes'
+server.use('/api/business-reps', businessRepRoutes)
 
 
 // Run server

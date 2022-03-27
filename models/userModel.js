@@ -1,7 +1,7 @@
-const mongoose = require('mongoose')
-const addressSchema = require('./addressSchema')
-const appointmentSchema = require('./appointmentSchema')
-const bcrypt = require('bcrypt')
+import mongoose from 'mongoose'
+import addressSchema from './addressSchema'
+import appointmentSchema from './appointmentSchema'
+
 
 const userSchema = new mongoose.Schema({
     email: {

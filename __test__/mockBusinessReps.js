@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt';
 
-const users = [
+const businessReps = [
     {
-        email: "e.rodder@gmail.com",
-        password: bcrypt.hashSync("sdfvdf", 6),
-        fname: "Emily",
-        lname: "Rodder",
+        email: "w.crofton@gmail.com",
+        password: bcrypt.hashSync("12345678", 6),
+        fname: "William",
+        lname: "Crofton",
         phone: "0473982982",
         address: {
             streetNumber: "32",
@@ -16,24 +16,22 @@ const users = [
             country: "Australia",
         },
         dob: new Date(1972, 1, 12),
-        appointments: [],
     }, {
-        email: "j.hampton@gmail.com",
-        password: bcrypt.hashSync("sdfvdf", 6),
+        email: "j.chen@chencorp.com",
+        password: bcrypt.hashSync("12345678", 6),
         fname: "John",
-        lname: "Hampton",
+        lname: "Chen",
         phone: "0746372891",
         address: {
             streetNumber: "333",
             streetName: "Margaret Street",
-            city: "Brisbane",
-            state: "QLD",
-            postCode: "4000",
-            country: "Australia",
+            city: "The Peak",
+            state: "HK",
+            postCode: "4600",
+            country: "Hong Kong",
         },
         dob: new Date(1980, 5, 23),
-        appointments: [],
     },
 ]
 
-export default users;
+export default businessReps;

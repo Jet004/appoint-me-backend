@@ -32,7 +32,7 @@ const tempUserSchema = new mongoose.Schema({
     timestamps: true,
 })
 
-// Manually override required status for address schema fields
+// Manually override "required" status for address schema fields
 tempUserSchema.path('address').schema.eachPath((path, schema) => {
     schema.required(false)
 })
