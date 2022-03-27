@@ -456,6 +456,40 @@ describe('Connects to database', () => {
                 expect(json.user.email).toBe('k.free@gmail.com')
             })
 
+            it(`POST returns 200 OK with valid user data adds new user to the DB with address or dob`, async () => {
+                const payload = {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'k.free@gmail.com',
+                        password: "Asdf_1234",
+                        fname: 'Katherine',
+                        lname: 'Free',
+                        phone: '0423456789',
+                        address: {
+                            streetNumber: 123,
+                            streetName: "Fake Street",
+                            city: "Fake City",
+                            state: "Fake State",
+                            postCode: 4000,
+                            country: "Fake Country",
+                        },
+                        dob: "1990-11-18",
+                    })
+                }
+
+                const response = await fetch('http://localhost:8200/api/temp-users/', payload)
+                const json = await response.json()
+
+                if(response.status != 201) console.log(response, json)
+
+                expect(response.status).toBe(201)
+                expect(json.status).toBe('success')
+                expect(json.user.email).toBe('k.free@gmail.com')
+            })
+
             // Test validation
             it('POST returns 400 Bad Request with missing input data', async () => {
                 const payload = {

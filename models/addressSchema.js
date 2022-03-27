@@ -6,27 +6,27 @@ const addressSchema = new mongoose.Schema({
     },
     streetNumber: {
         type: Number,
-        required: function() {this.parent() === "TempUser" ? false : true},
+        required: true,
     },
     streetName: {
         type: String,
-        required: function() {this.parent() === "TempUser" ? false : true},
+        required: true,
     },
     city: {
         type: String,
-        required: function() {this.parent() === "TempUser" ? false : true},
+        required: true,
     },
     state: {
         type: String,
-        required: function() {this.parent() === "TempUser" ? false : true},
+        required: true,
     },
     postCode: {
         type: Number,
-        required: function() {this.parent() === "TempUser" ? false : true},
+        required: true,
     },
     country: {
         type: String,
-        required: function() {this.parent() === "TempUser" ? false : true},
+        required: true,
     }
 }, {
     timestamps: true,

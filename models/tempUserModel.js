@@ -32,6 +32,11 @@ const tempUserSchema = new mongoose.Schema({
     timestamps: true,
 })
 
+// Manually override required status for address schema fields
+tempUserSchema.path('address').schema.eachPath((path, schema) => {
+    schema.required(false)
+})
+
 const TempUser = mongoose.model('TempUser', tempUserSchema)
 
 export default TempUser

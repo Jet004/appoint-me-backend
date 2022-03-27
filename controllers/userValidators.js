@@ -73,7 +73,7 @@ export const ubrValidator = [
         .escape(),
     body('address.country')
         .exists({checkFalsy: true}).withMessage('Country is required')
-        .isAlpha().withMessage('Country must be letters')
+        .isAlpha('en-AU', {ignore: "'. -"}).withMessage('Country must be letters, spaces, hyphens, apostrophes, or periods')
         .isLength({min: 2, max: 100}).withMessage('Country must be between 2 and 100 characters')
         .trim()
         .escape(),
@@ -139,7 +139,7 @@ export const tempUserValidator = [
         .escape(),
     body('address.country')
         .optional()
-        .isAlpha().withMessage('Country must be letters')
+        .isAlpha('en-AU', {ignore: "'. -"}).withMessage('Country must be letters, spaces, hyphens, apostrophes, or periods')
         .isLength({min: 2, max: 100}).withMessage('Country must be between 2 and 100 characters')
         .trim()
         .escape(),
