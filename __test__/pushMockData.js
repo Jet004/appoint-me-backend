@@ -43,7 +43,7 @@ export const pushMockBusinessReps = async () => {
     })
 
     const result = await BusinessRep.bulkWrite(query)
-    console.log('Mock business representatives pushed to database: ', result.insertedCount)
+    // console.log('Mock business representatives pushed to database: ', result.insertedCount)
 }
 
 export const pushMockBusiness = async () => {
@@ -56,7 +56,7 @@ export const pushMockBusiness = async () => {
     })
 
     const result = await Business.bulkWrite(query)
-    console.log('Mock businesses pushed to database: ', result.insertedCount)
+    // console.log('Mock businesses pushed to database: ', result.insertedCount)
 }
 
 const pushMockData = async (functionArray) => {

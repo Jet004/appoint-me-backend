@@ -44,7 +44,7 @@ export default Business
 // Not implemented yet
 // export const DbGetAllBusinesses = (cb) => mongoose.model('User').find({}, cb)
 
-export const DbGetBusinessByABN = (abn, cb) => mongoose.model('Business').findOne({abn}, cb)
+export const DbGetBusinessByABN = (abn, cb) => mongoose.model('Business').findOne({abn: abn}, cb)
 
 export const DbGetBusinessByID = (id, cb) => mongoose.model('Business').findById(id, cb)
 

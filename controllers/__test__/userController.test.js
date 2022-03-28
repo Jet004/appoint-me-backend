@@ -157,25 +157,6 @@ describe("User controller unit tests:", () => {
             expect(res.json).toHaveBeenCalledWith({ status: "error", message: "An unexpected error occurred" })
         })
 
-        // This test will become a validation test as validation will take care of this once implemented
-        // it('returns 500 Internal Server Error on bad input', async () => {
-        //     const fakeDbCreateUser = jest.fn().mockImplementation( () => { throw new Error('Bad Input') })
-        //     const req = { body: { email: '', password } }
-        //     const res = {
-        //         status: jest.fn().mockReturnThis(),
-        //         json: jest.fn().mockReturnThis()
-        //     }
-
-        //     const controller = createUser(fakeDbCreateUser)
-        //     expect(typeof controller).toBe("function")
-
-        //     await controller(req, res)
-        //     expect(fakeDbCreateUser).toHaveBeenCalledTimes(1)
-        //     expect(fakeDbCreateUser).toHaveBeenCalledWith({ email: '' })
-        //     expect(res.status).toHaveBeenCalledWith(500)
-        //     expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Bad Input" })
-        // })
-
         it('returns 500 Internal Server Error on DB Error', async () => {
             const fakeDbCreateUser = jest.fn().mockImplementation( () => { throw new Error('DB error') })
             const req = { body: userToCreate }

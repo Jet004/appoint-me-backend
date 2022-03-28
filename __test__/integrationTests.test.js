@@ -9,16 +9,18 @@ dotenv.config()
 
 import users from './mockUsers'
 import businessReps from './mockBusinessReps'
+import businesses from './mockBusiness'
 import User from '../models/userModel'
 import TempUser from '../models/tempUserModel'
 import BusinessRep from '../models/businessRepModel'
+import Business from '../models/businessModel'
 
 describe('Integration Tests:', () => {
 
     beforeAll(async () => {
         await connect(process.env.DB_URL)
         await mongoose.connection.dropDatabase()
-        await pushMockData(["users", "tempUsers", "businessReps"])
+        await pushMockData(["users", "tempUsers", "businessReps", "businesses"])
     })
 
     afterAll(async () => {
@@ -26,14 +28,14 @@ describe('Integration Tests:', () => {
         await mongoose.disconnect()
     })
 
-    it('Connects to MongoDB database', () => {
+    test('Connects to MongoDB database', () => {
         expect(mongoose.connection.readyState).toBe(1)
     })
 
     describe('User Routes', () => {
 
         describe("Route: /api/users", () => {
-            it('GET returns 200 OK + array of users when data in DB', async () => {
+            test('GET returns 200 OK + array of users when data in DB', async () => {
                 const response = await fetch('http://localhost:8200/api/users/')
                 const json = await response.json()
     
@@ -44,7 +46,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.length).toBe(users.length)
             })
 
-            it(`POST returns 200 OK with valid user data adds new user to the DB`, async () => {
+            test(`POST returns 200 OK with valid user data adds new user to the DB`, async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -81,7 +83,7 @@ describe('Integration Tests:', () => {
             })
 
             // Test validation
-            it('POST returns 400 Bad Request with missing input data', async () => {
+            test('POST returns 400 Bad Request with missing input data', async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -117,7 +119,7 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(32)
             })
 
-            it("POST returns 400 Bad Request when input contains duplicate key with invalid data", async () => {
+            test("POST returns 400 Bad Request when input contains duplicate key with invalid data", async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -154,7 +156,7 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(1)
             })
 
-            it("POST returns 400 Bad Request when request body contains unexpected keys", async () => {
+            test("POST returns 400 Bad Request when request body contains unexpected keys", async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -195,7 +197,7 @@ describe('Integration Tests:', () => {
         })
 
         describe('Route: /api/users/:email', () => {
-            it('GET returns 200 OK + user with valid email', async () => {
+            test('GET returns 200 OK + user with valid email', async () => {
                 const email = "e.rodder@gmail.com"
                 const response = await fetch(`http://localhost:8200/api/users/${email}`)
                 const json = await response.json()
@@ -209,7 +211,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.fname).toBe('Emily')
             })
 
-            it('GET returns 404 Not Found with non registered email', async () => {
+            test('GET returns 404 Not Found with non registered email', async () => {
                 const email = "mary.poppins@jacketfarmer.com.cn"
                 const response = await fetch(`http://localhost:8200/api/users/${email}`)
                 const json = await response.json()
@@ -221,7 +223,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.length).toBe(0)
             })
 
-            it('GET returns 400 Bad Request with invalid email', async () => {
+            test('GET returns 400 Bad Request with invalid email', async () => {
                 const email = "NotAnEmail"
                 const response = await fetch(`http://localhost:8200/api/users/${email}`)
                 const json = await response.json()
@@ -238,7 +240,7 @@ describe('Integration Tests:', () => {
 
         describe('Route: /api/users/:id', () => {
             
-            it('PUT returns 200 OK + original user object', async () => {               
+            test('PUT returns 200 OK + original user object', async () => {               
                 // Get user data from database
                 const user = await User.find({email: 'e.rodder@gmail.com'})
                 const userData = user[0].toJSON()
@@ -272,7 +274,7 @@ describe('Integration Tests:', () => {
                 expect(dbUser.fname).toBe('Updated Name')
             })
 
-            it('PUT returns 404 Not Found if id not in DB', async () => {
+            test('PUT returns 404 Not Found if id not in DB', async () => {
                 const userID = mongoose.Types.ObjectId()
                 const mockUser = users[0]
 
@@ -294,7 +296,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.length).toBe(0)
             })
 
-            it('PUT returns 400 Bad Request with invalid input', async () => {
+            test('PUT returns 400 Bad Request with invalid input', async () => {
                 // Get user data from database
                 const user = await User.find({email: 'e.rodder@gmail.com'})
                 const userData = user[0].toJSON()
@@ -338,7 +340,7 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(30)
             })
 
-            it('PUT returns 400 Bad Request with invalid Mongoose user ID', async () => {
+            test('PUT returns 400 Bad Request with invalid Mongoose user ID', async () => {
                 const userID = 'NotAnID'
                 const mockUser = users[0]
 
@@ -360,7 +362,7 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(1)
             })
 
-            it('DELETE returns 204 No Content with valid input', async () => {
+            test('DELETE returns 204 No Content with valid input', async () => {
                 const mockUser = await User.findOne({ email: 'e.rodder@gmail.com' })
 
                 const response = await fetch(`http://localhost:8200/api/users/${mockUser._id}`, {
@@ -373,7 +375,7 @@ describe('Integration Tests:', () => {
                 expect(response.size).toBe(0)
             })
 
-            it('DELETE returns 404 Not Found when user ID not in DB', async () => {
+            test('DELETE returns 404 Not Found when user ID not in DB', async () => {
                 const userID = mongoose.Types.ObjectId()
 
                 const response = await fetch(`http://localhost:8200/api/users/${userID}`, {
@@ -387,7 +389,7 @@ describe('Integration Tests:', () => {
                 expect(json.status).toBe('not found')
             })
 
-            it('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
+            test('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
                 const userID = 'NotAnID'
 
                 const response = await fetch(`http://localhost:8200/api/users/${userID}`, {
@@ -412,7 +414,7 @@ describe('Integration Tests:', () => {
     describe('Temp User Routes', () => {
 
         describe("Route: /api/temp-users", () => {
-            it('GET returns 200 OK + array of users when data in DB', async () => {
+            test('GET returns 200 OK + array of users when data in DB', async () => {
                 const response = await fetch('http://localhost:8200/api/temp-users/')
                 const json = await response.json()
     
@@ -423,7 +425,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.length).toBe(users.length)
             })
 
-            it(`POST returns 200 OK with valid user data adds new user to the DB without address or dob`, async () => {
+            test(`POST returns 200 OK with valid user data adds new user to the DB without address or dob`, async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -457,7 +459,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.email).toBe('k.free@gmail.com')
             })
 
-            it(`POST returns 200 OK with valid user data adds new user to the DB with address or dob`, async () => {
+            test(`POST returns 200 OK with valid user data adds new user to the DB with address or dob`, async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -492,7 +494,7 @@ describe('Integration Tests:', () => {
             })
 
             // Test validation
-            it('POST returns 400 Bad Request with missing input data', async () => {
+            test('POST returns 400 Bad Request with missing input data', async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -528,7 +530,7 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(12)
             })
 
-            it("POST returns 400 Bad Request when input contains duplicate key with invalid data", async () => {
+            test("POST returns 400 Bad Request when input contains duplicate key with invalid data", async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -565,7 +567,7 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(1)
             })
 
-            it("POST returns 400 Bad Request when request body contains unexpected keys", async () => {
+            test("POST returns 400 Bad Request when request body contains unexpected keys", async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -606,7 +608,7 @@ describe('Integration Tests:', () => {
         })
 
         describe('Route: /api/users/:email', () => {
-            it('GET returns 200 OK + user with valid email', async () => {
+            test('GET returns 200 OK + user with valid email', async () => {
                 const email = "temp.user@gmail.com"
                 const response = await fetch(`http://localhost:8200/api/temp-users/${email}`)
                 const json = await response.json()
@@ -620,7 +622,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.fname).toBe('Temp')
             })
 
-            it('GET returns 404 Not Found with non registered email', async () => {
+            test('GET returns 404 Not Found with non registered email', async () => {
                 const email = "mary.poppins@jacketfarmer.com.cn"
                 const response = await fetch(`http://localhost:8200/api/users/${email}`)
                 const json = await response.json()
@@ -632,7 +634,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.length).toBe(0)
             })
 
-            it('GET returns 400 Bad Request with invalid email', async () => {
+            test('GET returns 400 Bad Request with invalid email', async () => {
                 const email = "NotAnEmail"
                 const response = await fetch(`http://localhost:8200/api/users/${email}`)
                 const json = await response.json()
@@ -649,7 +651,7 @@ describe('Integration Tests:', () => {
 
         describe('Route: /api/users/:id', () => {
             
-            it('PUT returns 200 OK + original user object', async () => {               
+            test('PUT returns 200 OK + original user object', async () => {               
                 // Get user data from database
                 const user = await TempUser.find({email: 'temp.user@gmail.com'})
                 const userData = user[0].toJSON()
@@ -683,7 +685,7 @@ describe('Integration Tests:', () => {
                 expect(dbUser.fname).toBe('Updated Name')
             })
 
-            it('PUT returns 404 Not Found if id not in DB', async () => {
+            test('PUT returns 404 Not Found if id not in DB', async () => {
                 const userID = mongoose.Types.ObjectId()
                 const mockUser = users[0]
 
@@ -705,7 +707,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.length).toBe(0)
             })
 
-            it('PUT returns 400 Bad Request with invalid input', async () => {
+            test('PUT returns 400 Bad Request with invalid input', async () => {
                 // Get user data from database
                 const user = await TempUser.find({email: 'temp.user@gmail.com'})
                 const userData = user[0].toJSON()
@@ -749,7 +751,7 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(10)
             })
 
-            it('PUT returns 400 Bad Request with invalid Mongoose user ID', async () => {
+            test('PUT returns 400 Bad Request with invalid Mongoose user ID', async () => {
                 const userID = 'NotAnID'
                 const mockUser = users[0]
 
@@ -771,7 +773,7 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(1)
             })
 
-            it('DELETE returns 204 No Content with valid input', async () => {
+            test('DELETE returns 204 No Content with valid input', async () => {
                 const mockUser = await TempUser.findOne({ email: 'temp.user@gmail.com' })
 
                 const response = await fetch(`http://localhost:8200/api/temp-users/${mockUser._id}`, {
@@ -784,7 +786,7 @@ describe('Integration Tests:', () => {
                 expect(response.size).toBe(0)
             })
 
-            it('DELETE returns 404 Not Found when user ID not in DB', async () => {
+            test('DELETE returns 404 Not Found when user ID not in DB', async () => {
                 const userID = mongoose.Types.ObjectId()
 
                 const response = await fetch(`http://localhost:8200/api/temp-users/${userID}`, {
@@ -798,7 +800,7 @@ describe('Integration Tests:', () => {
                 expect(json.status).toBe('not found')
             })
 
-            it('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
+            test('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
                 const userID = 'NotAnID'
 
                 const response = await fetch(`http://localhost:8200/api/temp-users/${userID}`, {
@@ -824,7 +826,7 @@ describe('Integration Tests:', () => {
     describe('Business Rep Routes', () => {
 
         describe("Route: /api/business-reps", () => {
-            it('GET returns 200 OK + array of business reps when data in DB', async () => {
+            test('GET returns 200 OK + array of business reps when data in DB', async () => {
                 const response = await fetch('http://localhost:8200/api/business-reps/')
                 const json = await response.json()
 
@@ -835,7 +837,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.length).toBe(businessReps.length)
             })
 
-            it(`POST returns 200 OK with valid business rep data - adds new business rep to the DB`, async () => {
+            test(`POST returns 200 OK with valid business rep data - adds new business rep to the DB`, async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -871,7 +873,7 @@ describe('Integration Tests:', () => {
             })
 
             // Test validation
-            it('POST returns 400 Bad Request with missing input data', async () => {
+            test('POST returns 400 Bad Request with missing input data', async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -906,7 +908,7 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(32)
             })
 
-            it("POST returns 400 Bad Request when input contains duplicate key with invalid data", async () => {
+            test("POST returns 400 Bad Request when input contains duplicate key with invalid data", async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -942,7 +944,7 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(1)
             })
 
-            it("POST returns 400 Bad Request when request body contains unexpected keys", async () => {
+            test("POST returns 400 Bad Request when request body contains unexpected keys", async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
@@ -982,7 +984,7 @@ describe('Integration Tests:', () => {
         })
 
         describe('Route: /api/business-re[s/:email', () => {
-            it('GET returns 200 OK + business rep with valid email', async () => {
+            test('GET returns 200 OK + business rep with valid email', async () => {
                 const email = "j.chen@chencorp.com"
                 const response = await fetch(`http://localhost:8200/api/business-reps/${email}`)
                 const json = await response.json()
@@ -996,7 +998,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.fname).toBe('John')
             })
 
-            it('GET returns 404 Not Found with non registered email', async () => {
+            test('GET returns 404 Not Found with non registered email', async () => {
                 const email = "mary.poppins@jacketfarmer.com.cn"
                 const response = await fetch(`http://localhost:8200/api/business-reps/${email}`)
                 const json = await response.json()
@@ -1008,7 +1010,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.length).toBe(0)
             })
 
-            it('GET returns 400 Bad Request with invalid email', async () => {
+            test('GET returns 400 Bad Request with invalid email', async () => {
                 const email = "NotAnEmail"
                 const response = await fetch(`http://localhost:8200/api/business-reps/${email}`)
                 const json = await response.json()
@@ -1025,7 +1027,7 @@ describe('Integration Tests:', () => {
 
         describe('Route: /api/business-reps/:id', () => {
             
-            it('PUT returns 200 OK + original business rep object', async () => {               
+            test('PUT returns 200 OK + original business rep object', async () => {               
                 // Get business rep data from database
                 const user = await BusinessRep.find({email: 'j.chen@chencorp.com'})
                 const userData = user[0].toJSON()
@@ -1059,7 +1061,7 @@ describe('Integration Tests:', () => {
                 expect(dbUser.fname).toBe('Updated Name')
             })
 
-            it('PUT returns 404 Not Found if id not in DB', async () => {
+            test('PUT returns 404 Not Found if id not in DB', async () => {
                 const userID = mongoose.Types.ObjectId()
                 const mockUser = businessReps[0]
 
@@ -1081,7 +1083,7 @@ describe('Integration Tests:', () => {
                 expect(json.user.length).toBe(0)
             })
 
-            it('PUT returns 400 Bad Request with invalid input', async () => {
+            test('PUT returns 400 Bad Request with invalid input', async () => {
                 // Get business rep data from database
                 const user = await BusinessRep.find({email: 'j.chen@chencorp.com'})
                 const userData = user[0].toJSON()
@@ -1124,7 +1126,7 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(30)
             })
 
-            it('PUT returns 400 Bad Request with invalid Mongoose user ID', async () => {
+            test('PUT returns 400 Bad Request with invalid Mongoose user ID', async () => {
                 const userID = 'NotAnID'
                 const mockUser = businessReps[0]
 
@@ -1146,7 +1148,7 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(1)
             })
 
-            it('DELETE returns 204 No Content with valid input', async () => {
+            test('DELETE returns 204 No Content with valid input', async () => {
                 const mockUser = await BusinessRep.findOne({ email: 'j.chen@chencorp.com' })
 
                 const response = await fetch(`http://localhost:8200/api/business-reps/${mockUser._id}`, {
@@ -1159,7 +1161,7 @@ describe('Integration Tests:', () => {
                 expect(response.size).toBe(0)
             })
 
-            it('DELETE returns 404 Not Found when user ID not in DB', async () => {
+            test('DELETE returns 404 Not Found when user ID not in DB', async () => {
                 const userID = mongoose.Types.ObjectId()
 
                 const response = await fetch(`http://localhost:8200/api/business-reps/${userID}`, {
@@ -1173,7 +1175,7 @@ describe('Integration Tests:', () => {
                 expect(json.status).toBe('not found')
             })
 
-            it('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
+            test('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
                 const userID = 'NotAnID'
 
                 const response = await fetch(`http://localhost:8200/api/business-reps/${userID}`, {
