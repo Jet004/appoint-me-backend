@@ -5,6 +5,7 @@
 
 ## TODO
 
+- Add business details for managing business profile page (Admin panel)
 - input sanitisation and validation in controllers
 - Add appointment validator to user validators and adjust integration tests
 - Consider how to avoid injection attacks - may need to build user object to pass to DB method... At the moment any extra key value pairs are passed through to the DB...

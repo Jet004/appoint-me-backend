@@ -1,9 +1,11 @@
 import User from '../models/userModel'
 import TempUser from '../models/tempUserModel'
 import BusinessRep from '../models/businessRepModel'
+import Business from '../models/businessModel'
 import mockUsers from './mockUsers'
 import mockTempUsers from './mockTempUsers'
 import mockBusinessReps from './mockBusinessReps'
+import mockBusiness from './mockBusiness'
 
 export const pushMockUsers = async () => {
     const query = mockUsers.map(user => {
@@ -44,10 +46,33 @@ export const pushMockBusinessReps = async () => {
     console.log('Mock business representatives pushed to database: ', result.insertedCount)
 }
 
-const pushMockData = async () => {
-    await pushMockUsers()
-    await pushMockTempUsers()
-    await pushMockBusinessReps()
+export const pushMockBusiness = async () => {
+    const query = mockBusiness.map(business => {
+        return {
+            insertOne: {
+                document: business
+            }
+        }
+    })
+
+    const result = await Business.bulkWrite(query)
+    console.log('Mock businesses pushed to database: ', result.insertedCount)
+}
+
+const pushMockData = async (functionArray) => {
+
+    const functions = {
+        users: pushMockUsers,
+        tempUsers: pushMockTempUsers,
+        businessReps: pushMockBusinessReps,
+        business: pushMockBusiness
+    }
+
+    for (let [key, value] of Object.entries(functions)) {
+        if (functionArray.includes(key)) {
+            await value()
+        }
+    }
 }
 
 export default pushMockData

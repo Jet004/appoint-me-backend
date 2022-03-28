@@ -17,7 +17,7 @@ import connect from './models/database.js'
 connect(process.env.DB_URL)
 // Logs the connection status to the console
 mongoose.connection.on('open', () => console.log(`Database --> Connected to database "${mongoose.connection.name}"`))
-mongoose.connection.on('error', (err) => console.log(`Database --> Error connecting to database "${mongoose.connection.name}"`, err))
+mongoose.connection.on('error', (err) => console.log(`Database --> Error connecting to database: `, err))
 
 
 // Log request information for every request for debugging

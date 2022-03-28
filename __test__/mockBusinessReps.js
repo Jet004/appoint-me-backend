@@ -17,6 +17,7 @@ const businessReps = [
         },
         dob: new Date(1972, 1, 12),
     }, {
+        _id: "623d340fd6dd133325228406",
         email: "j.chen@chencorp.com",
         password: bcrypt.hashSync("12345678", 6),
         fname: "John",

@@ -13,12 +13,12 @@ import User from '../models/userModel'
 import TempUser from '../models/tempUserModel'
 import BusinessRep from '../models/businessRepModel'
 
+describe('Integration Tests:', () => {
 
-describe('Connects to database', () => {
     beforeAll(async () => {
         await connect(process.env.DB_URL)
         await mongoose.connection.dropDatabase()
-        await pushMockData()
+        await pushMockData(["users", "tempUsers", "businessReps"])
     })
 
     afterAll(async () => {
