@@ -65,7 +65,7 @@ const pushMockData = async (functionArray) => {
         users: pushMockUsers,
         tempUsers: pushMockTempUsers,
         businessReps: pushMockBusinessReps,
-        business: pushMockBusiness
+        businesses: pushMockBusiness
     }
 
     for (let [key, value] of Object.entries(functions)) {

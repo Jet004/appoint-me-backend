@@ -51,7 +51,7 @@ export const DbGetBusinessByID = (id, cb) => mongoose.model('Business').findById
 // Not implemented yet
 // export const DbCreateBusiness = (business, cb) => mongoose.model('Business').create(business, cb)
 
-export const DbUpdateBusiness = (abn, business, cb) => mongoose.model('Business').findByIdAndUpdate(abn, business, cb)
+export const DbUpdateBusiness = (abn, business, cb) => mongoose.model('Business').findOneAndUpdate({abn: abn}, business, cb)
 
 // Not implemented yet
 // export const DbDeleteBusiness = (id, cb) => mongoose.model('Business').findByIdAndDelete(id, cb)

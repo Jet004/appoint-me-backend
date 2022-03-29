@@ -121,7 +121,7 @@ describe('Business controller unit tests:', () => {
         })
 
         test('GET returns 404 Not Found when valid Mongoose ID not in DB', async () => {
-            const id = '5e9f9f9f9f9f9f9f9f9f9f8'
+            const id = '5ee9f9f9f9f9f9f9f9f9f9f8'
             const fakeDbGetBusinessByID = jest.fn().mockReturnValue(null)
             const req = {
                 params: { 
@@ -146,7 +146,7 @@ describe('Business controller unit tests:', () => {
         })
 
         test('GET returns 500 Internal Server Error when DB returns an error', async () => {
-            const id = '5e9f9f9f9f9f9f9f9f9f9f9'
+            const id = '5ee9f9f9f9f9f9f9f9f9f9f9'
             const fakeDbGetBusinessByID = jest.fn().mockImplementation(() => {throw new Error('Database error')})
             const req = {
                 params: {
@@ -209,7 +209,7 @@ describe('Business controller unit tests:', () => {
             const fakeDbUpdateBusiness = jest.fn().mockReturnValue(null)
             const req = {
                 params: {
-                    abn: "5e9f9f9f9f9f9f9f9"
+                    abn: "12345678912"
                 },
                 body: JSON.stringify(updatedBusiness)
             }

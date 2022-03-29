@@ -27,3 +27,7 @@
 
 - Change error messages to be more generic rather than returning error objects
 - Set up babel build command
+
+## Possible future improvements
+
+- Improve the unexpected keys function to accept mongoose schemas rather than an array of accepted keys. Function should iterate over the schema and return a flat array of schema keys. The function should be able to accept multiple schemas and combine their keys into a single array.

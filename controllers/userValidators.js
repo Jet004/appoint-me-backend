@@ -1,4 +1,6 @@
 import { body, param } from 'express-validator'
+import checkForUnexpectedKeys from './checkBodyKeys'
+import { validateAddressRequired, validateAddressOptional } from './addressValidators'
 
 // This file sets out all of the validators for the user, tempUser and businessRep routes
 
@@ -26,7 +28,6 @@ export const userValidator = [
         .escape()
 ]
 
-
 // Validators for user and businessRep routes
 export const ubrValidator = [
     body('dob')
@@ -34,49 +35,7 @@ export const ubrValidator = [
         .isISO8601().withMessage('Date of birth must be in ISO 8601 format')
         .trim()
         .escape(),
-    // Validate address fields
-    body('address.unit')
-        .optional()
-        .isNumeric({no_symbols: true}).withMessage('Unit number must be numeric')
-        .isLength({min: 1, max: 6}).withMessage('Unit number must be between 1 and 6 digits long')
-        .trim()
-        .escape(),
-    body('address.streetNumber')
-        .exists({checkFalsy: true}).withMessage('Street number is required')
-        .isNumeric({no_symbols: true}).withMessage('Street number must be numeric')
-        .isLength({min: 1, max: 6}).withMessage('Street number must be between 1 and 6 digits long')
-        .trim()
-        .escape(),
-    body('address.streetName')
-        .exists({checkFalsy: true}).withMessage('Street name is required')
-        .isAlpha('en-AU', {ignore: "'. -"}).withMessage('Street name must be letters, spaces, hyphens, apostrophes, or periods')
-        .isLength({min: 2, max: 100}).withMessage('Street name must be between 2 and 100 characters')
-        .trim()
-        .escape(),
-    body('address.city')
-        .exists({checkFalsy: true}).withMessage('City is required')
-        .isAlpha('en-AU', {ignore: "'. -"}).withMessage('City must be letters, spaces, hyphens, apostrophes, or periods')
-        .isLength({min: 2, max: 100}).withMessage('City must be between 2 and 100 characters')
-        .trim()
-        .escape(),
-    body('address.state')
-        .exists({checkFalsy: true}).withMessage('State is required')
-        .isAlpha('en-AU', {ignore: "'. -"}).withMessage('State must be letters, spaces, hyphens, apostrophes, or periods')
-        .isLength({min: 2, max: 100}).withMessage('State must be between 2 and 100 characters')
-        .trim()
-        .escape(),
-    body('address.postCode')
-        .exists({checkFalsy: true}).withMessage('Postcode is required')
-        .isNumeric({no_symbols: true}).withMessage('Postcode must be numeric')
-        .isLength({min: 4, max: 4}).withMessage('Postcode must be 4 digits long')
-        .trim()
-        .escape(),
-    body('address.country')
-        .exists({checkFalsy: true}).withMessage('Country is required')
-        .isAlpha('en-AU', {ignore: "'. -"}).withMessage('Country must be letters, spaces, hyphens, apostrophes, or periods')
-        .isLength({min: 2, max: 100}).withMessage('Country must be between 2 and 100 characters')
-        .trim()
-        .escape(),
+    validateAddressRequired
 ]
 
 // validators for temp user routes
@@ -100,49 +59,7 @@ export const tempUserValidator = [
         .isISO8601().withMessage('Date of birth must be in ISO 8601 format')
         .trim()
         .escape(),
-    // Validate address fields
-    body('address.unit')
-        .optional()
-        .isNumeric({no_symbols: true}).withMessage('Unit number must be numeric')
-        .isLength({min: 1, max: 6}).withMessage('Unit number must be between 1 and 6 digits long')
-        .trim()
-        .escape(),
-    body('address.streetNumber')
-        .optional()
-        .isNumeric({no_symbols: true}).withMessage('Street number must be numeric')
-        .isLength({min: 1, max: 6}).withMessage('Street number must be between 1 and 6 digits long')
-        .trim()
-        .escape(),
-    body('address.streetName')
-        .optional()
-        .isAlpha('en-AU', {ignore: "'. -"}).withMessage('Street name must be letters, spaces, hyphens, apostrophes, or periods')
-        .isLength({min: 2, max: 100}).withMessage('Street name must be between 2 and 100 characters')
-        .trim()
-        .escape(),
-    body('address.city')
-        .optional()
-        .isAlpha('en-AU', {ignore: "'. -"}).withMessage('City must be letters, spaces, hyphens, apostrophes, or periods')
-        .isLength({min: 2, max: 100}).withMessage('City must be between 2 and 100 characters')
-        .trim()
-        .escape(),
-    body('address.state')
-        .optional()
-        .isAlpha('en-AU', {ignore: "'. -"}).withMessage('State must be letters, spaces, hyphens, apostrophes, or periods')
-        .isLength({min: 2, max: 100}).withMessage('State must be between 2 and 100 characters')
-        .trim()
-        .escape(),
-    body('address.postCode')
-        .optional()
-        .isNumeric({no_symbols: true}).withMessage('Postcode must be numeric')
-        .isLength({min: 4, max: 4}).withMessage('Postcode must be 4 digits long')
-        .trim()
-        .escape(),
-    body('address.country')
-        .optional()
-        .isAlpha('en-AU', {ignore: "'. -"}).withMessage('Country must be letters, spaces, hyphens, apostrophes, or periods')
-        .isLength({min: 2, max: 100}).withMessage('Country must be between 2 and 100 characters')
-        .trim()
-        .escape(),
+    validateAddressOptional
 ]
 
 // Password validator for user and businessRep
@@ -172,32 +89,34 @@ export const idValidator = [
         .escape()
 ]
 
-// This function checks for unexpected keys in the request body
-
-const checkForUnexpectedKeys = (acceptedKeys, keysToCheck) => {
-    let unexpectedKeys = []
-    keysToCheck.forEach(key => {
-        if(!acceptedKeys.includes(key)) {
-            unexpectedKeys.push(key)
-        }
-    })     
-
-    return unexpectedKeys
-}
-
 // Return 400 Bad Request if there are unexpected keys in the request body
 export const checkKeys = (req, res, next) => {
-    const acceptedKeys = ["_id", "email", "fname", "lname", "password", "phone", "address", "dob", "appointments", "createdAt", "updatedAt", "__v"]
-    const acceptedAddressKeys = ["unit", "streetNumber", "streetName", "suburb", "city", "state", "postCode", "country", "createdAt", "updatedAt", "__v"]
+    const acceptedKeys = [
+        "_id", 
+        "email",
+        "fname", 
+        "lname", 
+        "password", 
+        "phone", 
+        "address", 
+        "dob", 
+        "appointments", 
+        "createdAt", 
+        "updatedAt", 
+        "__v",
+        "address.unit",
+        "address.streetNumber",
+        "address.streetName",
+        "address.city",
+        "address.state",
+        "address.postCode",
+        "address.country",
+        "address.createdAt",
+        "address.updatedAt",
+        "address.__v",
+    ]
 
-    const unexpectedKeys = []
-    const userKeys = Object.keys(req.body)
-    unexpectedKeys.push(...checkForUnexpectedKeys(acceptedKeys, userKeys))
-
-    if(req.body.address !== undefined) {
-        const addressKeys = Object.keys(req.body.address)
-        unexpectedKeys.push(...checkForUnexpectedKeys(acceptedAddressKeys, addressKeys))
-    }
+    let  unexpectedKeys = checkForUnexpectedKeys(acceptedKeys, req.body)
 
     if (unexpectedKeys.length > 0) {
         // Return the response to prevent the request from continuing

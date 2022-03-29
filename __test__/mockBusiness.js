@@ -1,6 +1,6 @@
 const business = [
     {
-        _id: "5e9f9f8f9f9f9f9f9f9f9f9",
+        _id: "5ee9f9f8f9f9f9f9f9f9f9f9",
         abn: 12345678912,
         name: "Jet Mandarin",
         address: {
@@ -8,7 +8,8 @@ const business = [
             streetName: "Main St",
             city: "Brisbane",
             state: "NSW",
-            postCode: "2000",
+            postCode: 2000,
+            country: "Australia"
         },
         phone: "0412345678",
         email: "jet@jetmandarin.com",

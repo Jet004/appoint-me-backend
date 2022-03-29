@@ -61,7 +61,6 @@ describe('Integration Tests:', () => {
                         address: {
                             streetNumber: 123,
                             streetName: 'Fake Street',
-                            suburb: 'Fake Suburb',
                             city: 'Fake City',
                             state: 'QLD',
                             postCode: '4000',
@@ -172,7 +171,6 @@ describe('Integration Tests:', () => {
                         address: {
                             streetNumber: 123,
                             streetName: 'Fake Street',
-                            suburb: 'Fake Suburb',
                             city: 'Fake City',
                             state: 'QLD',
                             postCode: '4000',
@@ -191,7 +189,7 @@ describe('Integration Tests:', () => {
 
                 expect(response.status).toBe(400)
                 expect(json.status).toBe('error')
-                expect(json.message).toMatch(/bio, province/)
+                expect(json.message).toMatch(/bio, address.province/)
             })
 
         })
@@ -583,7 +581,6 @@ describe('Integration Tests:', () => {
                         address: {
                             streetNumber: 123,
                             streetName: 'Fake Street',
-                            suburb: 'Fake Suburb',
                             city: 'Fake City',
                             state: 'QLD',
                             postCode: '4000',
@@ -602,7 +599,7 @@ describe('Integration Tests:', () => {
 
                 expect(response.status).toBe(400)
                 expect(json.status).toBe('error')
-                expect(json.message).toMatch(/bio, province/)
+                expect(json.message).toMatch(/bio, address.province/)
             })
 
         })
@@ -824,7 +821,6 @@ describe('Integration Tests:', () => {
 
 
     describe('Business Rep Routes', () => {
-
         describe("Route: /api/business-reps", () => {
             test('GET returns 200 OK + array of business reps when data in DB', async () => {
                 const response = await fetch('http://localhost:8200/api/business-reps/')
@@ -852,7 +848,6 @@ describe('Integration Tests:', () => {
                         address: {
                             streetNumber: 123,
                             streetName: 'Fake Street',
-                            suburb: 'Fake Suburb',
                             city: 'Fake City',
                             state: 'QLD',
                             postCode: '4000',
@@ -960,7 +955,6 @@ describe('Integration Tests:', () => {
                         address: {
                             streetNumber: 123,
                             streetName: 'Fake Street',
-                            suburb: 'Fake Suburb',
                             city: 'Fake City',
                             state: 'QLD',
                             postCode: '4000',
@@ -978,7 +972,7 @@ describe('Integration Tests:', () => {
 
                 expect(response.status).toBe(400)
                 expect(json.status).toBe('error')
-                expect(json.message).toMatch(/bio, province/)
+                expect(json.message).toMatch(/bio, address.province/)
             })
 
         })
@@ -1188,6 +1182,283 @@ describe('Integration Tests:', () => {
                 expect(response.status).toBe(400)
                 expect(Array.isArray(json.errors)).toBe(true)
                 expect(json.errors.length).toBe(1)
+            })
+        })
+    })
+
+    describe('Business Routes', () => {
+        describe('Route: /api/businesses/id/:id', () => {
+            test('GET returns 200 OK + business with valid Mongoose ID', async () => {
+                const id = businesses[0]._id.toString()
+                const response = await fetch(`http://localhost:8200/api/businesses/id/${id}`)
+                const json = await response.json()
+
+                if(response.status != 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+
+                expect(json.status).toBe('success')
+                expect(json.business.abn).toBe(businesses[0].abn)
+            })
+
+            test('GET returns 404 Not Found with non registered id', async () => {
+                const id = mongoose.Types.ObjectId()
+                const response = await fetch(`http://localhost:8200/api/businesses/id/${id}`)
+                const json = await response.json()
+
+                if(response.status != 404) console.log(response, json)
+
+                expect(response.status).toBe(404)
+                expect(json.status).toBe('not found')
+                expect(json.business.length).toBe(0)
+            })
+
+            test('GET returns 400 Bad Request with invalid Mongoose ID', async () => {
+                const id = "NotAMongooseID"
+                const response = await fetch(`http://localhost:8200/api/businesses/id/${id}`)
+                const json = await response.json()
+
+                if(response.status != 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(Array.isArray(json.errors)).toBe(true)
+                expect(json.errors.length).toBe(1)
+            })
+
+            // No test for missing id as it will default to route /api/businesses/:id
+        })
+
+        describe('Route: /api/businesses/:abn', () => {
+            test('GET returns 200 OK + business with valid ABN', async () => {
+                const abn = businesses[0].abn
+                const response = await fetch(`http://localhost:8200/api/businesses/${abn}`)
+                const json = await response.json()
+
+                if(response.status != 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+
+                expect(json.status).toBe('success')
+                expect(json.business._id).toBe("5ee9f9f8f9f9f9f9f9f9f9f9")
+                expect(json.business.name).toBe("Jet Mandarin")
+            })
+
+            test('GET returns 404 Not Found with non registered abn', async () => {
+                const abn = 12121212121
+                const response = await fetch(`http://localhost:8200/api/businesses/${abn}`)
+                const json = await response.json()
+
+                if(response.status != 404) console.log(response, json)
+
+                expect(response.status).toBe(404)
+                expect(json.status).toBe('not found')
+                expect(json.business.length).toBe(0)
+            })
+
+            test('GET returns 400 Bad Request with invalid abn', async () => {
+                const abnInputs = [
+                    1,
+                    "NotAnABN",
+                    46738294,
+                    {object: "object"},
+                    123278905738
+                ]
+
+                abnInputs.forEach(async (abn) => {
+                    const response = await fetch(`http://localhost:8200/api/businesses/${abn}`)
+                    const json = await response.json()
+
+                    if(response.status != 400) console.log(response, json)
+
+                    expect(response.status).toBe(400)
+                    expect(Array.isArray(json.errors)).toBe(true)
+                    expect(json.errors.length).toBeGreaterThan(0)
+                })
+            })
+
+            test('GET responds with 404 Not Found when abn missing', async () => {
+                const response = await fetch(`http://localhost:8200/api/businesses/`)
+                    const text = await response.text()
+
+                    if(response.status != 404) console.log(response, json)
+
+                    expect(response.status).toBe(404)
+                    expect(text).toMatch(/Cannot GET \/api\/businesses/)
+            })
+                    
+            test('PUT returns 200 OK + original business object', async () => {               
+                // Get business data from database
+                const user = await Business.findOne({abn: 12345678912})
+                const userData = user.toJSON()
+                // Get user ID and set to user object
+                const userID = userData._id.valueOf()
+                delete userData._id
+                userData._id = userID
+
+                // Copy mock user object and change name
+                const updatedData = {...userData}
+                updatedData.name = 'Updated Name'
+        
+                // Create payload
+                const payload = {
+                    method: 'PUT',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedData)
+                }
+                // Send request
+                const response = await fetch(`http://localhost:8200/api/businesses/${userData.abn}`, payload)
+                const json = await response.json()
+
+                if(response.status != 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+                expect(json.status).toBe('success')
+                expect(json.originalDetails.name).toBe(userData.name)
+                const dbUser = await Business.findOne({ abn: 12345678912 })
+                expect(dbUser.name).toBe('Updated Name')
+            })
+
+            test('PUT returns 404 Not Found if abn not in DB', async () => {
+                const abn = "46374938473"
+                const business = businesses[0]
+
+                const payload = {
+                    method: 'PUT',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify(business)
+                }
+
+                const response = await fetch(`http://localhost:8200/api/businesses/${abn}`, payload)
+                const json = await response.json()
+
+                if(response.status != 404) console.log(response, json)
+
+                expect(response.status).toBe(404)
+                expect(json.status).toBe('not found')
+                expect(json.business.length).toBe(0)
+            })
+
+            test('PUT returns 400 Bad Request with invalid ABN', async () => {
+                const invalidABNs = [
+                    'NotAnABN',
+                    {object: "OBJECT"},
+                    1,
+                    27384902830238203820
+                ]
+                const mockbusiness = businesses[0]
+
+                const payload = {
+                    method: 'PUT',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify(mockbusiness)
+                }
+
+                invalidABNs.forEach(async (abn) => {
+                    const response = await fetch(`http://localhost:8200/api/businesses/${abn}`, payload)
+                    const json = await response.json()
+    
+                    if(response.status != 400) console.log(response, json)
+    
+                    expect(response.status).toBe(400)
+                    expect(Array.isArray(json.errors)).toBe(true)
+                    expect(json.errors.length).toBeGreaterThan(0)
+                })
+            })
+
+            test('PUT returns 404 Not Found when abn param missing', async() => {
+                const payload = {
+                    method: "PUT",
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                }
+
+                const response = await fetch(`http://localhost:8200/api/businesses/`, payload)
+                const text = await response.text()
+
+                expect(response.status).toBe(404)
+                expect(text).toMatch(/Cannot PUT \/api\/businesses\//)
+            })
+
+            test('PUT returns 400 Bad Request with invalid body', async () => {
+                // Get business rep data from database
+                const abn = 12345678912
+
+                const payload = {
+                    method: 'PUT',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        abn: "",
+                        name: "",
+                        address: {
+                            streetNumber: "",
+                            streetName: "",
+                            city: "",
+                            state: "",
+                            postCode: "",
+                        },
+                        phone: "",
+                        email: "",
+                        businessRep: "",
+                        appointments: [],
+                    })
+                }
+
+                const response = await fetch(`http://localhost:8200/api/businesses/${abn}`, payload)
+                const json = await response.json()
+
+                if(response.status != 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(Array.isArray(json.errors)).toBe(true)
+                expect(json.errors.length).toBeGreaterThan(1)
+            })
+
+            test('PUT returns 400 Bad Request when unexpected keys present in request body', async () => {
+                // Get business rep data from database
+                const abn = 12345678912
+
+                const payload = {
+                    method: 'PUT',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        abn: 12345678912,
+                        name: "Jet Mandarin",
+                        address: {
+                            streetNumber: 123,
+                            streetName: "Main St",
+                            suburb: "Milton",
+                            city: "Brisbane",
+                            state: "NSW",
+                            postCode: 2000,
+                            country: "Australia"
+                        },
+                        phone: "0412345678",
+                        email: "jet@jetmandarin.com",
+                        businessRep: "623d340fd6dd133325228406",
+                        industry: "Education",
+                        appointments: [],
+                    })
+                }
+
+                const response = await fetch(`http://localhost:8200/api/businesses/${abn}`, payload)
+                const json = await response.json()
+
+                if(response.status != 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(json.status).toBe("error")
+                expect(json.message).toMatch(/address.suburb, industry/)
             })
         })
     })
