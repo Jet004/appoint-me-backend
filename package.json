@@ -10,7 +10,8 @@
     "start": ""
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "resetMocks": true
   },
   "keywords": [],
   "author": "Jacob Turner",

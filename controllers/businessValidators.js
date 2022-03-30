@@ -34,6 +34,41 @@ export const businessValidator = [
         .escape(),
 ]
 
+export const serviceValidator = [
+    body('name')
+        .exists({checkFalsy: true}).withMessage("Name is required")
+        .isAlphanumeric("en-AU", {ignore: ".,' -_@"}).withMessage("Name can only contain numbers and letters")
+        .isLength({min: 2, max: 50}).withMessage("Name must be between 2 and 50 characters long")
+        .trim()
+        .escape(),
+    body("description")
+        .exists({checkFalsy: true}).withMessage("Description is required")
+        .isAlphanumeric("en-AU", {ignore: ".,' -_@"}).withMessage("Description can only contain numbers and letters")
+        .isLength({min: 2, max: 2000}).withMessage("Description must be between 2 and 2000 characters long")
+        .trim()
+        .escape(),
+    body("duration")
+        .exists({checkFalsy: true}).withMessage("Duration is required")
+        .isNumeric({no_symbols: true}).withMessage("Duration can only contain numbers")
+        .isLength({min: 1, max: (24 * 60 * 60 )}).withMessage("Duration must be between 1 minute and one day long")
+        .trim()
+        .escape(),
+    body("bookingTimes")
+        .optional(),
+    body("break")
+        .exists({checkFalsy: true}).withMessage("Break is required")
+        .isNumeric({no_symbols: true}).withMessage("Break can only contain numbers")
+        .isLength({min: 0, max: (24 * 60 * 60)}).withMessage("Break must be between 0 minutes and 1 day long")
+        .trim()
+        .escape(),
+    body("fee")
+        .exists({checkFalsy: true}).withMessage("Fee is required")
+        .isNumeric({no_symbols: true}).withMessage("Fee can only contain Numbers")
+        .isLength({min: 0, max: 10000000}).withMessage("Fee must be between 0 and 1000000")
+        .trim()
+        .escape()
+]
+
 export const idValidator = [
     param('id')
         .exists({checkFalsy:true}).withMessage('ID is required')

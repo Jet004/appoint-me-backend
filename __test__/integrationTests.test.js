@@ -15,6 +15,8 @@ import TempUser from '../models/tempUserModel'
 import BusinessRep from '../models/businessRepModel'
 import Business from '../models/businessModel'
 
+const domain = "http:localhost:8200"
+
 describe('Integration Tests:', () => {
 
     beforeAll(async () => {
@@ -36,7 +38,7 @@ describe('Integration Tests:', () => {
 
         describe("Route: /api/users", () => {
             test('GET returns 200 OK + array of users when data in DB', async () => {
-                const response = await fetch('http://localhost:8200/api/users/')
+                const response = await fetch(`${domain}/api/users/`)
                 const json = await response.json()
     
                 if(response.status != 200) console.log(response, json)
@@ -71,7 +73,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/users/', payload)
+                const response = await fetch(`${domain}/api/users/`, payload)
                 const json = await response.json()
 
                 if(response.status != 201) console.log(response, json)
@@ -108,7 +110,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/users/', payload)
+                const response = await fetch(`${domain}/api/users/`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -145,7 +147,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/users/', payload)
+                const response = await fetch(`${domain}/api/users/`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -182,7 +184,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/users/', payload)
+                const response = await fetch(`${domain}/api/users/`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -197,7 +199,7 @@ describe('Integration Tests:', () => {
         describe('Route: /api/users/:email', () => {
             test('GET returns 200 OK + user with valid email', async () => {
                 const email = "e.rodder@gmail.com"
-                const response = await fetch(`http://localhost:8200/api/users/${email}`)
+                const response = await fetch(`${domain}/api/users/${email}`)
                 const json = await response.json()
     
                 if(response.status != 200) console.log(response, json)
@@ -211,7 +213,7 @@ describe('Integration Tests:', () => {
 
             test('GET returns 404 Not Found with non registered email', async () => {
                 const email = "mary.poppins@jacketfarmer.com.cn"
-                const response = await fetch(`http://localhost:8200/api/users/${email}`)
+                const response = await fetch(`${domain}/api/users/${email}`)
                 const json = await response.json()
 
                 if(response.status != 404) console.log(response, json)
@@ -223,7 +225,7 @@ describe('Integration Tests:', () => {
 
             test('GET returns 400 Bad Request with invalid email', async () => {
                 const email = "NotAnEmail"
-                const response = await fetch(`http://localhost:8200/api/users/${email}`)
+                const response = await fetch(`${domain}/api/users/${email}`)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -260,7 +262,7 @@ describe('Integration Tests:', () => {
                     body: JSON.stringify(updatedData)
                 }
                 // Send request
-                const response = await fetch(`http://localhost:8200/api/users/${userData._id}`, payload)
+                const response = await fetch(`${domain}/api/users/${userData._id}`, payload)
                 const json = await response.json()
 
                 if(response.status != 200) console.log(response, json)
@@ -284,7 +286,7 @@ describe('Integration Tests:', () => {
                     body: JSON.stringify(mockUser)
                 }
 
-                const response = await fetch(`http://localhost:8200/api/users/${userID}`, payload)
+                const response = await fetch(`${domain}/api/users/${userID}`, payload)
                 const json = await response.json()
 
                 if(response.status != 404) console.log(response, json)
@@ -328,7 +330,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`http://localhost:8200/api/users/${userData._id}`, payload)
+                const response = await fetch(`${domain}/api/users/${userData._id}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -350,7 +352,7 @@ describe('Integration Tests:', () => {
                     body: JSON.stringify(mockUser)
                 }
 
-                const response = await fetch(`http://localhost:8200/api/users/${userID}`, payload)
+                const response = await fetch(`${domain}/api/users/${userID}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -363,7 +365,7 @@ describe('Integration Tests:', () => {
             test('DELETE returns 204 No Content with valid input', async () => {
                 const mockUser = await User.findOne({ email: 'e.rodder@gmail.com' })
 
-                const response = await fetch(`http://localhost:8200/api/users/${mockUser._id}`, {
+                const response = await fetch(`${domain}/api/users/${mockUser._id}`, {
                     method: 'DELETE'
                 })
 
@@ -376,7 +378,7 @@ describe('Integration Tests:', () => {
             test('DELETE returns 404 Not Found when user ID not in DB', async () => {
                 const userID = mongoose.Types.ObjectId()
 
-                const response = await fetch(`http://localhost:8200/api/users/${userID}`, {
+                const response = await fetch(`${domain}/api/users/${userID}`, {
                     method: 'DELETE'
                 })
                 const json = await response.json()
@@ -390,7 +392,7 @@ describe('Integration Tests:', () => {
             test('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
                 const userID = 'NotAnID'
 
-                const response = await fetch(`http://localhost:8200/api/users/${userID}`, {
+                const response = await fetch(`${domain}/api/users/${userID}`, {
                     method: 'DELETE'
                 })
                 const json = await response.json()
@@ -413,7 +415,7 @@ describe('Integration Tests:', () => {
 
         describe("Route: /api/temp-users", () => {
             test('GET returns 200 OK + array of users when data in DB', async () => {
-                const response = await fetch('http://localhost:8200/api/temp-users/')
+                const response = await fetch(`${domain}/api/temp-users/`)
                 const json = await response.json()
     
                 if(response.status != 200) console.log(response, json)
@@ -447,7 +449,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/temp-users/', payload)
+                const response = await fetch(`${domain}/api/temp-users/`, payload)
                 const json = await response.json()
 
                 if(response.status != 201) console.log(response, json)
@@ -481,7 +483,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/temp-users/', payload)
+                const response = await fetch(`${domain}/api/temp-users/`, payload)
                 const json = await response.json()
 
                 if(response.status != 201) console.log(response, json)
@@ -518,7 +520,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/temp-users/', payload)
+                const response = await fetch(`${domain}/api/temp-users/`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -555,7 +557,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/temp-users/', payload)
+                const response = await fetch(`${domain}/api/temp-users/`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -592,7 +594,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/temp-users/', payload)
+                const response = await fetch(`${domain}/api/temp-users/`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -607,7 +609,7 @@ describe('Integration Tests:', () => {
         describe('Route: /api/users/:email', () => {
             test('GET returns 200 OK + user with valid email', async () => {
                 const email = "temp.user@gmail.com"
-                const response = await fetch(`http://localhost:8200/api/temp-users/${email}`)
+                const response = await fetch(`${domain}/api/temp-users/${email}`)
                 const json = await response.json()
     
                 if(response.status != 200) console.log(response, json)
@@ -621,7 +623,7 @@ describe('Integration Tests:', () => {
 
             test('GET returns 404 Not Found with non registered email', async () => {
                 const email = "mary.poppins@jacketfarmer.com.cn"
-                const response = await fetch(`http://localhost:8200/api/users/${email}`)
+                const response = await fetch(`${domain}/api/users/${email}`)
                 const json = await response.json()
 
                 if(response.status != 404) console.log(response, json)
@@ -633,7 +635,7 @@ describe('Integration Tests:', () => {
 
             test('GET returns 400 Bad Request with invalid email', async () => {
                 const email = "NotAnEmail"
-                const response = await fetch(`http://localhost:8200/api/users/${email}`)
+                const response = await fetch(`${domain}/api/users/${email}`)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -670,7 +672,7 @@ describe('Integration Tests:', () => {
                     body: JSON.stringify(updatedData)
                 }
                 // Send request
-                const response = await fetch(`http://localhost:8200/api/temp-users/${userData._id}`, payload)
+                const response = await fetch(`${domain}/api/temp-users/${userData._id}`, payload)
                 const json = await response.json()
 
                 if(response.status != 200) console.log(response, json)
@@ -694,7 +696,7 @@ describe('Integration Tests:', () => {
                     body: JSON.stringify(mockUser)
                 }
 
-                const response = await fetch(`http://localhost:8200/api/temp-users/${userID}`, payload)
+                const response = await fetch(`${domain}/api/temp-users/${userID}`, payload)
                 const json = await response.json()
 
                 if(response.status != 404) console.log(response, json)
@@ -738,7 +740,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`http://localhost:8200/api/temp-users/${userData._id}`, payload)
+                const response = await fetch(`${domain}/api/temp-users/${userData._id}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -760,7 +762,7 @@ describe('Integration Tests:', () => {
                     body: JSON.stringify(mockUser)
                 }
 
-                const response = await fetch(`http://localhost:8200/api/temp-users/${userID}`, payload)
+                const response = await fetch(`${domain}/api/temp-users/${userID}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -773,7 +775,7 @@ describe('Integration Tests:', () => {
             test('DELETE returns 204 No Content with valid input', async () => {
                 const mockUser = await TempUser.findOne({ email: 'temp.user@gmail.com' })
 
-                const response = await fetch(`http://localhost:8200/api/temp-users/${mockUser._id}`, {
+                const response = await fetch(`${domain}/api/temp-users/${mockUser._id}`, {
                     method: 'DELETE'
                 })
 
@@ -786,7 +788,7 @@ describe('Integration Tests:', () => {
             test('DELETE returns 404 Not Found when user ID not in DB', async () => {
                 const userID = mongoose.Types.ObjectId()
 
-                const response = await fetch(`http://localhost:8200/api/temp-users/${userID}`, {
+                const response = await fetch(`${domain}/api/temp-users/${userID}`, {
                     method: 'DELETE'
                 })
                 const json = await response.json()
@@ -800,7 +802,7 @@ describe('Integration Tests:', () => {
             test('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
                 const userID = 'NotAnID'
 
-                const response = await fetch(`http://localhost:8200/api/temp-users/${userID}`, {
+                const response = await fetch(`${domain}/api/temp-users/${userID}`, {
                     method: 'DELETE'
                 })
                 const json = await response.json()
@@ -823,7 +825,7 @@ describe('Integration Tests:', () => {
     describe('Business Rep Routes', () => {
         describe("Route: /api/business-reps", () => {
             test('GET returns 200 OK + array of business reps when data in DB', async () => {
-                const response = await fetch('http://localhost:8200/api/business-reps/')
+                const response = await fetch(`${domain}/api/business-reps/`)
                 const json = await response.json()
 
                 if(response.status != 200) console.log(response, json)
@@ -857,7 +859,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/business-reps/', payload)
+                const response = await fetch(`${domain}/api/business-reps/`, payload)
                 const json = await response.json()
 
                 if(response.status != 201) console.log(response, json)
@@ -893,7 +895,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/business-reps/', payload)
+                const response = await fetch(`${domain}/api/business-reps/`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -929,7 +931,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/business-reps/', payload)
+                const response = await fetch(`${domain}/api/business-reps/`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -965,7 +967,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch('http://localhost:8200/api/business-reps/', payload)
+                const response = await fetch(`${domain}/api/business-reps/`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -980,7 +982,7 @@ describe('Integration Tests:', () => {
         describe('Route: /api/business-re[s/:email', () => {
             test('GET returns 200 OK + business rep with valid email', async () => {
                 const email = "j.chen@chencorp.com"
-                const response = await fetch(`http://localhost:8200/api/business-reps/${email}`)
+                const response = await fetch(`${domain}/api/business-reps/${email}`)
                 const json = await response.json()
 
                 if(response.status != 200) console.log(response, json)
@@ -994,7 +996,7 @@ describe('Integration Tests:', () => {
 
             test('GET returns 404 Not Found with non registered email', async () => {
                 const email = "mary.poppins@jacketfarmer.com.cn"
-                const response = await fetch(`http://localhost:8200/api/business-reps/${email}`)
+                const response = await fetch(`${domain}/api/business-reps/${email}`)
                 const json = await response.json()
 
                 if(response.status != 404) console.log(response, json)
@@ -1006,7 +1008,7 @@ describe('Integration Tests:', () => {
 
             test('GET returns 400 Bad Request with invalid email', async () => {
                 const email = "NotAnEmail"
-                const response = await fetch(`http://localhost:8200/api/business-reps/${email}`)
+                const response = await fetch(`${domain}/api/business-reps/${email}`)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -1043,7 +1045,7 @@ describe('Integration Tests:', () => {
                     body: JSON.stringify(updatedData)
                 }
                 // Send request
-                const response = await fetch(`http://localhost:8200/api/business-reps/${userData._id}`, payload)
+                const response = await fetch(`${domain}/api/business-reps/${userData._id}`, payload)
                 const json = await response.json()
 
                 if(response.status != 200) console.log(response, json)
@@ -1067,7 +1069,7 @@ describe('Integration Tests:', () => {
                     body: JSON.stringify(mockUser)
                 }
 
-                const response = await fetch(`http://localhost:8200/api/business-reps/${userID}`, payload)
+                const response = await fetch(`${domain}/api/business-reps/${userID}`, payload)
                 const json = await response.json()
 
                 if(response.status != 404) console.log(response, json)
@@ -1110,7 +1112,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`http://localhost:8200/api/business-reps/${userData._id}`, payload)
+                const response = await fetch(`${domain}/api/business-reps/${userData._id}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -1132,7 +1134,7 @@ describe('Integration Tests:', () => {
                     body: JSON.stringify(mockUser)
                 }
 
-                const response = await fetch(`http://localhost:8200/api/business-reps/${userID}`, payload)
+                const response = await fetch(`${domain}/api/business-reps/${userID}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -1145,7 +1147,7 @@ describe('Integration Tests:', () => {
             test('DELETE returns 204 No Content with valid input', async () => {
                 const mockUser = await BusinessRep.findOne({ email: 'j.chen@chencorp.com' })
 
-                const response = await fetch(`http://localhost:8200/api/business-reps/${mockUser._id}`, {
+                const response = await fetch(`${domain}/api/business-reps/${mockUser._id}`, {
                     method: 'DELETE'
                 })
 
@@ -1158,7 +1160,7 @@ describe('Integration Tests:', () => {
             test('DELETE returns 404 Not Found when user ID not in DB', async () => {
                 const userID = mongoose.Types.ObjectId()
 
-                const response = await fetch(`http://localhost:8200/api/business-reps/${userID}`, {
+                const response = await fetch(`${domain}/api/business-reps/${userID}`, {
                     method: 'DELETE'
                 })
                 const json = await response.json()
@@ -1172,7 +1174,7 @@ describe('Integration Tests:', () => {
             test('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
                 const userID = 'NotAnID'
 
-                const response = await fetch(`http://localhost:8200/api/business-reps/${userID}`, {
+                const response = await fetch(`${domain}/api/business-reps/${userID}`, {
                     method: 'DELETE'
                 })
                 const json = await response.json()
@@ -1190,7 +1192,7 @@ describe('Integration Tests:', () => {
         describe('Route: /api/businesses/id/:id', () => {
             test('GET returns 200 OK + business with valid Mongoose ID', async () => {
                 const id = businesses[0]._id.toString()
-                const response = await fetch(`http://localhost:8200/api/businesses/id/${id}`)
+                const response = await fetch(`${domain}/api/businesses/id/${id}`)
                 const json = await response.json()
 
                 if(response.status != 200) console.log(response, json)
@@ -1203,7 +1205,7 @@ describe('Integration Tests:', () => {
 
             test('GET returns 404 Not Found with non registered id', async () => {
                 const id = mongoose.Types.ObjectId()
-                const response = await fetch(`http://localhost:8200/api/businesses/id/${id}`)
+                const response = await fetch(`${domain}/api/businesses/id/${id}`)
                 const json = await response.json()
 
                 if(response.status != 404) console.log(response, json)
@@ -1215,7 +1217,7 @@ describe('Integration Tests:', () => {
 
             test('GET returns 400 Bad Request with invalid Mongoose ID', async () => {
                 const id = "NotAMongooseID"
-                const response = await fetch(`http://localhost:8200/api/businesses/id/${id}`)
+                const response = await fetch(`${domain}/api/businesses/id/${id}`)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -1231,7 +1233,7 @@ describe('Integration Tests:', () => {
         describe('Route: /api/businesses/:abn', () => {
             test('GET returns 200 OK + business with valid ABN', async () => {
                 const abn = businesses[0].abn
-                const response = await fetch(`http://localhost:8200/api/businesses/${abn}`)
+                const response = await fetch(`${domain}/api/businesses/${abn}`)
                 const json = await response.json()
 
                 if(response.status != 200) console.log(response, json)
@@ -1245,7 +1247,7 @@ describe('Integration Tests:', () => {
 
             test('GET returns 404 Not Found with non registered abn', async () => {
                 const abn = 12121212121
-                const response = await fetch(`http://localhost:8200/api/businesses/${abn}`)
+                const response = await fetch(`${domain}/api/businesses/${abn}`)
                 const json = await response.json()
 
                 if(response.status != 404) console.log(response, json)
@@ -1265,7 +1267,7 @@ describe('Integration Tests:', () => {
                 ]
 
                 abnInputs.forEach(async (abn) => {
-                    const response = await fetch(`http://localhost:8200/api/businesses/${abn}`)
+                    const response = await fetch(`${domain}/api/businesses/${abn}`)
                     const json = await response.json()
 
                     if(response.status != 400) console.log(response, json)
@@ -1277,7 +1279,7 @@ describe('Integration Tests:', () => {
             })
 
             test('GET responds with 404 Not Found when abn missing', async () => {
-                const response = await fetch(`http://localhost:8200/api/businesses/`)
+                const response = await fetch(`${domain}/api/businesses/`)
                     const text = await response.text()
 
                     if(response.status != 404) console.log(response, json)
@@ -1308,7 +1310,7 @@ describe('Integration Tests:', () => {
                     body: JSON.stringify(updatedData)
                 }
                 // Send request
-                const response = await fetch(`http://localhost:8200/api/businesses/${userData.abn}`, payload)
+                const response = await fetch(`${domain}/api/businesses/${userData.abn}`, payload)
                 const json = await response.json()
 
                 if(response.status != 200) console.log(response, json)
@@ -1332,7 +1334,7 @@ describe('Integration Tests:', () => {
                     body: JSON.stringify(business)
                 }
 
-                const response = await fetch(`http://localhost:8200/api/businesses/${abn}`, payload)
+                const response = await fetch(`${domain}/api/businesses/${abn}`, payload)
                 const json = await response.json()
 
                 if(response.status != 404) console.log(response, json)
@@ -1360,7 +1362,7 @@ describe('Integration Tests:', () => {
                 }
 
                 invalidABNs.forEach(async (abn) => {
-                    const response = await fetch(`http://localhost:8200/api/businesses/${abn}`, payload)
+                    const response = await fetch(`${domain}/api/businesses/${abn}`, payload)
                     const json = await response.json()
     
                     if(response.status != 400) console.log(response, json)
@@ -1379,7 +1381,7 @@ describe('Integration Tests:', () => {
                     }
                 }
 
-                const response = await fetch(`http://localhost:8200/api/businesses/`, payload)
+                const response = await fetch(`${domain}/api/businesses/`, payload)
                 const text = await response.text()
 
                 expect(response.status).toBe(404)
@@ -1412,7 +1414,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`http://localhost:8200/api/businesses/${abn}`, payload)
+                const response = await fetch(`${domain}/api/businesses/${abn}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -1451,7 +1453,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`http://localhost:8200/api/businesses/${abn}`, payload)
+                const response = await fetch(`${domain}/api/businesses/${abn}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -1460,6 +1462,118 @@ describe('Integration Tests:', () => {
                 expect(json.status).toBe("error")
                 expect(json.message).toMatch(/address.suburb, industry/)
             })
+        })
+
+        describe('Test controller: api/businesses/services/:abn', () => {
+            const mockService = {
+                name: "Individual Classes",
+                description: "One-to-one class with an experienced teacher",
+                duration: 55,
+                bookingTimes: {},
+                break: 5,
+                fee: 50
+            }
+
+            test('POST returns 200 OK with valid abn and service data', async () => {
+                const business = businesses[0]
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(mockService)
+                }
+                business.services.push(mockService)
+
+                const response = await fetch(`${domain}/api/businesses/services/${business.abn}`, payload)
+                const json = await response.json()
+
+                if(response.status != 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(json.updatedData.email).toBe("jet@jetmandarin.com")
+                expect(json.updatedData.services.length).toBeGreaterThan(0)
+            })
+
+            test('POST returns 404 Not Found when abn not in DB', async () => {
+                const abn = 10000000000
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(mockService)
+                }
+
+                const response = await fetch(`${domain}/api/businesses/services/${abn}`, payload)
+                const json = await response.json()
+
+                if(response.status != 404) console.log(response, json)
+
+                expect(response.status).toBe(404)
+                expect(json.status).toBe("not found")
+                expect(json.message).toBe("ABN not found")
+            })
+
+            // Validation tests
+            test('POST returns 400 Bad Request with missing service inputs', async () => {
+                const business = businesses[0]
+                const payload = {
+                    method: "post",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(
+                        {
+                            name: "",
+                            description: "",
+                            duration: "",
+                            bookingTimes: {},
+                            break: "",
+                            fee: ""
+                        }
+                    )
+                }
+
+                const response = await fetch(`${domain}/api/businesses/services/${business.abn}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(Array.isArray(json.errors)).toBe(true)
+                expect(json.errors.length).toBeGreaterThan(0)
+            })
+
+            test('GET returns 200 OK with valid ABN', async () => {
+                const business = businesses[0]
+                const response = await fetch(`${domain}/api/businesses/services/${business.abn}`)
+                const json = await response.json()
+
+                if(response.status !== 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(json.services[0].name).toBe(business.services[0].name)
+                expect(json.services[0].duration).toBe(55)
+            })
+
+            test('GET returns 404 Not Found when abn not in DB', async () => {
+                const abn = 10000000000
+                const response = await fetch(`${domain}/api/businesses/services/${abn}`)
+                const json = await response.json()
+
+                if(response.status !== 404) console.log(response, json)
+
+                expect(response.status).toBe(404)
+                expect(json.status).toBe("not found")
+                expect(json.message).toBe("ABN not found")
+            })
+
+            // test('GET returns 500 Internal Service Error when DB returns an error', async () => {
+
+            // })
         })
     })
 })

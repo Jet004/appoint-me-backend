@@ -14,6 +14,7 @@ const business = [
         phone: "0412345678",
         email: "jet@jetmandarin.com",
         businessRep: "623d340fd6dd133325228406",
+        services: [],
         appointments: [],
     }
 ]

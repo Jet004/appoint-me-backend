@@ -34,4 +34,4 @@ const addressSchema = new mongoose.Schema({
     }
 )
 
-module.exports = addressSchema
+export default addressSchema

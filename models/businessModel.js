@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import addressSchema from "./addressSchema";
 import appointmentSchema from "./appointmentSchema";
+import serviceSchema from "./serviceSchema"
 
 const BusinessSchema = new mongoose.Schema({
     abn: {
@@ -30,6 +31,7 @@ const BusinessSchema = new mongoose.Schema({
         ref: "BusinessRep",
         required: true,
     },
+    services: [serviceSchema],
     appointments: {
         type: [appointmentSchema],
     },
@@ -37,9 +39,14 @@ const BusinessSchema = new mongoose.Schema({
     timestamps: true,
 })
 
+
 const Business = mongoose.model("Business", BusinessSchema)
 
 export default Business
+
+
+
+// Define queries for interacting with this model
 
 // Not implemented yet
 // export const DbGetAllBusinesses = (cb) => mongoose.model('User').find({}, cb)
@@ -55,3 +62,12 @@ export const DbUpdateBusiness = (abn, business, cb) => mongoose.model('Business'
 
 // Not implemented yet
 // export const DbDeleteBusiness = (id, cb) => mongoose.model('Business').findByIdAndDelete(id, cb)
+
+
+// CRUD functions for services subdocument
+export const DbCreateBusinessService = async (business, service, cb) => {
+
+    await business.services.push(service)
+
+    return await business.save()
+}

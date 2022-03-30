@@ -60,6 +60,9 @@ export const pushMockBusiness = async () => {
 }
 
 const pushMockData = async (functionArray) => {
+    if(functionArray[0] === "all"){
+        functionArray = ["users", "tempUsers", "businessReps", "businesses"]
+    }
 
     const functions = {
         users: pushMockUsers,
