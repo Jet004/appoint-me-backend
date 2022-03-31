@@ -65,6 +65,14 @@ export const DbUpdateBusiness = (abn, business, cb) => mongoose.model('Business'
 
 
 // CRUD functions for services subdocument
+export const DbGetBusinessServiceById = async (abn, serviceId, cb) => {
+    const business = await mongoose.model("Business").findOne({abn: abn}, cb)
+    // Return null if no business found with the given ABN
+    if(!business) return null
+    // Returns service OR null if no service found with the given ID
+    return await business.services.id(serviceId)
+}
+
 export const DbCreateBusinessService = async (business, service, cb) => {
 
     await business.services.push(service)

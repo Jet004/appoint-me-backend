@@ -1,4 +1,4 @@
-import { DbGetBusinessByABN } from "../models/businessModel"
+import Business from "../models/businessModel"
 
 // Get business by ABN
 export const getBusinessByABN = (DbGetBusinessByABN) => async (req, res) => {
@@ -54,7 +54,6 @@ export const updateBusiness = (DbUpdateBusiness) => async (req, res) => {
 export const getBusinessServices = (DbGetBusinessByABN) => async (req, res) => {
     try {
         const business = await DbGetBusinessByABN(req.params.abn)
-console.log(business)
         if(business) {
             res.status(200).json({ status: "success", services: business.services })
         } else {
@@ -67,8 +66,24 @@ console.log(business)
     }
 }
 
-export const getBusinessServiceById = (DbGetBusinessServicesById) => async (req, res) => {
-    return "hello"
+export const getBusinessServiceById = (DbGetBusinessServiceById) => async (req, res) => {
+    try {
+        const service = await DbGetBusinessServiceById(req.params.abn, req.params.serviceId)
+        // if(!business) {
+        //     return res.status(404).json({ status: "not found", message: "ABN not found" })
+        // }
+        // const service = business.services.id(req.params.serviceId)
+        console.log("Controller: ", service)
+        if(service) {
+            // service = service.services[0]
+            res.status(200).json({ status: "success", service: service })
+        } else {
+            res.status(404).json({ status: "not found", message: "Service not found" })
+        }
+    } catch(e) {
+        console.log(e)
+        res.status(500).json({ status: "error", message: e.message })
+    }
 }
 
 export const createBusinessService = (DbGetBusinessByABN, DbCreateBusinessService) => async (req, res) => {

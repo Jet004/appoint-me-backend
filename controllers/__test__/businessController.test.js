@@ -3,8 +3,6 @@ import { getBusinessByABN, getBusinessByID, updateBusiness, createBusinessServic
 
 // Import mock business
 import mockBusiness from '../../__test__/mockBusiness.js'
-import { type } from 'express/lib/response'
-import { DbGetBusinessByABN } from '../../models/businessModel'
 
 describe('Business controller unit tests:', () => {
     describe('Test controller: getBusinessByABN', () => {
@@ -253,7 +251,7 @@ describe('Business controller unit tests:', () => {
 
     describe('Test controller: createBuseinessService', () => {
         test('Returns 200 OK when called with valid service data', async () => {
-            const business = mockBusiness[0]
+            const business = JSON.parse(JSON.stringify(mockBusiness[0]))
             const fakeDbGetBusinessByABN = jest.fn().mockResolvedValue(business)
             const service = {
                 name: "Individual Classes",
@@ -365,7 +363,7 @@ describe('Business controller unit tests:', () => {
         })
 
         test('Returns 500 Internal Server Error when DbGetBusinessByABN returns and error', async () => {
-            const business = mockBusiness[0]
+            const business = JSON.parse(JSON.stringify(mockBusiness[0]))
             const fakeDbGetBusinessByABN = jest.fn().mockRejectedValue(new Error('Database error'))
             const service = {
                 name: "Individual Classes",
@@ -402,7 +400,7 @@ describe('Business controller unit tests:', () => {
         })
          
         test('Returns 500 Internal Server Error when DbCreateBusinessService returns and error', async () => {
-            const business = mockBusiness[0]
+            const business = JSON.parse(JSON.stringify(mockBusiness[0]))
             const fakeDbGetBusinessByABN = jest.fn().mockResolvedValue(business)
             const service = {
                 name: "Individual Classes",
@@ -521,29 +519,115 @@ describe('Business controller unit tests:', () => {
     })
 
     describe('Test controller: getBusinessServiceById', () => {
-
-        // Define a before all to insert some services...
-        //
-        //
-        //
-        //
-        //
-        //
-
         test('returns a function', async () => {
             const controller = await getBusinessServiceById(null)
             expect(typeof controller).toBe('function')
         })
 
-        test.only('returns 200 OK with valid abn and service ID', async () => {
-            const business = mockBusiness[0]
-            console.log(business.services)
-            // const serviceId = business.services[0]._id
-            const fakeDbGetBusinessServiceById = jest.fn().mockResolvedValue(business.services[0])
+        test('returns 200 OK with valid abn and service ID', async () => {
+            const business = JSON.parse(JSON.stringify(mockBusiness[0]))
+            business.services.push({
+                _id: "5eg9f8f8f8f8f8f8f8f8f8f8",
+                name: "Individual Classes",
+                description: "One-to-one class with an experienced teacher",
+                duration: 55,
+                bookingTimes: {},
+                break: 5,
+                fee: 50
+            })
 
-            const controller = await getBusinessServiceById(fakeDbGetBusinessServiceById)
-            const rest = await controller()
-            // expect(rest).toBe("hello")
+            const DbGetBusinessServiceById = jest.fn().mockResolvedValue(business.services[0])
+            const req = {
+                params: {
+                    abn: business.abn,
+                    serviceId: business.services[0]._id
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = await getBusinessServiceById(DbGetBusinessServiceById)
+            const rest = await controller(req, res)
+
+            expect(DbGetBusinessServiceById).toHaveBeenCalledTimes(1)
+            expect(DbGetBusinessServiceById).toHaveBeenCalledWith(business.abn, business.services[0]._id)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "success", service: business.services[0] })
+        })
+        // need to do extra test for no serviceId
+
+        test('returns 404 Not Found when ABN not in DB', async () => {
+            const business = JSON.parse(JSON.stringify(mockBusiness[0]))
+            business.services.push({
+                _id: "5eg9f8f8f8f8f8f8f8f8f8f8",
+                name: "Individual Classes",
+                description: "One-to-one class with an experienced teacher",
+                duration: 55,
+                bookingTimes: {},
+                break: 5,
+                fee: 50
+            })
+
+            const DbGetBusinessServiceById = jest.fn().mockResolvedValue(null)
+            const req = {
+                params: {
+                    abn: business.abn,
+                    serviceId: business.services[0]._id
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = await getBusinessServiceById(DbGetBusinessServiceById)
+            const rest = await controller(req, res)
+
+            expect(DbGetBusinessServiceById).toHaveBeenCalledTimes(1)
+            expect(DbGetBusinessServiceById).toHaveBeenCalledWith(business.abn, business.services[0]._id)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(404)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "not found", message: "Service not found" })
+        })
+
+        test('returns 500 Internal Server Error when DB returns an error', async () => {
+            const business = JSON.parse(JSON.stringify(mockBusiness[0]))
+            business.services.push({
+                _id: "5eg9f8f8f8f8f8f8f8f8f8f8",
+                name: "Individual Classes",
+                description: "One-to-one class with an experienced teacher",
+                duration: 55,
+                bookingTimes: {},
+                break: 5,
+                fee: 50
+            })
+
+            const DbGetBusinessServiceById = jest.fn().mockRejectedValue(new Error("Database error"))
+            const req = {
+                params: {
+                    abn: business.abn,
+                    serviceId: business.services[0]._id
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = await getBusinessServiceById(DbGetBusinessServiceById)
+            await controller(req, res)
+
+            expect(DbGetBusinessServiceById).toHaveBeenCalledTimes(1)
+            expect(DbGetBusinessServiceById).toHaveBeenCalledWith(business.abn, business.services[0]._id)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(500)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Database error" })
         })
     })
 

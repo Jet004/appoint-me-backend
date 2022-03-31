@@ -17,12 +17,7 @@ import connect from './models/database.js'
 connect(process.env.DB_URL)
 // Logs the connection status to the console
 mongoose.connection.on('open', () => console.log(`Database --> Connected to database "${mongoose.connection.name}"`))
-mongoose.connection.on('error', (err) => console.log(`Database --> Error connecting to database: `, err))
-const loadData = async () => {
-    await mongoose.connection.dropDatabase()
-    await pushMockData(['all'])
-}
-loadData()
+mongoose.connection.on('error', (err) => console.log(`Database --> Error connecting to database "${mongoose.connection.name}"`, err))
 
 
 // Log request information for every request for debugging
@@ -44,9 +39,7 @@ server.use('/api/temp-users', tempUserRoutes)
 import businessRepRoutes from './routes/businessRepRoutes'
 server.use('/api/business-reps', businessRepRoutes)
 import businessRoutes from './routes/businessRoutes'
-import pushMockData from './__test__/pushMockData.js'
 server.use('/api/businesses', businessRoutes)
-
 
 // Run server
 server.listen(process.env.PORT, () => {

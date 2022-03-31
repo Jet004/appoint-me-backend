@@ -22,7 +22,7 @@ describe('Integration Tests:', () => {
     beforeAll(async () => {
         await connect(process.env.DB_URL)
         await mongoose.connection.dropDatabase()
-        await pushMockData(["users", "tempUsers", "businessReps", "businesses"])
+        await pushMockData(["all"])
     })
 
     afterAll(async () => {
@@ -1570,10 +1570,85 @@ describe('Integration Tests:', () => {
                 expect(json.status).toBe("not found")
                 expect(json.message).toBe("ABN not found")
             })
+        })
 
-            // test('GET returns 500 Internal Service Error when DB returns an error', async () => {
 
-            // })
+
+        describe('Test controller: api/businesses/services/:abn/:serviceId', () => {
+            const mockService = {
+                name: "Individual Classes",
+                description: "One-to-one class with an experienced teacher",
+                duration: 55,
+                bookingTimes: {},
+                break: 5,
+                fee: 50
+            }
+
+            let serviceId
+
+            beforeEach(async () => {
+                const business = businesses[0]
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(mockService)
+                }
+                const response = await fetch(`${domain}/api/businesses/services/${business.abn}`, payload)
+                const json = await response.json()
+                serviceId = json.updatedData.services[0]._id
+            })
+
+            test('GET returns 200 OK with valid abn and serviceId', async () => {
+                
+                const response = await fetch(`${domain}/api/businesses/services/${businesses[0].abn}/${serviceId}`)
+                const json = await response.json()
+
+                if(response.status !== 200) console.log(response, json)
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(json.service.name).toBe(mockService.name)
+                expect(json.service.duration).toBe(55)
+            })
+
+            test('GET returns 404 Not Found when valid ABN not in DB', async () => {
+                const abn = 10000000000
+                const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`)
+                const json = await response.json()
+
+                if(response.status !== 404) console.log(response, json)
+
+                expect(response.status).toBe(404)
+                expect(json.status).toBe("not found")
+                expect(json.message).toBe("Service not found")
+            })
+
+            test('GET returns 404 Not Found when valid serviceId not in DB', async () => {
+                const abn = businesses[0].abn
+                const serviceId = 10000000000
+                const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`)
+                const json = await response.json()
+
+                if(response.status !== 404) console.log(response, json)
+
+                expect(response.status).toBe(404)
+                expect(json.status).toBe("not found")
+                expect(json.message).toBe("Service not found")
+            })
+
+            // Validation tests
+            test.only('GET returns 400 with invalid ABN', async () => {
+                const abn = "invalid"
+                const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`)
+                const json = await response.json()
+
+                if(response.status !== 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(json.status).toBe("bad request")
+                expect(json.message).toBe("ABN must be a number")
+            })
         })
     })
 })
