@@ -11,6 +11,12 @@
 - Add logic to check if temp user exists when user created - divert all user data to user from temp user - delete temp user (ref crm collection)
 - Add logic to prevent business adding more than one temp user with the same email address (ref crm collection)
 - Change business controllers to use JWT for abn/id rather than params, update tests to reflect the changes... (Add validation test for get services...)
+- complete validation tests for business services offered...
+
+## Todo when have time
+
+ - extend integration tests to fully test user validation: length, type, unsafe charaters etc.
+ - extend JWT implementation to use refresh token rotation and token family checks to prevent token reuse hacks
 
 ## Necessary changes to ERD
 
@@ -32,3 +38,18 @@
 
 - Improve the unexpected keys function to accept mongoose schemas rather than an array of accepted keys. Function should iterate over the schema and return a flat array of schema keys. The function should be able to accept multiple schemas and combine their keys into a single array.
 - 
+
+## JWTs
+
+- openssl to generate eddsa keys
+- Jose to implement
+- https://betterprogramming.pub/jwt-ultimate-how-to-guide-with-best-practices-in-javascript-f7ba4c48dfbd
+
+- user and business rep auth
+- central auth module for handling all things auth - exports an auth object with methods for auth
+- two possible approaches - add to each route or create middleware and whitelist
+- auth methods auth.validate and auth.validateRole
+- access token passed in header and stored in localstorage (secure, persisted)
+- 
+
+

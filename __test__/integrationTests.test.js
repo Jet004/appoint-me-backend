@@ -407,10 +407,6 @@ describe('Integration Tests:', () => {
 
     })
 
-
-
-
-
     describe('Temp User Routes', () => {
 
         describe("Route: /api/temp-users", () => {
@@ -816,11 +812,6 @@ describe('Integration Tests:', () => {
         })
 
     })
-
-
-
-
-
 
     describe('Business Rep Routes', () => {
         describe("Route: /api/business-reps", () => {
@@ -1464,7 +1455,7 @@ describe('Integration Tests:', () => {
             })
         })
 
-        describe('Test controller: api/businesses/services/:abn', () => {
+        describe('Route: api/businesses/services/:abn', () => {
             const mockService = {
                 name: "Individual Classes",
                 description: "One-to-one class with an experienced teacher",
@@ -1574,7 +1565,7 @@ describe('Integration Tests:', () => {
 
 
 
-        describe('Test controller: api/businesses/services/:abn/:serviceId', () => {
+        describe('Route: api/businesses/services/:abn/:serviceId', () => {
             const mockService = {
                 name: "Individual Classes",
                 description: "One-to-one class with an experienced teacher",
@@ -1638,17 +1629,173 @@ describe('Integration Tests:', () => {
             })
 
             // Validation tests
-            test.only('GET returns 400 with invalid ABN', async () => {
-                const abn = "invalid"
-                const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`)
-                const json = await response.json()
+            // test('GET returns 400 with invalid ABN', async () => {
+            //     const abn = "invalid"
+            //     const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`)
+            //     const json = await response.json()
 
+            //     if(response.status !== 400) console.log(response, json)
+
+            //     expect(response.status).toBe(400)
+            //     expect(json.errors.length).toBeGreaterThan(0)
+            // })
+        })
+    })
+
+    describe('Auth Routes:', () => {
+        
+        describe('Route: /api/auth/register', () => {
+            // Set up mock users for registration tests
+            const mockUser = {
+                email: "p.wong@gmail.com",
+                password: "Abc_1234",
+                fname: "Penny",
+                lname: "Wong",
+                phone: "0746372891",
+                address: {
+                    streetNumber: 333,
+                    streetName: "Margaret Street",
+                    city: "Brisbane",
+                    state: "QLD",
+                    postCode: 4000,
+                    country: "Australia",
+                },
+                dob: new Date(1970, 7, 12),
+            }
+
+            // User Registration Tests
+            test('POST returns 200 OK and registers a "user" in the DB with valid inputs', async () => {
+                const user = JSON.parse(JSON.stringify(mockUser))
+                const userType = 'user'
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(user)
+                }
+
+                const response = await fetch(`${domain}/api/auth/register/${userType}`, payload)
+                const json = await response.json()
+                
+                if(response.status !== 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(json.message).toBe("User successfully registered")
+            })
+
+            // Validation tests
+            test('POST returns 400 Bad Request when user values missing', async () => {
+                const user = {}
+                const userType = 'user'
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(user)
+                }
+
+                const response = await fetch(`${domain}/api/auth/register/${userType}`, payload)
+                const json = await response.json()
+                
                 if(response.status !== 400) console.log(response, json)
 
                 expect(response.status).toBe(400)
-                expect(json.status).toBe("bad request")
-                expect(json.message).toBe("ABN must be a number")
+                expect(Array.isArray(json.errors)).toBe(true)
+                expect(json.errors.length).toBeGreaterThan(0)
             })
+
+
+
+            const mockBusinessRep = {
+                email: "b.gates@outlook.com",
+                password: "Abc_1234",
+                fname: "Bill",
+                lname: "Gates",
+                phone: "0473982982",
+                address: {
+                    streetNumber: 32,
+                    streetName: "High Street",
+                    city: "Berkshire",
+                    state: "QLD",
+                    postCode: 4557,
+                    country: "Australia",
+                },
+                dob: new Date(1972, 1, 12),
+            }
+
+           
+            // Business Rep Registration Tests
+            test('POST returns 200 OK and registers a "businessRep" in the DB with valid inputs', async () => {
+                const businessRep = JSON.parse(JSON.stringify(mockBusinessRep))
+                const userType = 'businessRep'
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(businessRep)
+                }
+
+                const response = await fetch(`${domain}/api/auth/register/${userType}`, payload)
+                const json = await response.json()
+                
+                if(response.status !== 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(json.message).toBe("User successfully registered")
+            })
+
+            // Validation tests
+            test('POST returns 400 Bad Request when businessRep values missing', async () => {
+                const businessRep = {}
+                const userType = 'businessRep'
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(businessRep)
+                }
+
+                const response = await fetch(`${domain}/api/auth/register/${userType}`, payload)
+                const json = await response.json()
+                
+                if(response.status !== 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(Array.isArray(json.errors)).toBe(true)
+                expect(json.errors.length).toBeGreaterThan(0)
+            })
+
+            test('POST returns 400 Bad Request when userType not "user" or "businessRep"', async () => {
+                const user = JSON.parse(JSON.stringify(mockBusinessRep))
+                const userType = 'invalid'
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(user)
+                }
+
+                const response = await fetch(`${domain}/api/auth/register/${userType}`, payload)
+                const json = await response.json()
+                
+                if(response.status !== 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(json.status).toBe("error")
+                expect(json.message).toBe("Something went wrong...")
+            })
+
+        })
+
+        describe('Route: /api/auth/login', () => {
+
         })
     })
 })

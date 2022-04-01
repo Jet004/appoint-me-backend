@@ -51,3 +51,6 @@ export const DbCreateRep = (businessRep, cb) => mongoose.model('BusinessRep').cr
 export const DbUpdateRep = (id, businessRep, cb) => mongoose.model('BusinessRep').findByIdAndUpdate(id, businessRep, cb)
 
 export const DbDeleteRep = (id, cb) => mongoose.model('BusinessRep').findByIdAndDelete(id, cb)
+
+// Auth operations
+export const DbRegisterBusinessRep = (businessRep, cb) => mongoose.model('BusinessRep').create(businessRep, cb)

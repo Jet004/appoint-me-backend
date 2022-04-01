@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 const businessReps = [
     {
         email: "w.crofton@gmail.com",
-        password: bcrypt.hashSync("12345678", 6),
+        password: bcrypt.hashSync("Abc_1234", 6),
         fname: "William",
         lname: "Crofton",
         phone: "0473982982",
@@ -19,7 +19,7 @@ const businessReps = [
     }, {
         _id: "623d340fd6dd133325228406",
         email: "j.chen@chencorp.com",
-        password: bcrypt.hashSync("12345678", 6),
+        password: bcrypt.hashSync("Abc_1234", 6),
         fname: "John",
         lname: "Chen",
         phone: "0746372891",

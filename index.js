@@ -40,6 +40,8 @@ import businessRepRoutes from './routes/businessRepRoutes'
 server.use('/api/business-reps', businessRepRoutes)
 import businessRoutes from './routes/businessRoutes'
 server.use('/api/businesses', businessRoutes)
+import authRoutes from './routes/authRoutes'
+server.use('/api/auth', authRoutes)
 
 // Run server
 server.listen(process.env.PORT, () => {

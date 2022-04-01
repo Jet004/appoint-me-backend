@@ -6,8 +6,8 @@ import { createBusinessService, getBusinessByABN, getBusinessByID, getBusinessSe
 // Import Business model ODM methods
 import { DbCreateBusinessService, DbGetBusinessByABN, DbGetBusinessByID, DbGetBusinessServiceById, DbUpdateBusiness } from "../models/businessModel"
 // Import validators
-import { idValidator, abnValidator, businessValidator, checkKeys, serviceValidator } from "../controllers/businessValidators"
-import validationCheck  from "../controllers/checkValidators"
+import { idValidator, abnValidator, businessValidator, checkKeys, serviceValidator } from "../validation/businessValidators"
+import validationCheck  from "../validation/checkValidators"
 
 // Business routes
 router.route('/services/:abn')
