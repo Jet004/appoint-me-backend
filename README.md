@@ -5,6 +5,9 @@
 
 ## TODO
 
+- Middleware to redirect if already logged in/not logged in...
+- tests on all protected routes checking that authorisation middleware working correctly
+
 - Add business details for managing business profile page (Admin panel)
 - Add appointment validator to user validators and adjust integration tests
 - unit test Models
@@ -12,6 +15,7 @@
 - Add logic to prevent business adding more than one temp user with the same email address (ref crm collection)
 - Change business controllers to use JWT for abn/id rather than params, update tests to reflect the changes... (Add validation test for get services...)
 - complete validation tests for business services offered...
+- services/:abn need to check for unexpected keys
 
 ## Todo when have time
 

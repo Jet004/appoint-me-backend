@@ -1,9 +1,5 @@
 import bcrypt from 'bcrypt'
-import { registerUser, loginUser } from '../authController';
-
-import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv';
-dotenv.config();
+import { registerUser, loginUser, logoutUser } from '../authController';
 
 // Set up mock users for registration tests
 const mockUser = {
@@ -242,41 +238,481 @@ describe('Auth Controller Unit Tests: ', () => {
     })
 
     describe('Test controller: loginUser', () => {
-        test.only('POST returns 200 OK, generated JWTs and logs in user', async () => {
+        test('returns 200 OK, generates JWTs and logs in user', async () => {
             const user = JSON.parse(JSON.stringify(mockUser))
+            const userCredentials = {
+                email: user.email,
+                password: user.password
+            }
+
             const fakeDbUser = JSON.parse(JSON.stringify(user))
             fakeDbUser.password = bcrypt.hashSync(fakeDbUser.password, 6)
+            fakeDbUser._id = '5eq9f8f8f8f8f8f8f8f8f8f8'
+
             const fakeDbGetUserByEmail = jest.fn().mockResolvedValue(fakeDbUser)
             const fakeDbGetRepByEmail = jest.fn()
-            const fakeSignJWT = jest.fn().mockReturnValue('token')
+            const fakeDbSaveRefreshToken = jest.fn().mockReturnValue({ refreshToken: 'refreshToken' })
+
             const req = {
                 params: {
                     userType: 'user'
                 },
-                body: user
+                body: userCredentials
             }
             const res = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
             }
 
-            const controller = loginUser(fakeDbGetUserByEmail, fakeDbGetRepByEmail, fakeSignJWT)
+            const controller = loginUser(fakeDbGetUserByEmail, fakeDbGetRepByEmail, fakeDbSaveRefreshToken)
             expect(typeof controller).toBe('function')
 
-            const rest = await controller(req, res)
+            await controller(req, res)
             expect(fakeDbGetUserByEmail).toHaveBeenCalledTimes(1)
             expect(fakeDbGetUserByEmail).toHaveBeenCalledWith(req.body.email)
             expect(fakeDbGetRepByEmail).not.toHaveBeenCalled()
-            console.log(rest)
+            expect(fakeDbSaveRefreshToken).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledTimes(1)        
+        })
 
-            // const header = {
-            //     "iss": 'http://localhost:8200',
-            //     "sub": user.email,
-            //     "aud": 'http://localhost:8200',
-            // }
-        
-            // const token = jwt.sign({ header, payload: { email: user.email, userType: 'user' } }, process.env.JWT_SECRET, { expiresIn: '1h' })
-            // console.log(jwt.verify(token, process.env.JWT_SECRET))
+        test('returns 400 Bad Request when user email or password incorrect', async () => {
+            const credentialsList = [
+                {email: mockUser.email, password: "987_sigciG"},
+                {email: "rsfi@oshf.com", password: mockUser.password}
+            ]
+            credentialsList.forEach(async (item) => {
+                const userCredentials = {
+                    email: item.email,
+                    password: item.password
+                }
+    
+                const fakeDbUser = JSON.parse(JSON.stringify(mockUser))
+                fakeDbUser.password = bcrypt.hashSync(fakeDbUser.password, 6)
+                fakeDbUser._id = '5eq9f8f8f8f8f8f8f8f8f8f8'
+
+                const returnValue = userCredentials.email === mockUser.email ? fakeDbUser : null
+                const fakeDbGetUserByEmail = jest.fn().mockResolvedValue(returnValue)
+                const fakeDbGetRepByEmail = jest.fn()
+                const fakeDbSaveRefreshToken = jest.fn().mockReturnValue({ refreshToken: 'refreshToken' })
+    
+                const req = {
+                    params: {
+                        userType: 'user'
+                    },
+                    body: userCredentials
+                }
+                const res = {
+                    status: jest.fn().mockReturnThis(),
+                    json: jest.fn().mockReturnThis()
+                }
+    
+                const controller = loginUser(fakeDbGetUserByEmail, fakeDbGetRepByEmail, fakeDbSaveRefreshToken)
+                expect(typeof controller).toBe('function')
+    
+                await controller(req, res)
+                expect(fakeDbGetUserByEmail).toHaveBeenCalledTimes(1)
+                expect(fakeDbGetUserByEmail).toHaveBeenCalledWith(req.body.email)
+                expect(fakeDbGetRepByEmail).not.toHaveBeenCalled()
+                expect(fakeDbSaveRefreshToken).not.toHaveBeenCalled()
+                expect(res.status).toHaveBeenCalledTimes(1)
+                expect(res.status).toHaveBeenCalledWith(400)
+                expect(res.json).toHaveBeenCalledTimes(1)
+                expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Invalid credentials" })
+            })    
+        })
+
+        test('returns 500 Internal Server Error when DbGetUserByEmail return an error', async () => {
+            const user = JSON.parse(JSON.stringify(mockUser))
+            const userCredentials = {
+                email: user.email,
+                password: user.password
+            }
+
+            const fakeDbUser = JSON.parse(JSON.stringify(user))
+            fakeDbUser.password = bcrypt.hashSync(fakeDbUser.password, 6)
+            fakeDbUser._id = '5eq9f8f8f8f8f8f8f8f8f8f8'
+
+            const req = {
+                params: {
+                    userType: 'user'
+                },
+                body: userCredentials
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const fakeDbGetUserByEmail = jest.fn().mockRejectedValueOnce(new Error("DB error"))
+            const fakeDbGetRepByEmail = jest.fn()
+            const fakeDbSaveRefreshToken = jest.fn().mockResolvedValueOnce({ refreshToken: 'refreshToken' })
+
+            const controller = loginUser(fakeDbGetUserByEmail, fakeDbGetRepByEmail, fakeDbSaveRefreshToken)
+            expect(typeof controller).toBe('function')
+
+            await controller(req, res)
+
+            expect(fakeDbGetUserByEmail).toHaveBeenCalledTimes(1)
+            expect(fakeDbGetUserByEmail).toHaveBeenCalledWith(req.body.email)
+            expect(fakeDbGetRepByEmail).not.toHaveBeenCalled()
+            expect(fakeDbSaveRefreshToken).not.toHaveBeenCalled()
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(500)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "DB error" })     
+        })
+
+        test('returns 500 Internal Server Error when DbSaveRefreshToken returns an error', async () => {
+            const user = JSON.parse(JSON.stringify(mockUser))
+            const userCredentials = {
+                email: user.email,
+                password: user.password
+            }
+
+            const fakeDbUser = JSON.parse(JSON.stringify(user))
+            fakeDbUser.password = bcrypt.hashSync(fakeDbUser.password, 6)
+            fakeDbUser._id = '5eq9f8f8f8f8f8f8f8f8f8f8'
+
+            const req = {
+                params: {
+                    userType: 'user'
+                },
+                body: userCredentials
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const fakeDbGetUserByEmail = jest.fn().mockResolvedValueOnce(fakeDbUser)
+            const fakeDbGetRepByEmail = jest.fn()
+            const fakeDbSaveRefreshToken = jest.fn().mockRejectedValueOnce(new Error("DB error"))
+
+            const controller = loginUser(fakeDbGetUserByEmail, fakeDbGetRepByEmail, fakeDbSaveRefreshToken)
+            expect(typeof controller).toBe('function')
+
+            await controller(req, res)
+
+            expect(fakeDbGetUserByEmail).toHaveBeenCalledTimes(1)
+            expect(fakeDbGetUserByEmail).toHaveBeenCalledWith(req.body.email)
+            expect(fakeDbGetRepByEmail).not.toHaveBeenCalled()
+            expect(fakeDbSaveRefreshToken).toHaveBeenCalledTimes(1)
+            expect(fakeDbSaveRefreshToken.mock.calls[0][0]).toBeTruthy()
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(500)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "DB error" })     
+        })
+
+
+        // Business rep login tests
+        test('returns 200 OK, generates JWTs and logs in user', async () => {
+            const user = JSON.parse(JSON.stringify(mockBusinessRep))
+            const userCredentials = {
+                email: user.email,
+                password: user.password
+            }
+
+            const fakeDbUser = JSON.parse(JSON.stringify(user))
+            fakeDbUser.password = bcrypt.hashSync(fakeDbUser.password, 6)
+            fakeDbUser._id = '5eq9f8f8f8f8f8f8f8f8f8f8'
+
+            const fakeDbGetUserByEmail = jest.fn()
+            const fakeDbGetRepByEmail = jest.fn().mockResolvedValue(fakeDbUser)
+            const fakeDbSaveRefreshToken = jest.fn().mockReturnValue({ refreshToken: 'refreshToken' })
+
+            const req = {
+                params: {
+                    userType: 'businessRep'
+                },
+                body: userCredentials
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = loginUser(fakeDbGetUserByEmail, fakeDbGetRepByEmail, fakeDbSaveRefreshToken)
+            expect(typeof controller).toBe('function')
+
+            await controller(req, res)
+            expect(fakeDbGetRepByEmail).toHaveBeenCalledTimes(1)
+            expect(fakeDbGetRepByEmail).toHaveBeenCalledWith(req.body.email)
+            expect(fakeDbGetUserByEmail).not.toHaveBeenCalled()
+            expect(fakeDbSaveRefreshToken).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledTimes(1)        
+        })
+
+        test('returns 400 Bad Request when businessRep email or password incorrect', async () => {
+            const credentialsList = [
+                {email: mockBusinessRep.email, password: "987_sigciG"},
+                {email: "ifbosb@ofbobf.com", password: mockBusinessRep.password}
+            ]
+            credentialsList.forEach(async (item) => {
+                const userCredentials = {
+                    email: item.email,
+                    password: item.password
+                }
+                
+    
+                const fakeDbUser = JSON.parse(JSON.stringify(mockBusinessRep))
+                fakeDbUser.password = bcrypt.hashSync(fakeDbUser.password, 6)
+                fakeDbUser._id = '5eq9f8f8f8f8f8f8f8f8f8f8'
+    
+                const returnValue = userCredentials.email === mockBusinessRep.email ? fakeDbUser : null
+                const fakeDbGetUserByEmail = jest.fn()
+                const fakeDbGetRepByEmail = jest.fn().mockResolvedValue(returnValue)
+                const fakeDbSaveRefreshToken = jest.fn().mockReturnValue({ refreshToken: 'refreshToken' })
+    
+                const req = {
+                    params: {
+                        userType: 'businessRep'
+                    },
+                    body: userCredentials
+                }
+                const res = {
+                    status: jest.fn().mockReturnThis(),
+                    json: jest.fn().mockReturnThis()
+                }
+    
+                const controller = loginUser(fakeDbGetUserByEmail, fakeDbGetRepByEmail, fakeDbSaveRefreshToken)
+                expect(typeof controller).toBe('function')
+    
+                await controller(req, res)
+                expect(fakeDbGetUserByEmail).not.toHaveBeenCalled()
+                expect(fakeDbGetRepByEmail).toHaveBeenCalledTimes(1)
+                expect(fakeDbGetRepByEmail).toHaveBeenCalledWith(req.body.email)
+                expect(fakeDbSaveRefreshToken).toHaveBeenCalledTimes(0)
+                expect(res.status).toHaveBeenCalledTimes(1)
+                expect(res.status).toHaveBeenCalledWith(400)
+                expect(res.json).toHaveBeenCalledTimes(1)
+                expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Invalid credentials" })
+            })
+        })
+
+        test('returns 500 Internal Server Error when DbGetRepByEmail returns an error', async () => {
+            const user = JSON.parse(JSON.stringify(mockBusinessRep))
+            const userCredentials = {
+                email: user.email,
+                password: user.password
+            }
+
+            const fakeDbUser = JSON.parse(JSON.stringify(user))
+            fakeDbUser.password = bcrypt.hashSync(fakeDbUser.password, 6)
+            fakeDbUser._id = '5eq9f8f8f8f8f8f8f8f8f8f8'
+
+            const req = {
+                params: {
+                    userType: 'businessRep'
+                },
+                body: userCredentials
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const fakeDbGetUserByEmail = jest.fn()
+            const fakeDbGetRepByEmail = jest.fn().mockRejectedValueOnce(new Error("DB error"))
+            const fakeDbSaveRefreshToken = jest.fn().mockResolvedValueOnce({ refreshToken: 'refreshToken' })
+
+            const controller = loginUser(fakeDbGetUserByEmail, fakeDbGetRepByEmail, fakeDbSaveRefreshToken)
+            expect(typeof controller).toBe('function')
+
+            await controller(req, res)
+
+            expect(fakeDbGetRepByEmail).toHaveBeenCalledTimes(1)
+            expect(fakeDbGetRepByEmail).toHaveBeenCalledWith(req.body.email)
+            expect(fakeDbGetUserByEmail).not.toHaveBeenCalled()
+            expect(fakeDbSaveRefreshToken).not.toHaveBeenCalled()
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(500)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "DB error" })     
+        })
+
+        test('returns 500 Internal Server Error when DbSaveRefreshToken returns an error', async () => {
+            const user = JSON.parse(JSON.stringify(mockBusinessRep))
+            const userCredentials = {
+                email: user.email,
+                password: user.password
+            }
+
+            const fakeDbUser = JSON.parse(JSON.stringify(user))
+            fakeDbUser.password = bcrypt.hashSync(fakeDbUser.password, 6)
+            fakeDbUser._id = '5eq9f8f8f8f8f8f8f8f8f8f8'
+
+            const req = {
+                params: {
+                    userType: 'businessRep'
+                },
+                body: userCredentials
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const fakeDbGetUserByEmail = jest.fn()
+            const fakeDbGetRepByEmail = jest.fn().mockResolvedValueOnce(fakeDbUser)
+            const fakeDbSaveRefreshToken = jest.fn().mockRejectedValueOnce(new Error("DB error"))
+
+            const controller = loginUser(fakeDbGetUserByEmail, fakeDbGetRepByEmail, fakeDbSaveRefreshToken)
+            expect(typeof controller).toBe('function')
+
+            await controller(req, res)
+
+            expect(fakeDbGetRepByEmail).toHaveBeenCalledTimes(1)
+            expect(fakeDbGetRepByEmail).toHaveBeenCalledWith(req.body.email)
+            expect(fakeDbGetUserByEmail).not.toHaveBeenCalled()
+            expect(fakeDbSaveRefreshToken).toHaveBeenCalledTimes(1)
+            expect(fakeDbSaveRefreshToken.mock.calls[0][0]).toBeTruthy()
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(500)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "DB error" })     
+        })
+
+        test('returns 400 Bad Request when userType is not "user" or "businessRep"', async () => {
+            const user = JSON.parse(JSON.stringify(mockUser))
+            const userCredentials = {
+                email: user.email,
+                password: user.password
+            }
+
+            const fakeDbUser = JSON.parse(JSON.stringify(user))
+            fakeDbUser.password = bcrypt.hashSync(fakeDbUser.password, 6)
+            fakeDbUser._id = '5eq9f8f8f8f8f8f8f8f8f8f8'
+
+            const fakeDbGetUserByEmail = jest.fn().mockResolvedValue(fakeDbUser)
+            const fakeDbGetRepByEmail = jest.fn()
+            const fakeDbSaveRefreshToken = jest.fn().mockReturnValue({ refreshToken: 'refreshToken' })
+
+            const req = {
+                params: {
+                    userType: 'Not a valid user type'
+                },
+                body: userCredentials
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = loginUser(fakeDbGetUserByEmail, fakeDbGetRepByEmail, fakeDbSaveRefreshToken)
+            expect(typeof controller).toBe('function')
+
+            await controller(req, res)
+            expect(fakeDbGetUserByEmail).not.toHaveBeenCalled()
+            expect(fakeDbGetRepByEmail).not.toHaveBeenCalled()
+            expect(fakeDbSaveRefreshToken).not.toHaveBeenCalled()
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(400)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Something went wrong..." })
+        })
+    })
+
+    describe('Test controller: logoutUser', () => {
+        test('returns 200 OK when user is logged out', async () => {
+            const req = {
+                body: {
+                    refreshToken: 'refreshToken'
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+            const fakeDbDeleteRefreshToken = jest.fn().mockResolvedValue({ acknowledged: true, deletedCount: 1 })
+            const controller = logoutUser(fakeDbDeleteRefreshToken)
+            expect(typeof controller).toBe('function')
+
+            await controller(req, res)
+            expect(fakeDbDeleteRefreshToken).toHaveBeenCalledTimes(1)
+            expect(fakeDbDeleteRefreshToken).toHaveBeenCalledWith(req.body.refreshToken)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "success", message: "User successfully logged out" })
+        })
+
+        test('returns 400 Bad Request when refresh token missing from request body', async () => {
+            const req = {
+                body: {
+                    refreshToken: ''
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+            const fakeDbDeleteRefreshToken = jest.fn().mockResolvedValue(req.body.refreshToken)
+            const controller = logoutUser(fakeDbDeleteRefreshToken)
+            expect(typeof controller).toBe('function')
+
+            await controller(req, res)
+            expect(fakeDbDeleteRefreshToken).not.toHaveBeenCalled()
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(400)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "Authentication error", message: "Please log in to access this resource" })
+        })
+
+        test('returns 400 Bad Request when refresh token not in DB', async () => {
+            const req = {
+                body: {
+                    refreshToken: 'refreshToken'
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+            const fakeDbDeleteRefreshToken = jest.fn().mockResolvedValue(null)
+            const controller = logoutUser(fakeDbDeleteRefreshToken)
+            expect(typeof controller).toBe('function')
+
+            await controller(req, res)
+            expect(fakeDbDeleteRefreshToken).toHaveBeenCalledTimes(1)
+            expect(fakeDbDeleteRefreshToken).toHaveBeenCalledWith(req.body.refreshToken)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(400)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "Authentication error", message: "Something went wrong..." })
+        })
+
+        test('returns 500 Internal Server Error when DbDeleteRefreshToken returns an error', async () => {
+            const req = {
+                body: {
+                    refreshToken: 'refreshToken'
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+            const fakeDbDeleteRefreshToken = jest.fn().mockRejectedValue(new Error("Db error"))
+            const controller = logoutUser(fakeDbDeleteRefreshToken)
+            expect(typeof controller).toBe('function')
+
+            await controller(req, res)
+            expect(fakeDbDeleteRefreshToken).toHaveBeenCalledTimes(1)
+            expect(fakeDbDeleteRefreshToken).toHaveBeenCalledWith(req.body.refreshToken)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(500)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Db error" })
+        })
+    })
+
+    describe('Test controller: tokenRefresh', () => {
+        test('returns 200 OK with new access and refresh tokens with valid inputs', async () => {
+            
         })
     })
 })

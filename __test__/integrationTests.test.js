@@ -14,6 +14,8 @@ import User from '../models/userModel'
 import TempUser from '../models/tempUserModel'
 import BusinessRep from '../models/businessRepModel'
 import Business from '../models/businessModel'
+import Auth from '../models/authModel'
+import tempUsers from './mockTempUsers'
 
 const domain = "http:localhost:8200"
 
@@ -418,7 +420,7 @@ describe('Integration Tests:', () => {
     
                 expect(response.status).toBe(200)
                 expect(json.status).toBe('success')
-                expect(json.user.length).toBe(users.length)
+                expect(json.user.length).toBe(tempUsers.length)
             })
 
             test(`POST returns 200 OK with valid user data adds new user to the DB without address or dob`, async () => {
@@ -1795,7 +1797,388 @@ describe('Integration Tests:', () => {
         })
 
         describe('Route: /api/auth/login', () => {
+            test('POST returns 200 OK with JWT tokens and logs user in with valid inputs', async () => {
+                const user = users[1]
+                const userType = "user"
+                const userCredentials = {
+                    email: user.email,
+                    password: "Abc_1234",
+                }
 
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(userCredentials)
+                }
+
+                const response = await fetch(`${domain}/api/auth/login/${userType}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(json.message).toBe("User successfully logged in")
+                expect(json.accessToken).toBeTruthy()
+                expect(json.refreshToken).toBeTruthy()
+
+                // Check that a refresh token has been added to the database
+                const tokenList = await Auth.find({})
+                expect(tokenList.length > 0).toBe(true)
+                expect(json.refreshToken).toBe(tokenList[0].refreshToken)
+            })
+
+            test('POST returns 400 Bad Request when user email or password incorrect', async () => {
+                const user = users[0]
+                const userType = "user"
+                const credentialsList = [
+                    {email: user.email, password: "Invalid_555"},
+                    {email: "invalid@invalid.com", password: "Abc_1234"},
+                ]
+
+                credentialsList.forEach(async item => {
+                    const userCredentials = {
+                        email: item.email,
+                        password: item.password,
+                    }
+    
+                    const payload = {
+                        method: "POST",
+                        headers: {
+                            "content-type": "application/json"
+                        },
+                        body: JSON.stringify(userCredentials)
+                    }
+    
+                    const response = await fetch(`${domain}/api/auth/login/${userType}`, payload)
+                    const json = await response.json()
+    
+                    if(response.status !== 400) console.log(response, json)
+    
+                    expect(response.status).toBe(400)
+                    expect(json.status).toBe("error")
+                    expect(json.message).toBe("Invalid credentials")
+                    expect(json.accessToken).toBeFalsy()
+                    expect(json.refreshToken).toBeFalsy()
+                })
+            })
+
+           
+            // Business rep login tests
+            test('POST returns 200 OK with JWT tokens and logs user in with valid inputs', async () => {
+                const user = businessReps[0]
+                const userType = "businessRep"
+                const userCredentials = {
+                    email: user.email,
+                    password: "Abc_1234",
+                }
+
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(userCredentials)
+                }
+
+                const response = await fetch(`${domain}/api/auth/login/${userType}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(json.message).toBe("User successfully logged in")
+                expect(json.accessToken).toBeTruthy()
+                expect(json.refreshToken).toBeTruthy()
+
+                // Check that a refresh token has been added to the database
+                const tokenList = await Auth.find({})
+                expect(tokenList.length > 1).toBe(true)
+                expect(json.refreshToken).toBe(tokenList[1].refreshToken)
+            })
+
+            test('POST returns 400 Bad Request when businessRep email or password incorrect', async () => {
+                const user = businessReps[1]
+                const userType = "businessRep"
+                const credentialsList = [
+                    {email: user.email, password: "Invalid_555"},
+                    {email: "invalid@invalid.com", password: "Abc_1234"},
+                ]
+
+                credentialsList.forEach(async item => {
+                    const userCredentials = {
+                        email: item.email,
+                        password: item.password,
+                    }
+    
+                    const payload = {
+                        method: "POST",
+                        headers: {
+                            "content-type": "application/json"
+                        },
+                        body: JSON.stringify(userCredentials)
+                    }
+    
+                    const response = await fetch(`${domain}/api/auth/login/${userType}`, payload)
+                    const json = await response.json()
+    
+                    if(response.status !== 400) console.log(response, json)
+    
+                    expect(response.status).toBe(400)
+                    expect(json.status).toBe("error")
+                    expect(json.message).toBe("Invalid credentials")
+                    expect(json.accessToken).toBeFalsy()
+                    expect(json.refreshToken).toBeFalsy()
+                })
+            })
+
+            test('POST returns 400 Bad Request when userType not "user" or "businessRep"', async () => {
+                const user = users[0]
+                const userType = "Not a user type"
+                const userCredentials = {
+                    email: user.email,
+                    password: "Abc_1234",
+                }
+
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(userCredentials)
+                }
+
+                const response = await fetch(`${domain}/api/auth/login/${userType}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(json.status).toBe("error")
+                expect(json.message).toBe("Something went wrong...")
+                expect(json.accessToken).toBeFalsy()
+                expect(json.refreshToken).toBeFalsy()
+            })
+
+             // Validation tests for this route are the same for all user types
+             test('POST returns 400 Bad Request when user inputs invalid', async () => {
+                const userInputs = [
+                    {},
+                    {email: "invalid", password: "invalid"},
+                ]
+                const userType = "user"
+
+                userInputs.forEach(async user => {
+                    const payload = {
+                        method: "POST",
+                        headers: {
+                            "content-type": "application/json"
+                        },
+                        body: JSON.stringify(user)
+                    }
+    
+                    const response = await fetch(`${domain}/api/auth/login/${userType}`, payload)
+                    const json = await response.json()
+                    
+                    if(response.status !== 400) console.log(response, json)
+    
+                    expect(response.status).toBe(400)
+                    expect(Array.isArray(json.errors)).toBe(true)
+                    expect(json.errors.length).toBeGreaterThan(0)
+                })
+            })
+
+            test('POST returns 400 Bad Request when inputs contain unexpected keys', async () => {
+                const userType = "user"
+                const userCredentials = {
+                    email: "email@address.com",
+                    password: "Abc_1234",
+                    extraKey: "extraValue"
+                }
+
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(userCredentials)
+                }
+
+                const response = await fetch(`${domain}/api/auth/login/${userType}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(json.status).toBe("error")
+                expect(json.message).toMatch(/extraKey/)
+            })
+        })
+
+        describe('Route: /api/auth/logout', () => {
+            test('POST returns 200 OK + log out when user is logged in', async () => {
+                const user = users[2]
+                const userType = "user"
+                const userCredentials = {
+                    email: user.email,
+                    password: "Abc_1234",
+                }
+
+                const payload = {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(userCredentials)
+                }
+
+                const response = await fetch(`${domain}/api/auth/login/${userType}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(json.message).toBe("User successfully logged in")
+                expect(json.accessToken).toBeTruthy()
+                expect(json.refreshToken).toBeTruthy()
+
+                // Check that a refresh token has been added to the database
+                const token = await Auth.find({ refreshToken: json.refreshToken })
+                expect(token.length === 1).toBeTruthy()
+                expect(token[0].refreshToken).toBe(json.refreshToken)
+                
+                const payload2 = {
+                    method: "post",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${json.accessToken}`
+                    },
+                    body: JSON.stringify({
+                        refreshToken: json.refreshToken
+                    })
+                }
+
+                // Log the user out
+                const logoutResponse = await fetch(`${domain}/api/auth/logout`, payload2)
+                const logoutJson = await logoutResponse.json()
+
+                if(logoutResponse.status !== 200) console.log(logoutResponse, logoutJson)
+
+                expect(logoutResponse.status).toBe(200)
+                expect(logoutJson.status).toBe("success")
+                expect(logoutJson.message).toBe("User successfully logged out")
+
+                // Check that the refresh token has been removed from the database
+                const checkdeleted = await Auth.find({ refreshToken: json.refreshToken })
+                expect(checkdeleted.length === 0).toBeTruthy()
+            })
+
+            test('POST returns 400 Bad Request when refresh token not in Db', async () => {
+                const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ3ZWYwNzFiZjI4MTk5ODlhMzczZmEiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg4ODE0MTYsImV4cCI6MTY0OTQ4NjIxNn0.ZzpxuGEfE0JBp8nKyK5IEFCoxGQ2xYMS-Lu-kb59wfk'
+
+                const payload = {
+                    method: "post",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        refreshToken: token
+                    })
+                }
+
+                // Log the user out
+                const logoutResponse = await fetch(`${domain}/api/auth/logout`, payload)
+                const logoutJson = await logoutResponse.json()
+
+                if(logoutResponse.status !== 400) console.log(logoutResponse, logoutJson)
+
+                expect(logoutResponse.status).toBe(400)
+                expect(logoutJson.status).toBe("Authentication error")
+                expect(logoutJson.message).toBe("Something went wrong...")
+            })
+
+            // Validation tests for this route are the same for all user types
+            test('POST returns 400 Bad Request when no token provided', async () => {
+                const token = ""
+
+                const payload = {
+                    method: "post",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        refreshToken: token
+                    })
+                }
+
+                // Log the user out
+                const logoutResponse = await fetch(`${domain}/api/auth/logout`, payload)
+                const logoutJson = await logoutResponse.json()
+                console.log(logoutResponse, logoutJson)
+                if(logoutResponse.status !== 400) console.log(logoutResponse, logoutJson)
+
+                expect(logoutResponse.status).toBe(400)
+                expect(Array.isArray(logoutJson.errors)).toBeTruthy()
+                expect(logoutJson.errors.length).toBeGreaterThan(0)
+            })
+
+            // Validation tests for this route are the same for all user types
+            test('POST returns 400 Bad Request when invalid tokens provided', async () => {
+                const token = "Not a token"
+
+                const payload = {
+                    method: "post",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        refreshToken: token
+                    })
+                }
+
+                // Log the user out
+                const logoutResponse = await fetch(`${domain}/api/auth/logout`, payload)
+                const logoutJson = await logoutResponse.json()
+                console.log(logoutResponse, logoutJson)
+                if(logoutResponse.status !== 400) console.log(logoutResponse, logoutJson)
+
+                expect(logoutResponse.status).toBe(400)
+                expect(Array.isArray(logoutJson.errors)).toBeTruthy()
+                expect(logoutJson.errors.length).toBeGreaterThan(0)
+            })
+
+            test.only('POST returns 400 Bad Request when unexpected keys present in request body', async () => {
+                const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ3ZWYwNzFiZjI4MTk5ODlhMzczZmEiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg4ODE0MTYsImV4cCI6MTY0OTQ4NjIxNn0.ZzpxuGEfE0JBp8nKyK5IEFCoxGQ2xYMS-Lu-kb59wfk'
+
+                const payload = {
+                    method: "post",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        refreshToken: token,
+                        extraKey: "extraValue"
+                    })
+                }
+
+                // Log the user out
+                const logoutResponse = await fetch(`${domain}/api/auth/logout`, payload)
+                const logoutJson = await logoutResponse.json()
+
+                if(logoutResponse.status !== 400) console.log(logoutResponse, logoutJson)
+
+                expect(logoutResponse.status).toBe(400)
+                expect(logoutJson.status).toBe("error")
+                expect(logoutJson.message).toMatch(/extraKey/)
+            })
         })
     })
 })

@@ -33,7 +33,23 @@ const users = [
         },
         dob: new Date(1980, 5, 23),
         appointments: [],
-    },
+    }, {
+        email: "choliday@gmail.com",
+        password: bcrypt.hashSync("Abc_1234", 6),
+        fname: "Chrissy",
+        lname: "Holiday",
+        phone: "0746372891",
+        address: {
+            streetNumber: "333",
+            streetName: "Margaret Street",
+            city: "Brisbane",
+            state: "QLD",
+            postCode: "4000",
+            country: "Australia",
+        },
+        dob: new Date(1980, 5, 23),
+        appointments: [],
+    }
 ]
 
 export default users;
