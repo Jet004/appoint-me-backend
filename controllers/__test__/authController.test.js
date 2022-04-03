@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
-import { registerUser, loginUser, logoutUser } from '../authController';
-
+import { registerUser, loginUser, logoutUser, tokenRefresh } from '../authController';
+import User from '../../models/userModel';
 // Set up mock users for registration tests
 const mockUser = {
     email: "p.wong@gmail.com",
@@ -712,7 +712,137 @@ describe('Auth Controller Unit Tests: ', () => {
 
     describe('Test controller: tokenRefresh', () => {
         test('returns 200 OK with new access and refresh tokens with valid inputs', async () => {
+            const fakeDbDeleteRefreshToken = jest.fn().mockResolvedValue('refreshToken')
+            const fakeDbSaveRefreshToken = jest.fn().mockResolvedValue({ refreshToken: 'refreshToken' })
+            const req = {
+                body: {
+                    refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ4ZGE5YzE5ZGE4ZTBjZTA0NWEwZGIiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg5NDE3MjQsImV4cCI6MTY0OTU0NjUyNH0.Wgoad_WS1TekzBywKqAK3dKgDnMEfWARrewrv0nOtbo"
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = tokenRefresh(fakeDbSaveRefreshToken, fakeDbDeleteRefreshToken)
+            expect(typeof controller).toBe('function')
             
+            await controller(req, res)
+            expect(fakeDbDeleteRefreshToken).toHaveBeenCalledTimes(1)
+            expect(fakeDbDeleteRefreshToken).toHaveBeenCalledWith(req.body.refreshToken)
+            expect(fakeDbSaveRefreshToken).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json.mock.calls[0][0].status).toBe('success')
+            expect(res.json.mock.calls[0][0].accessToken).toBeTruthy()
+            expect(res.json.mock.calls[0][0].refreshToken).toBeTruthy()
+        })
+
+        test('returns 400 Bad Request when no refresh token in request body', async () => {
+            const fakeDbDeleteRefreshToken = jest.fn().mockResolvedValue('refreshToken')
+            const fakeDbSaveRefreshToken = jest.fn().mockResolvedValue({ refreshToken: 'refreshToken' })
+
+            
+            const req = {
+                body: {
+                    refreshToken: ""
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = tokenRefresh(fakeDbSaveRefreshToken, fakeDbDeleteRefreshToken)
+            expect(typeof controller).toBe('function')
+            
+            await controller(req, res)
+            expect(fakeDbDeleteRefreshToken).not.toHaveBeenCalled()
+            expect(fakeDbSaveRefreshToken).not.toHaveBeenCalled()
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(400)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "Authentication error", message: "Please log in to access this resource" })
+        })
+
+        test('returns 400 Bad Request with refresh token validation error', async () => {
+            const fakeDbDeleteRefreshToken = jest.fn().mockResolvedValue('refreshToken')
+            const fakeDbSaveRefreshToken = jest.fn().mockResolvedValue({ refreshToken: 'refreshToken' })
+
+            const req = {
+                body: {
+                    refreshToken: "Not a valid refresh token"
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = tokenRefresh(fakeDbSaveRefreshToken, fakeDbDeleteRefreshToken)
+            expect(typeof controller).toBe('function')
+            
+            await controller(req, res)
+            expect(fakeDbDeleteRefreshToken).not.toHaveBeenCalled()
+            expect(fakeDbSaveRefreshToken).not.toHaveBeenCalled()
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(400)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "Validation error", message: "Refresh token can not be validated" })
+        })
+
+        test('returns 500 Internal Server Error when DbSaveRefreshToken returns an error', async () => {
+            const fakeDbDeleteRefreshToken = jest.fn().mockResolvedValue('refreshToken')
+            const fakeDbSaveRefreshToken = jest.fn().mockRejectedValue(new Error("Db error"))
+
+            const req = {
+                body: {
+                    refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ4ZGE5YzE5ZGE4ZTBjZTA0NWEwZGIiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg5NDE3MjQsImV4cCI6MTY0OTU0NjUyNH0.Wgoad_WS1TekzBywKqAK3dKgDnMEfWARrewrv0nOtbo"
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = tokenRefresh(fakeDbSaveRefreshToken, fakeDbDeleteRefreshToken)
+            expect(typeof controller).toBe('function')
+            
+            await controller(req, res)
+            expect(fakeDbDeleteRefreshToken).not.toHaveBeenCalled()
+            expect(fakeDbSaveRefreshToken).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(500)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Db error" })
+        })
+
+        test('returns 500 Internal Server Error when DbSeleteRefreshToken returns an error', async () => {
+            const fakeDbDeleteRefreshToken = jest.fn().mockRejectedValue(new Error("Db error"))
+            const fakeDbSaveRefreshToken = jest.fn().mockResolvedValue({ refreshToken: "refreshToken" })
+
+            const req = {
+                body: {
+                    refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ4ZGE5YzE5ZGE4ZTBjZTA0NWEwZGIiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg5NDE3MjQsImV4cCI6MTY0OTU0NjUyNH0.Wgoad_WS1TekzBywKqAK3dKgDnMEfWARrewrv0nOtbo"
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = tokenRefresh(fakeDbSaveRefreshToken, fakeDbDeleteRefreshToken)
+            expect(typeof controller).toBe('function')
+            
+            const rest = await controller(req, res)
+            console.log(rest)
+            expect(fakeDbDeleteRefreshToken).toHaveBeenCalledTimes(1)
+            expect(fakeDbSaveRefreshToken).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(500)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Db error" })
         })
     })
 })

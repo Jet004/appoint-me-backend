@@ -1,8 +1,9 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt'
 
 // Imprort JWT depenecies
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv';
+import mongoose from 'mongoose'
 dotenv.config();
 
 export const registerUser = (DbRegisterUser, DbRegisterBusinessRep) => async (req, res) => {
@@ -109,6 +110,46 @@ export const logoutUser = (DbDeleteRefreshToken) => async (req, res) => {
     }
 }
 
-export const tokenRefresh = (DbGetRefreshToken) => async (req, res) => {
+export const tokenRefresh = (DbSaveRefreshToken, DbDeleteRefreshToken) => async (req, res) => {
+    // Get current refresh token from request object
+    const refreshToken = req.body.refreshToken
+    if(!refreshToken) {
+        return res.status(400).json({ status: "Authentication error", message: "Please log in to access this resource" })
+    }
     
+    try {
+        let tokenContent
+        try{
+            // Get token contents
+            tokenContent = jwt.verify(refreshToken, process.env.JWT_SECRET)
+        } catch(e) {
+            return res.status(400).json({ status: "Validation error", message: "Refresh token can not be validated" })
+        }
+        // Delete unnecessary data from token
+        delete tokenContent.iat
+        delete tokenContent.exp
+    
+        // Generate new access and refresh tokens
+        const newAccessToken = jwt.sign(tokenContent , process.env.JWT_SECRET, { expiresIn: '2h' })
+        const newRefreshToken = jwt.sign(tokenContent , process.env.JWT_SECRET, { expiresIn: '7d' })
+    
+        // Save new refresh token to database
+        const tokenResults = await DbSaveRefreshToken(newRefreshToken)
+        if(!tokenResults) {
+            return res.status(500).json({ status: "error", message: "Something went wrong..." })
+        }
+
+        // Delete old refresh token from database
+        const deleteResults = await DbDeleteRefreshToken(refreshToken)
+        if(!deleteResults || deleteResults.deletedCount === 0) {
+            return res.status(500).json({ status: "error", message: "Something went wrong..." })
+        }
+    
+        // Return access and refresh tokens
+        res.status(200).json({ status: "success", accessToken: newAccessToken, refreshToken: newRefreshToken })
+
+    } catch(e) {
+        console.log(e)
+        res.status(500).json({ status: "error", message: e.message })
+    }
 }
