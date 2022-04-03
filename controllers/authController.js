@@ -97,11 +97,10 @@ export const logoutUser = (DbDeleteRefreshToken) => async (req, res) => {
         } else {
             return res.status(400).json({ status: "Authentication error", message: "Please log in to access this resource" })
         }
-        console.log(results)
+
         if(results && results.deletedCount > 0) {
             res.status(200).json({ status: "success", message: "User successfully logged out" })
         } else {
-            console.log(results)
             res.status(400).json({ status: "Authentication error", message: "Something went wrong..." })
         }
     } catch(e) {

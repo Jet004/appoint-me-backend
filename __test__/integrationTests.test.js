@@ -1629,18 +1629,6 @@ describe('Integration Tests:', () => {
                 expect(json.status).toBe("not found")
                 expect(json.message).toBe("Service not found")
             })
-
-            // Validation tests
-            // test('GET returns 400 with invalid ABN', async () => {
-            //     const abn = "invalid"
-            //     const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`)
-            //     const json = await response.json()
-
-            //     if(response.status !== 400) console.log(response, json)
-
-            //     expect(response.status).toBe(400)
-            //     expect(json.errors.length).toBeGreaterThan(0)
-            // })
         })
     })
 
@@ -2154,7 +2142,7 @@ describe('Integration Tests:', () => {
                 expect(logoutJson.errors.length).toBeGreaterThan(0)
             })
 
-            test.only('POST returns 400 Bad Request when unexpected keys present in request body', async () => {
+            test('POST returns 400 Bad Request when unexpected keys present in request body', async () => {
                 const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ3ZWYwNzFiZjI4MTk5ODlhMzczZmEiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg4ODE0MTYsImV4cCI6MTY0OTQ4NjIxNn0.ZzpxuGEfE0JBp8nKyK5IEFCoxGQ2xYMS-Lu-kb59wfk'
 
                 const payload = {
@@ -2171,6 +2159,118 @@ describe('Integration Tests:', () => {
 
                 // Log the user out
                 const logoutResponse = await fetch(`${domain}/api/auth/logout`, payload)
+                const logoutJson = await logoutResponse.json()
+
+                if(logoutResponse.status !== 400) console.log(logoutResponse, logoutJson)
+
+                expect(logoutResponse.status).toBe(400)
+                expect(logoutJson.status).toBe("error")
+                expect(logoutJson.message).toMatch(/extraKey/)
+            })
+        })
+
+        describe('Route: /api/auth/token-refresh', () => {
+            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ4ZGE5YzE5ZGE4ZTBjZTA0NWEwZGIiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg5NDE3MjQsImV4cCI6MTY0OTU0NjUyNH0.Wgoad_WS1TekzBywKqAK3dKgDnMEfWARrewrv0nOtbo"
+            beforeEach(async () => {
+                // Insert refresh token into the Database
+                try{
+                    const result = await mongoose.model('Auth').create({ refreshToken: token })
+                } catch(e) {
+                    console.error(e)
+                }
+            })
+
+            test('POST returns 200 Ok and replaces the access and refresh tokens', async () => {
+                const payload = {
+                    method: "post",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        refreshToken: token
+                    })
+                }
+                
+                const response = await fetch(`${domain}/api/auth/token-refresh`, payload)
+                const json = await response.json()
+
+                if(response.status !== 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(json.accessToken).toBeTruthy()
+                expect(json.refreshToken).toBeTruthy()
+                expect(json.accessToken).not.toBe(token)
+                expect(json.refreshToken).not.toBe(token)
+            })
+
+            // Validation tests for this route are the same for all user types
+            test('POST returns 400 Bad Request when no token provided', async () => {
+                const token = ""
+
+                const payload = {
+                    method: "post",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        refreshToken: token
+                    })
+                }
+
+                // Log the user out
+                const logoutResponse = await fetch(`${domain}/api/auth/token-refresh`, payload)
+                const logoutJson = await logoutResponse.json()
+
+                if(logoutResponse.status !== 400) console.log(logoutResponse, logoutJson)
+
+                expect(logoutResponse.status).toBe(400)
+                expect(Array.isArray(logoutJson.errors)).toBeTruthy()
+                expect(logoutJson.errors.length).toBeGreaterThan(0)
+            })   
+            
+            test('POST returns 400 Bad Request when invalid tokens provided', async () => {
+                const token = "Not a token"
+
+                const payload = {
+                    method: "post",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        refreshToken: token
+                    })
+                }
+
+                // Log the user out
+                const logoutResponse = await fetch(`${domain}/api/auth/token-refresh`, payload)
+                const logoutJson = await logoutResponse.json()
+
+                if(logoutResponse.status !== 400) console.log(logoutResponse, logoutJson)
+
+                expect(logoutResponse.status).toBe(400)
+                expect(Array.isArray(logoutJson.errors)).toBeTruthy()
+                expect(logoutJson.errors.length).toBeGreaterThan(0)
+            })
+
+            test('POST returns 400 Bad Request when unexpected keys present in request body', async () => {
+                const payload = {
+                    method: "post",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        refreshToken: token,
+                        extraKey: "extraValue"
+                    })
+                }
+
+                // Log the user out
+                const logoutResponse = await fetch(`${domain}/api/auth/token-refresh`, payload)
                 const logoutJson = await logoutResponse.json()
 
                 if(logoutResponse.status !== 400) console.log(logoutResponse, logoutJson)

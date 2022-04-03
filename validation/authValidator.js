@@ -11,7 +11,7 @@ export const emailValidator = [
         .escape(),
 ]
 
-export const logoutValidator = [
+export const tokenValidator = [
     header('Authorization')
         .exists({ checkFalsy: true }).withMessage("Access token is required")
         .customSanitizer(value => value.replace('Bearer ', ''))
@@ -28,7 +28,7 @@ export const logoutValidator = [
 export const checkAuthKeys = (req, res, next) => {
     let acceptedKeys
 
-    if(req.path === "/logout") {
+    if(req.path === "/logout" || req.path === "/token-refresh") {
         acceptedKeys = [
             "refreshToken"
         ]

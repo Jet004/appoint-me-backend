@@ -835,8 +835,7 @@ describe('Auth Controller Unit Tests: ', () => {
             const controller = tokenRefresh(fakeDbSaveRefreshToken, fakeDbDeleteRefreshToken)
             expect(typeof controller).toBe('function')
             
-            const rest = await controller(req, res)
-            console.log(rest)
+            await controller(req, res)
             expect(fakeDbDeleteRefreshToken).toHaveBeenCalledTimes(1)
             expect(fakeDbSaveRefreshToken).toHaveBeenCalledTimes(1)
             expect(res.status).toHaveBeenCalledTimes(1)
