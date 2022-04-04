@@ -22,20 +22,17 @@ export const sessionHandler = () => async (req, res, next) => {
 
     // Check that accessToken is present
     if (!accessToken) {
-        console.log("No access token")
         // No access token in request header, user is not logged in, so set session variables to false
         req.session.loggedIn = false
         req.session.user = null
         // Pass control to next middleware
         return next()
-        console.log("Should not see this message")
     }
 
     let decodedToken
     try {
         // check that accessToken is valid
         decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET)
-        console.log(decodedToken)
         if(!decodedToken && !decodedToken.azp) {
             // Access token is invalid, user is not logged in, so set session variables to false
             req.session.loggedIn = false
@@ -50,7 +47,7 @@ export const sessionHandler = () => async (req, res, next) => {
         // Pass control to next middleware
         return next()
     }
-console.log(decodedToken)
+
     // check tokens not expired
     const currentTime = new Date().getTime()
     if(currentTime > decodedToken.exp) {
@@ -65,8 +62,8 @@ console.log(decodedToken)
     // Generating when to refresh the access token is handled by the front end
 
     // Check that accessToken refers to a valid user
+    let user
     try {
-        let user
         // Check user type so we access the correct MongoDB collection
         if(decodedToken.roles === 'user') {
             user = await User.findById(decodedToken.azp)
@@ -89,6 +86,8 @@ console.log(decodedToken)
         // An error occurred getting the user details, respond with 500 Internal Server Error
         return res.status(500).json({ status: "error", message: e.message })
     }
+
+    // Check that token is not on logout blacklist
 
     // User is logged in, set session variables and pass control to next middleware
     req.session.loggedIn = true
