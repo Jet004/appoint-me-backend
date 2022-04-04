@@ -16,19 +16,37 @@ import validationCheck from '../validation/checkValidators'
 import { emailValidator, checkAuthKeys, tokenValidator } from '../validation/authValidator'
 
 router.route('/register/:userType')
-    .post(userValidator, ubrValidator, passwordValidator, validationCheck, registerUser(DbRegisterUser, DbRegisterBusinessRep))
+    .post(
+        userValidator, 
+        ubrValidator, 
+        passwordValidator, 
+        validationCheck, 
+        registerUser(DbRegisterUser, DbRegisterBusinessRep)
+    )
 
 router.route('/login/:userType')
-    .post(emailValidator, passwordValidator, validationCheck, checkAuthKeys, loginUser(DbGetUserByEmail, DbGetRepByEmail, DbSaveRefreshToken))
+    .post(
+        emailValidator, 
+        passwordValidator, 
+        validationCheck, 
+        checkAuthKeys, 
+        loginUser(DbGetUserByEmail, DbGetRepByEmail, DbSaveRefreshToken)
+    )
 
 router.route('/logout')
-    .post(tokenValidator, validationCheck, checkAuthKeys, logoutUser(DbDeleteRefreshToken))
+    .post(
+        tokenValidator, 
+        validationCheck, 
+        checkAuthKeys, 
+        logoutUser(DbDeleteRefreshToken)
+    )
 
 router.route('/token-refresh')
-    .post(tokenValidator, validationCheck, checkAuthKeys, tokenRefresh(DbSaveRefreshToken, DbDeleteRefreshToken))
-
-
-
-
+    .post(
+        tokenValidator, 
+        validationCheck, 
+        checkAuthKeys, 
+        tokenRefresh(DbSaveRefreshToken, DbDeleteRefreshToken)
+    )
 
 export default router

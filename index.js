@@ -19,6 +19,10 @@ connect(process.env.DB_URL)
 mongoose.connection.on('open', () => console.log(`Database --> Connected to database "${mongoose.connection.name}"`))
 mongoose.connection.on('error', (err) => console.log(`Database --> Error connecting to database "${mongoose.connection.name}"`, err))
 
+// Handle user sessions
+import { sessionHandler } from './middleware/sessionHandler.js'
+server.use(sessionHandler())
+
 
 // Log request information for every request for debugging
 server.use((req, res, next) => {
@@ -31,7 +35,9 @@ server.use(express.json())
 server.use(express.urlencoded({ extended: true }))
 
 
-// Import Routes
+
+
+// Import route handlers
 import userRoutes from './routes/userRoutes'
 server.use('/api/users', userRoutes)
 import tempUserRoutes from './routes/tempUserRoutes'
