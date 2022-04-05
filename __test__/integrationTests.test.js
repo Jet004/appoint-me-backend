@@ -975,7 +975,7 @@ describe('Integration Tests:', () => {
 
         })
 
-        describe('Route: /api/business-re[s/:email', () => {
+        describe('Route: /api/business-reps/:email', () => {
             test('GET returns 200 OK + business rep with valid email', async () => {
                 const email = "j.chen@chencorp.com"
                 const response = await fetch(`${domain}/api/business-reps/${email}`)
@@ -1021,7 +1021,7 @@ describe('Integration Tests:', () => {
             
             test('PUT returns 200 OK + original business rep object', async () => {               
                 // Get business rep data from database
-                const user = await BusinessRep.find({email: 'j.chen@chencorp.com'})
+                const user = await BusinessRep.find({email: 'b.simpson@gmail.com'})
                 const userData = user[0].toJSON()
                 // Get user ID and set to user object
                 const userID = userData._id.valueOf()
@@ -1049,7 +1049,7 @@ describe('Integration Tests:', () => {
                 expect(response.status).toBe(200)
                 expect(json.status).toBe('success')
                 expect(json.originalData.fname).toBe(userData.fname)
-                const dbUser = await BusinessRep.findOne({ email: 'j.chen@chencorp.com' })
+                const dbUser = await BusinessRep.findOne({ email: 'b.simpson@gmail.com' })
                 expect(dbUser.fname).toBe('Updated Name')
             })
 
@@ -1077,7 +1077,7 @@ describe('Integration Tests:', () => {
 
             test('PUT returns 400 Bad Request with invalid input', async () => {
                 // Get business rep data from database
-                const user = await BusinessRep.find({email: 'j.chen@chencorp.com'})
+                const user = await BusinessRep.find({email: 'b.simpson@gmail.com'})
                 const userData = user[0].toJSON()
                 // Get user ID and set to user object
                 const userID = userData._id.valueOf()
@@ -1141,7 +1141,7 @@ describe('Integration Tests:', () => {
             })
 
             test('DELETE returns 204 No Content with valid input', async () => {
-                const mockUser = await BusinessRep.findOne({ email: 'j.chen@chencorp.com' })
+                const mockUser = await BusinessRep.findOne({ email: 'b.simpson@gmail.com' })
 
                 const response = await fetch(`${domain}/api/business-reps/${mockUser._id}`, {
                     method: 'DELETE'
@@ -1227,6 +1227,20 @@ describe('Integration Tests:', () => {
         })
 
         describe('Route: /api/businesses/:abn', () => {
+            let token
+            beforeAll(async () => {
+                const user = await BusinessRep.findOne({ email: "j.chen@chencorp.com" })
+                const payload = {
+                    "iss": 'http://localhost:8200',
+                    "azp": user._id,
+                    "aud": 'http://localhost:8200',
+                    "roles": "businessRep"
+                }
+            
+                // Generate access and refresh tokens
+                token = jwt.sign(payload , process.env.JWT_SECRET)
+            })
+
             test('GET returns 200 OK + business with valid ABN', async () => {
                 const abn = businesses[0].abn
                 const response = await fetch(`${domain}/api/businesses/${abn}`)
@@ -1301,7 +1315,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(updatedData)
                 }
@@ -1325,7 +1340,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(business)
                 }
@@ -1345,14 +1361,15 @@ describe('Integration Tests:', () => {
                     'NotAnABN',
                     {object: "OBJECT"},
                     1,
-                    27384902830238203820
+                    2738490283023820
                 ]
                 const mockbusiness = businesses[0]
 
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(mockbusiness)
                 }
@@ -1373,7 +1390,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: "PUT",
                     headers: {
-                        "content-type": "application/json"
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
                     }
                 }
 
@@ -1391,7 +1409,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         abn: "",
@@ -1427,7 +1446,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         abn: 12345678912,
@@ -1461,6 +1481,20 @@ describe('Integration Tests:', () => {
         })
 
         describe('Route: api/businesses/services/:abn', () => {
+            let token
+            beforeAll(async () => {
+                const user = await BusinessRep.findOne({ email: "w.crofton@gmail.com" })
+                const payload = {
+                    "iss": 'http://localhost:8200',
+                    "azp": user._id,
+                    "aud": 'http://localhost:8200',
+                    "roles": "businessRep"
+                }
+            
+                // Generate access and refresh tokens
+                token = await jwt.sign(payload , process.env.JWT_SECRET)
+            })
+
             const mockService = {
                 name: "Individual Classes",
                 description: "One-to-one class with an experienced teacher",
@@ -1475,7 +1509,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: "POST",
                     headers: {
-                        "content-type": "application/json"
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify(mockService)
                 }
@@ -1497,7 +1532,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: "POST",
                     headers: {
-                        "content-type": "application/json"
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify(mockService)
                 }
@@ -1518,7 +1554,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: "post",
                     headers: {
-                        "content-type": "application/json"
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify(
                         {
@@ -1568,8 +1605,6 @@ describe('Integration Tests:', () => {
             })
         })
 
-
-
         describe('Route: api/businesses/services/:abn/:serviceId', () => {
             const mockService = {
                 name: "Individual Classes",
@@ -1580,18 +1615,31 @@ describe('Integration Tests:', () => {
                 fee: 50
             }
 
+            let token
             let serviceId
-
-            beforeEach(async () => {
-                const business = businesses[0]
+            beforeAll(async () => {
+                const user = await BusinessRep.findOne({ email: "j.chen@chencorp.com" })
                 const payload = {
+                    "iss": 'http://localhost:8200',
+                    "azp": user._id,
+                    "aud": 'http://localhost:8200',
+                    "roles": "businessRep"
+                }
+            
+                // Generate access and refresh tokens
+                token = jwt.sign(payload , process.env.JWT_SECRET)
+
+                // Get serviceId
+                const business = businesses[0]
+                const payload2 = {
                     method: "POST",
                     headers: {
-                        "content-type": "application/json"
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify(mockService)
                 }
-                const response = await fetch(`${domain}/api/businesses/services/${business.abn}`, payload)
+                const response = await fetch(`${domain}/api/businesses/services/${business.abn}`, payload2)
                 const json = await response.json()
                 serviceId = json.updatedData.services[0]._id
             })

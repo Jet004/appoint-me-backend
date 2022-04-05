@@ -88,27 +88,45 @@ export const abnValidator = [
 ]
 
 export const checkKeys = (req, res, next) => {
-    const acceptedKeys = [
-        "_id",
-        "abn",
-        "name",
-        "phone",
-        "email",
-        "businessRep",
-        "createdAt",
-        "updatedAt",
-        "__v",
-        "address.unit",
-        "address.streetNumber",
-        "address.streetName",
-        "address.city",
-        "address.state",
-        "address.postCode",
-        "address.country",
-        "address.createdAt",
-        "address.updatedAt",
-        "address.__v"
-    ]
+    let acceptedKeys
+    console.log("PATH: ", )
+    if(req.path.split('/')[1] === 'services') {
+        acceptedKeys = [
+            "_id",
+            "name",
+            "description",
+            "duration",
+            "bookingTimes",
+            "break",
+            "fee",
+            "createdAt",
+            "updatedAt",
+            "__v"
+        ]
+    } else if (req.path.split('/')[1].match(/\d{9,11}/).length > 0) {
+        acceptedKeys = [
+            "_id",
+            "abn",
+            "name",
+            "phone",
+            "email",
+            "businessRep",
+            "createdAt",
+            "updatedAt",
+            "__v",
+            "address.unit",
+            "address.streetNumber",
+            "address.streetName",
+            "address.city",
+            "address.state",
+            "address.postCode",
+            "address.country",
+            "address.createdAt",
+            "address.updatedAt",
+            "address.__v"
+        ]
+    }
+    
 
     const unexpectedKeys = checkForUnexpectedKeys(acceptedKeys, req.body)
     console.log("unexpected keys: ", unexpectedKeys)

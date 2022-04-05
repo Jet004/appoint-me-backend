@@ -117,7 +117,6 @@ export const requireLogin = () => (req, res, next) => {
         // User is not logged in, respond with 401 Unauthorized
         return res.status(401).json({ status: "error", message: "Unauthorized" })
     }
-    console.log(req.session.loggedIn)
 
     // User is logged in, pass control to next middleware
     return next()
@@ -125,11 +124,15 @@ export const requireLogin = () => (req, res, next) => {
 
 
 export const requireRoles = (allowedRoles) => (req, res, next) => {
-    // Check role type and determine if user can access the requested resource - session.role = 'admin' - include this middleware in all routes that require admin access
-    // Include in routes, provide an array of allowed roles for each route which requires admin access
+    // Check role type and determine if user can access the requested 
+    // resource - session.role = 'admin' - include this middleware in 
+    // all routes that require admin access
+    // Include in routes, provide an array of allowed roles for each 
+    // route which requires admin access
 
     if(!req.session.userType || !allowedRoles.includes(req.session.userType)) {
-        // User is not logged in, or does not have the required role, respond with 401 Unauthorized
+        // User is not logged in, or does not have the required role, respond 
+        // with 401 Unauthorized
         return res.status(401).json({ status: "error", message: "Unauthorized" })
     }
 

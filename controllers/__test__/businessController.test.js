@@ -519,7 +519,7 @@ describe('Business controller unit tests:', () => {
     })
 
     describe('Test controller: getBusinessServiceById', () => {
-        test('returns a function', async () => {
+            test('returns a function', async () => {
             const controller = await getBusinessServiceById(null)
             expect(typeof controller).toBe('function')
         })
@@ -549,7 +549,7 @@ describe('Business controller unit tests:', () => {
             }
 
             const controller = await getBusinessServiceById(DbGetBusinessServiceById)
-            const rest = await controller(req, res)
+            await controller(req, res)
 
             expect(DbGetBusinessServiceById).toHaveBeenCalledTimes(1)
             expect(DbGetBusinessServiceById).toHaveBeenCalledWith(business.abn, business.services[0]._id)

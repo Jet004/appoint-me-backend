@@ -25,6 +25,15 @@ export const tokenValidator = [
         .escape()
 ]
 
+export const accessTokenValidator = [
+    header('Authorization')
+    .exists({ checkFalsy: true }).withMessage("Access token is required")
+    .customSanitizer(value => value.replace('Bearer ', ''))
+    .isJWT().withMessage("Invalid access token")
+    .trim()
+    .escape()
+]
+
 export const checkAuthKeys = (req, res, next) => {
     let acceptedKeys
 
