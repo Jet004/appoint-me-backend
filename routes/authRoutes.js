@@ -9,6 +9,8 @@ import { DbRegisterUser, DbGetUserByEmail } from '../models/userModel'
 import { DbRegisterBusinessRep, DbGetRepByEmail } from '../models/businessRepModel'
 //Import model ODM methods from RefreshToken model
 import { DbDeleteRefreshToken, DbSaveRefreshToken } from '../models/authModel'
+// Import model ODM methods from TokenBlacklist model
+import { DbAddTokenToBlacklist, DbDeleteExpiredTokens } from '../models/authBlacklistModel'
 
 // Import validators
 import { userValidator, ubrValidator, passwordValidator } from '../validation/userValidators'
@@ -38,7 +40,7 @@ router.route('/logout')
         tokenValidator, 
         validationCheck, 
         checkAuthKeys, 
-        logoutUser(DbDeleteRefreshToken)
+        logoutUser(DbAddTokenToBlacklist, DbDeleteRefreshToken, DbDeleteExpiredTokens)
     )
 
 router.route('/token-refresh')

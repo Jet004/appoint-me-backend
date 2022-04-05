@@ -33,7 +33,6 @@ export const checkAuthKeys = (req, res, next) => {
             "refreshToken"
         ]
     } else if(req.path.split('/')[1] === "login") {
-        console.log(req.path)
         acceptedKeys = [
             "email",
             "password"
@@ -41,7 +40,6 @@ export const checkAuthKeys = (req, res, next) => {
     }
 
     let  unexpectedKeys = checkForUnexpectedKeys(acceptedKeys, req.body)
-    console.log(unexpectedKeys)
     if (unexpectedKeys.length > 0) {
         // Return the response to prevent the request from continuing
         return res.status(400).json({

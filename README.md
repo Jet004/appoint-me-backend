@@ -22,6 +22,7 @@
  - extend integration tests to fully test user validation: length, type, unsafe charaters etc.
  - extend JWT implementation to use refresh token rotation and token family checks to prevent token reuse hacks
  - CRON job to delete expired tokens which still exist in the DB
+ - Change logout tests in integration tests and auth controller tests to test DbAddTokenToBlacklist and DbDeleteExpiredTokens
 
 ## Necessary changes to ERD
 

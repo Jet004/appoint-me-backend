@@ -18,7 +18,6 @@ export const sessionHandler = () => async (req, res, next) => {
     if (req.headers.authorization) {
         accessToken = req.headers.authorization.split(' ')[1]
     }
-    console.log("Access Token: ", accessToken)
 
     // Check that accessToken is present
     if (!accessToken) {
@@ -47,10 +46,11 @@ export const sessionHandler = () => async (req, res, next) => {
         // Pass control to next middleware
         return next()
     }
-
+    
     // check tokens not expired
-    const currentTime = new Date().getTime()
+    const currentTime = Math.floor(new Date().getTime()/1000)
     if(currentTime > decodedToken.exp) {
+
         // Access token is expired, user is not logged in, so set session variables to false
         req.session.loggedIn = false
         req.session.user = null
@@ -88,7 +88,7 @@ export const sessionHandler = () => async (req, res, next) => {
     }
 
     // Check that token is not on logout blacklist
-
+    
     // User is logged in, set session variables and pass control to next middleware
     req.session.loggedIn = true
     req.session.user = user

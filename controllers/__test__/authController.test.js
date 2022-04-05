@@ -620,6 +620,9 @@ describe('Auth Controller Unit Tests: ', () => {
     describe('Test controller: logoutUser', () => {
         test('returns 200 OK when user is logged out', async () => {
             const req = {
+                headers: {
+                    authorization: 'accessToken'
+                },
                 body: {
                     refreshToken: 'refreshToken'
                 }
@@ -628,8 +631,10 @@ describe('Auth Controller Unit Tests: ', () => {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
             }
+            const fakeDbAddTokenToBlacklist = jest.fn().mockResolvedValue({ accessToken: 'accessToken' })
             const fakeDbDeleteRefreshToken = jest.fn().mockResolvedValue({ acknowledged: true, deletedCount: 1 })
-            const controller = logoutUser(fakeDbDeleteRefreshToken)
+            const fakeDbDeleteExpiredTokens = jest.fn().mockResolvedValue({ acknowledged: true, deletedCount: 1 })
+            const controller = logoutUser(fakeDbAddTokenToBlacklist, fakeDbDeleteRefreshToken, fakeDbDeleteExpiredTokens)
             expect(typeof controller).toBe('function')
 
             await controller(req, res)
@@ -643,6 +648,9 @@ describe('Auth Controller Unit Tests: ', () => {
 
         test('returns 400 Bad Request when refresh token missing from request body', async () => {
             const req = {
+                headers: {
+                    authorization: 'accessToken'
+                },
                 body: {
                     refreshToken: ''
                 }
@@ -651,8 +659,10 @@ describe('Auth Controller Unit Tests: ', () => {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
             }
+            const fakeDbAddTokenToBlacklist = jest.fn().mockResolvedValue({ accessToken: 'accessToken' })
             const fakeDbDeleteRefreshToken = jest.fn().mockResolvedValue(req.body.refreshToken)
-            const controller = logoutUser(fakeDbDeleteRefreshToken)
+            const fakeDbDeleteExpiredTokens = jest.fn().mockResolvedValue({ acknowledged: true, deletedCount: 1 })
+            const controller = logoutUser(fakeDbAddTokenToBlacklist, fakeDbDeleteRefreshToken, fakeDbDeleteExpiredTokens)
             expect(typeof controller).toBe('function')
 
             await controller(req, res)
@@ -665,6 +675,9 @@ describe('Auth Controller Unit Tests: ', () => {
 
         test('returns 400 Bad Request when refresh token not in DB', async () => {
             const req = {
+                headers: {
+                    authorization: 'accessToken'
+                },
                 body: {
                     refreshToken: 'refreshToken'
                 }
@@ -673,8 +686,10 @@ describe('Auth Controller Unit Tests: ', () => {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
             }
+            const fakeDbAddTokenToBlacklist = jest.fn().mockResolvedValue({ accessToken: 'accessToken' })
             const fakeDbDeleteRefreshToken = jest.fn().mockResolvedValue(null)
-            const controller = logoutUser(fakeDbDeleteRefreshToken)
+            const fakeDbDeleteExpiredTokens = jest.fn().mockResolvedValue({ acknowledged: true, deletedCount: 1 })
+            const controller = logoutUser(fakeDbAddTokenToBlacklist, fakeDbDeleteRefreshToken, fakeDbDeleteExpiredTokens)
             expect(typeof controller).toBe('function')
 
             await controller(req, res)
@@ -688,6 +703,9 @@ describe('Auth Controller Unit Tests: ', () => {
 
         test('returns 500 Internal Server Error when DbDeleteRefreshToken returns an error', async () => {
             const req = {
+                headers: {
+                    authorization: 'accessToken'
+                },
                 body: {
                     refreshToken: 'refreshToken'
                 }
@@ -696,8 +714,10 @@ describe('Auth Controller Unit Tests: ', () => {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
             }
+            const fakeDbAddTokenToBlacklist = jest.fn().mockResolvedValue({ accessToken: 'accessToken' })
             const fakeDbDeleteRefreshToken = jest.fn().mockRejectedValue(new Error("Db error"))
-            const controller = logoutUser(fakeDbDeleteRefreshToken)
+            const fakeDbDeleteExpiredTokens = jest.fn().mockResolvedValue({ acknowledged: true, deletedCount: 1 })
+            const controller = logoutUser(fakeDbAddTokenToBlacklist, fakeDbDeleteRefreshToken, fakeDbDeleteExpiredTokens)
             expect(typeof controller).toBe('function')
 
             await controller(req, res)

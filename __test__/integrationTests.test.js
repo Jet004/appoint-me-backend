@@ -7,6 +7,8 @@ import fetch from 'node-fetch'
 import dotenv from 'dotenv'
 dotenv.config()
 
+import jwt from 'jsonwebtoken'
+
 import users from './mockUsers'
 import businessReps from './mockBusinessReps'
 import businesses from './mockBusiness'
@@ -1633,7 +1635,21 @@ describe('Integration Tests:', () => {
     })
 
     describe('Auth Routes:', () => {
+        let token
+        beforeAll(async () => {
+            const user = await User.findOne({email: "j.hampton@gmail.com"})
+            const payload = {
+                "iss": 'http://localhost:8200',
+                "azp": user._id,
+                "aud": 'http://localhost:8200',
+                "roles": "user"
+            }
         
+            // Generate access and refresh tokens
+            token = jwt.sign(payload , process.env.JWT_SECRET)
+        })
+
+
         describe('Route: /api/auth/register', () => {
             // Set up mock users for registration tests
             const mockUser = {
@@ -2018,7 +2034,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: "POST",
                     headers: {
-                        "content-type": "application/json"
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify(userCredentials)
                 }
@@ -2035,9 +2052,9 @@ describe('Integration Tests:', () => {
                 expect(json.refreshToken).toBeTruthy()
 
                 // Check that a refresh token has been added to the database
-                const token = await Auth.find({ refreshToken: json.refreshToken })
-                expect(token.length === 1).toBeTruthy()
-                expect(token[0].refreshToken).toBe(json.refreshToken)
+                const tokenRes = await Auth.find({ refreshToken: json.refreshToken })
+                expect(tokenRes.length === 1).toBeTruthy()
+                expect(tokenRes[0].refreshToken).toBe(json.refreshToken)
                 
                 const payload2 = {
                     method: "post",
@@ -2066,8 +2083,6 @@ describe('Integration Tests:', () => {
             })
 
             test('POST returns 400 Bad Request when refresh token not in Db', async () => {
-                const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ3ZWYwNzFiZjI4MTk5ODlhMzczZmEiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg4ODE0MTYsImV4cCI6MTY0OTQ4NjIxNn0.ZzpxuGEfE0JBp8nKyK5IEFCoxGQ2xYMS-Lu-kb59wfk'
-
                 const payload = {
                     method: "post",
                     headers: {
@@ -2108,7 +2123,7 @@ describe('Integration Tests:', () => {
                 // Log the user out
                 const logoutResponse = await fetch(`${domain}/api/auth/logout`, payload)
                 const logoutJson = await logoutResponse.json()
-                console.log(logoutResponse, logoutJson)
+
                 if(logoutResponse.status !== 400) console.log(logoutResponse, logoutJson)
 
                 expect(logoutResponse.status).toBe(400)
@@ -2134,7 +2149,7 @@ describe('Integration Tests:', () => {
                 // Log the user out
                 const logoutResponse = await fetch(`${domain}/api/auth/logout`, payload)
                 const logoutJson = await logoutResponse.json()
-                console.log(logoutResponse, logoutJson)
+
                 if(logoutResponse.status !== 400) console.log(logoutResponse, logoutJson)
 
                 expect(logoutResponse.status).toBe(400)
@@ -2143,8 +2158,6 @@ describe('Integration Tests:', () => {
             })
 
             test('POST returns 400 Bad Request when unexpected keys present in request body', async () => {
-                const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ3ZWYwNzFiZjI4MTk5ODlhMzczZmEiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg4ODE0MTYsImV4cCI6MTY0OTQ4NjIxNn0.ZzpxuGEfE0JBp8nKyK5IEFCoxGQ2xYMS-Lu-kb59wfk'
-
                 const payload = {
                     method: "post",
                     headers: {
@@ -2170,11 +2183,28 @@ describe('Integration Tests:', () => {
         })
 
         describe('Route: /api/auth/token-refresh', () => {
-            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ4ZGE5YzE5ZGE4ZTBjZTA0NWEwZGIiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg5NDE3MjQsImV4cCI6MTY0OTU0NjUyNH0.Wgoad_WS1TekzBywKqAK3dKgDnMEfWARrewrv0nOtbo"
+            beforeAll(async () => {
+                // Remove refresh token from the Database
+                try {
+                    const result = await mongoose.model('Auth').deleteMany({})
+                } catch(e) {
+                    console.error(e)
+                }
+            })
+
             beforeEach(async () => {
                 // Insert refresh token into the Database
-                try{
+                try {
                     const result = await mongoose.model('Auth').create({ refreshToken: token })
+                } catch(e) {
+                    console.error(e)
+                }
+            })
+
+            afterEach(async () => {
+                // Remove refresh token from the Database
+                try {
+                    const result = await mongoose.model('Auth').deleteMany({})
                 } catch(e) {
                     console.error(e)
                 }

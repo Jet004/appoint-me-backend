@@ -87,9 +87,20 @@ export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbSaveRefreshToken)
 
 }
 
-export const logoutUser = (DbDeleteRefreshToken) => async (req, res) => {
+export const logoutUser = (DbAddTokenToBlacklist, DbDeleteRefreshToken, DbDeleteExpiredTokens) => async (req, res) => {
     // This controller can log out both a normal user and a businessRep user via the userType parameter
     try {
+        // Get tokens from request header and body
+        const accessToken = req.headers.authorization
+
+        // Add access token to blacklist
+        let acResults
+        if(accessToken) {
+            acResults = await DbAddTokenToBlacklist(accessToken)
+        } else {
+            return res.status(400).json({ status: "Authentication error", message: "Please log in to access this resource" })
+        }
+
         const refreshToken = req.body.refreshToken
         let results
         if(refreshToken) {
@@ -98,7 +109,7 @@ export const logoutUser = (DbDeleteRefreshToken) => async (req, res) => {
             return res.status(400).json({ status: "Authentication error", message: "Please log in to access this resource" })
         }
 
-        if(results && results.deletedCount > 0) {
+        if(acResults && results && results.deletedCount > 0) {
             res.status(200).json({ status: "success", message: "User successfully logged out" })
         } else {
             res.status(400).json({ status: "Authentication error", message: "Something went wrong..." })
@@ -106,6 +117,13 @@ export const logoutUser = (DbDeleteRefreshToken) => async (req, res) => {
     } catch(e) {
         console.log(e)
         res.status(500).json({ status: "error", message: e.message })
+    }
+
+    // Delete expired access tokens from the blacklist as they will fail to authenticate anyway
+    try {
+        const deleteExpired = await DbDeleteExpiredTokens()
+    } catch(e) {
+        console.log(e)
     }
 }
 
