@@ -17,6 +17,7 @@ import TempUser from '../models/tempUserModel'
 import BusinessRep from '../models/businessRepModel'
 import Business from '../models/businessModel'
 import Auth from '../models/authModel'
+import TokenBlacklist from '../models/authBlacklistModel'
 import tempUsers from './mockTempUsers'
 
 const domain = "http:localhost:8200"
@@ -2082,7 +2083,8 @@ describe('Integration Tests:', () => {
                 expect(checkdeleted.length === 0).toBeTruthy()
             })
 
-            test('POST returns 400 Bad Request when refresh token not in Db', async () => {
+            test('POST returns 401 Unauthorised when refresh token not in Db', async () => {
+                const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjRiYmI2NWY4Y2ZhNGYxMzE5MjM1OGIiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDkxMzAzNDJ9.R4HRbL2yhhrVWOOxtHRwIBuUYOK94iVPrgXNyb_sptw"
                 const payload = {
                     method: "post",
                     headers: {
@@ -2098,11 +2100,11 @@ describe('Integration Tests:', () => {
                 const logoutResponse = await fetch(`${domain}/api/auth/logout`, payload)
                 const logoutJson = await logoutResponse.json()
 
-                if(logoutResponse.status !== 400) console.log(logoutResponse, logoutJson)
+                if(logoutResponse.status !== 401) console.log(logoutResponse, logoutJson)
 
-                expect(logoutResponse.status).toBe(400)
-                expect(logoutJson.status).toBe("Authentication error")
-                expect(logoutJson.message).toBe("Something went wrong...")
+                expect(logoutResponse.status).toBe(401)
+                expect(logoutJson.status).toBe("error")
+                expect(logoutJson.message).toBe("Unauthorized")
             })
 
             // Validation tests for this route are the same for all user types
@@ -2186,7 +2188,8 @@ describe('Integration Tests:', () => {
             beforeAll(async () => {
                 // Remove refresh token from the Database
                 try {
-                    const result = await mongoose.model('Auth').deleteMany({})
+                    const result = await mongoose.model('Auth').deleteMany({}, () => {})    
+                    const acResult = await mongoose.model('TokenBlacklist').deleteMany({}, () => {})
                 } catch(e) {
                     console.error(e)
                 }
@@ -2204,7 +2207,7 @@ describe('Integration Tests:', () => {
             afterEach(async () => {
                 // Remove refresh token from the Database
                 try {
-                    const result = await mongoose.model('Auth').deleteMany({})
+                    const result = await mongoose.model('Auth').deleteMany({}, () => {})
                 } catch(e) {
                     console.error(e)
                 }

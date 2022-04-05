@@ -16,6 +16,7 @@ import { DbAddTokenToBlacklist, DbDeleteExpiredTokens } from '../models/authBlac
 import { userValidator, ubrValidator, passwordValidator } from '../validation/userValidators'
 import validationCheck from '../validation/checkValidators'
 import { emailValidator, checkAuthKeys, tokenValidator } from '../validation/authValidator'
+import { requireLogin } from '../middleware/sessionHandler'
 
 router.route('/register/:userType')
     .post(
@@ -37,17 +38,19 @@ router.route('/login/:userType')
 
 router.route('/logout')
     .post(
-        tokenValidator, 
-        validationCheck, 
-        checkAuthKeys, 
+        tokenValidator,
+        validationCheck,
+        checkAuthKeys,
+        requireLogin(),
         logoutUser(DbAddTokenToBlacklist, DbDeleteRefreshToken, DbDeleteExpiredTokens)
     )
 
 router.route('/token-refresh')
     .post(
-        tokenValidator, 
-        validationCheck, 
-        checkAuthKeys, 
+        tokenValidator,
+        validationCheck,
+        checkAuthKeys,
+        requireLogin(),
         tokenRefresh(DbSaveRefreshToken, DbDeleteRefreshToken)
     )
 

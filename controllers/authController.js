@@ -101,6 +101,7 @@ export const logoutUser = (DbAddTokenToBlacklist, DbDeleteRefreshToken, DbDelete
             return res.status(400).json({ status: "Authentication error", message: "Please log in to access this resource" })
         }
 
+        // Delete refresh token from database
         const refreshToken = req.body.refreshToken
         let results
         if(refreshToken) {
@@ -109,6 +110,7 @@ export const logoutUser = (DbAddTokenToBlacklist, DbDeleteRefreshToken, DbDelete
             return res.status(400).json({ status: "Authentication error", message: "Please log in to access this resource" })
         }
 
+        // Check that DB operations were successful
         if(acResults && results && results.deletedCount > 0) {
             res.status(200).json({ status: "success", message: "User successfully logged out" })
         } else {
@@ -120,6 +122,7 @@ export const logoutUser = (DbAddTokenToBlacklist, DbDeleteRefreshToken, DbDelete
     }
 
     // Delete expired access tokens from the blacklist as they will fail to authenticate anyway
+    // This will run after response is sent to client
     try {
         const deleteExpired = await DbDeleteExpiredTokens()
     } catch(e) {

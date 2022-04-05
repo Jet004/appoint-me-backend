@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import User from '../models/userModel'
 import BusinessRep from '../models/businessRepModel'
 import dotenv from 'dotenv'
+import TokenBlacklist from '../models/authBlacklistModel'
 dotenv.config()
 
 export const sessionHandler = () => async (req, res, next) => {
@@ -12,13 +13,12 @@ export const sessionHandler = () => async (req, res, next) => {
     // Initialise variables
     let accessToken
     req.session = {}
-
-
+    
     // Check for JWT in request header and body
     if (req.headers.authorization) {
         accessToken = req.headers.authorization.split(' ')[1]
     }
-
+    
     // Check that accessToken is present
     if (!accessToken) {
         // No access token in request header, user is not logged in, so set session variables to false
@@ -88,15 +88,39 @@ export const sessionHandler = () => async (req, res, next) => {
     }
 
     // Check that token is not on logout blacklist
+    try {
+        const blacklistedToken = await TokenBlacklist.findOne({ accessToken })
+        if(blacklistedToken) {
+            // User logged out and needs to reauthenticate. Set session variables to false
+            req.session.loggedIn = false
+            req.session.user = null
+            // Pass control to next middleware
+            return next()
+        }
+    } catch (e) {
+        console.log(e)
+        // Error checking logout blacklist, respond with 500 Internal Server Error
+        return res.status(500).json({ status: "error", message: e.message })
+    }
     
     // User is logged in, set session variables and pass control to next middleware
     req.session.loggedIn = true
     req.session.user = user
+    req.session.userType = decodedToken.roles
     return next()
 }
 
 export const requireLogin = () => (req, res, next) => {
-    // Check if logged in... session.isLoggedIn = true - include this middleware in all routes that require authentication
+    // Check if user is logged in
+
+    if(!req.session.loggedIn) {
+        // User is not logged in, respond with 401 Unauthorized
+        return res.status(401).json({ status: "error", message: "Unauthorized" })
+    }
+    console.log(req.session.loggedIn)
+
+    // User is logged in, pass control to next middleware
+    return next()
 }
 
 
@@ -104,4 +128,11 @@ export const requireRoles = (allowedRoles) => (req, res, next) => {
     // Check role type and determine if user can access the requested resource - session.role = 'admin' - include this middleware in all routes that require admin access
     // Include in routes, provide an array of allowed roles for each route which requires admin access
 
+    if(!req.session.userType || !allowedRoles.includes(req.session.userType)) {
+        // User is not logged in, or does not have the required role, respond with 401 Unauthorized
+        return res.status(401).json({ status: "error", message: "Unauthorized" })
+    }
+
+    // User is logged in and has the required role, pass control to next middleware
+    return next()
 }
