@@ -40,7 +40,6 @@ describe('Integration Tests:', () => {
     })
 
     describe('User Routes', () => {
-
         describe("Route: /api/users", () => {
             test('GET returns 200 OK + array of users when data in DB', async () => {
                 const response = await fetch(`${domain}/api/users/`)
@@ -413,7 +412,6 @@ describe('Integration Tests:', () => {
     })
 
     describe('Temp User Routes', () => {
-
         describe("Route: /api/temp-users", () => {
             test('GET returns 200 OK + array of users when data in DB', async () => {
                 const response = await fetch(`${domain}/api/temp-users/`)

@@ -23,18 +23,14 @@ mongoose.connection.on('error', (err) => console.log(`Database --> Error connect
 import { sessionHandler } from './middleware/sessionHandler.js'
 server.use(sessionHandler())
 
-
-// Log request information for every request for debugging
-server.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`)
-    next()
-})
+// Handle HTTP request logging
+import requestLogger from './middleware/requestLogger.js' 
+import { createRequestLog } from './models/requestLogModel.js'  
+server.use(requestLogger(createRequestLog))
 
 // Enable request body parsing so that the request body is accessible
 server.use(express.json())
 server.use(express.urlencoded({ extended: true }))
-
-
 
 
 // Import route handlers

@@ -15,13 +15,27 @@ import validationCheck from '../validation/checkValidators'
 // for easier unit testing of the controllers and their dependencies.
 router.route('/')
     .get(getAllUsers(DbGetAllUsers))
-    .post(userValidator, ubrValidator, passwordValidator, validationCheck, checkKeys, createUser(DbCreateUser))
+    .post(
+        userValidator, 
+        ubrValidator, 
+        passwordValidator, 
+        validationCheck, 
+        checkKeys, 
+        createUser(DbCreateUser)
+        )
 
 router.route('/:email')
     .get(emailValidator, validationCheck, getUserByEmail(DbGetUserByEmail))
 
 router.route('/:id')
-    .put(userValidator, ubrValidator, idValidator, validationCheck, checkKeys, updateUser(DbUpdateUser))
+    .put(
+        userValidator, 
+        ubrValidator, 
+        idValidator, 
+        validationCheck, 
+        checkKeys, 
+        updateUser(DbUpdateUser)
+    )
     .delete(idValidator, validationCheck, deleteUser(DbDeleteUser))
 
 export default router;

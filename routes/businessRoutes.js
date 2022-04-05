@@ -14,8 +14,21 @@ import validationCheck  from "../validation/checkValidators"
 // Business routes
 // Get/Create service by business ABN
 router.route('/services/:abn')
-    .get(abnValidator, validationCheck, getBusinessServices(DbGetBusinessByABN))
-    .post(accessTokenValidator, abnValidator, serviceValidator, validationCheck, checkKeys, requireLogin(), requireRoles(['businessRep']), createBusinessService(DbGetBusinessByABN, DbCreateBusinessService))
+    .get(
+        abnValidator, 
+        validationCheck, 
+        getBusinessServices(DbGetBusinessByABN)
+    )
+    .post(
+        accessTokenValidator, 
+        abnValidator, 
+        serviceValidator, 
+        validationCheck, 
+        checkKeys, 
+        requireLogin(), 
+        requireRoles(['businessRep']), 
+        createBusinessService(DbGetBusinessByABN, DbCreateBusinessService)
+    )
 
 // Get service by ID for business with given ABN
 router.route('/services/:abn/:serviceId')
@@ -23,8 +36,21 @@ router.route('/services/:abn/:serviceId')
 
 // Get/Update business by ABN
 router.route('/:abn')
-    .get(abnValidator, validationCheck, getBusinessByABN(DbGetBusinessByABN))
-    .put(accessTokenValidator, abnValidator, businessValidator, validationCheck, checkKeys, requireLogin(), requireRoles(['businessRep']), updateBusiness(DbUpdateBusiness))
+    .get(
+        abnValidator, 
+        validationCheck, 
+        getBusinessByABN(DbGetBusinessByABN)
+    )
+    .put(
+        accessTokenValidator, 
+        abnValidator, 
+        businessValidator, 
+        validationCheck, 
+        checkKeys, 
+        requireLogin(), 
+        requireRoles(['businessRep']), 
+        updateBusiness(DbUpdateBusiness)
+    )
 
 // Get business by ID
 router.route("/id/:id")
