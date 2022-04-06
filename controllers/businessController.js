@@ -1,4 +1,3 @@
-import Business from "../models/businessModel"
 
 // Get business by ABN
 export const getBusinessByABN = (DbGetBusinessByABN) => async (req, res) => {
@@ -119,7 +118,7 @@ export const updateBusinessService = (DbUpdateBusinessService) => async (req, re
 export const deleteBusinessService = (DbDeleteBusinessService) => async (req, res) => {
     try {
         const results = await DbDeleteBusinessService(req.params.abn, req.params.serviceId)
-        
+
         if(results) {
             res.status(204).json({ status: "success", message: "Service deleted" })
         } else {
