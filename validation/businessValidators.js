@@ -87,9 +87,17 @@ export const abnValidator = [
         .escape()
 ]
 
+export const serviceIdValidator = [
+    param('serviceId')
+        .exists({checkFalsy:true}).withMessage('Service ID is required')
+        .isMongoId().withMessage('Service ID must be a valid Mongo ID')
+        .isLength({min:1, max:40}).withMessage('Service ID must be between 1 and 40 characters')
+        .trim()
+        .escape()
+]
+
 export const checkKeys = (req, res, next) => {
     let acceptedKeys
-    console.log("PATH: ", )
     if(req.path.split('/')[1] === 'services') {
         acceptedKeys = [
             "_id",

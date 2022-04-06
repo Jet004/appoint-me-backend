@@ -19,6 +19,7 @@ import Business from '../models/businessModel'
 import Auth from '../models/authModel'
 import TokenBlacklist from '../models/authBlacklistModel'
 import tempUsers from './mockTempUsers'
+import { compare } from 'bcrypt'
 
 const domain = "http:localhost:8200"
 
@@ -1350,8 +1351,8 @@ describe('Integration Tests:', () => {
                 if(response.status != 404) console.log(response, json)
 
                 expect(response.status).toBe(404)
-                expect(json.status).toBe('not found')
-                expect(json.business.length).toBe(0)
+                expect(json.status).toBe('error')
+                expect(json.message).toBe('Business not found')
             })
 
             test('PUT returns 400 Bad Request with invalid ABN', async () => {
@@ -1481,7 +1482,7 @@ describe('Integration Tests:', () => {
         describe('Route: api/businesses/services/:abn', () => {
             let token
             beforeAll(async () => {
-                const user = await BusinessRep.findOne({ email: "w.crofton@gmail.com" })
+                const user = await BusinessRep.findOne({ email: "j.chen@chencorp.com" })
                 const payload = {
                     "iss": 'http://localhost:8200',
                     "azp": user._id,
@@ -1490,7 +1491,7 @@ describe('Integration Tests:', () => {
                 }
             
                 // Generate access and refresh tokens
-                token = await jwt.sign(payload , process.env.JWT_SECRET)
+                token = jwt.sign(payload , process.env.JWT_SECRET)
             })
 
             const mockService = {
@@ -1542,8 +1543,8 @@ describe('Integration Tests:', () => {
                 if(response.status != 404) console.log(response, json)
 
                 expect(response.status).toBe(404)
-                expect(json.status).toBe("not found")
-                expect(json.message).toBe("ABN not found")
+                expect(json.status).toBe("error")
+                expect(json.message).toBe("Business not found")
             })
 
             // Validation tests
@@ -1668,7 +1669,7 @@ describe('Integration Tests:', () => {
 
             test('GET returns 404 Not Found when valid serviceId not in DB', async () => {
                 const abn = businesses[0].abn
-                const serviceId = 10000000000
+                const serviceId = mongoose.Types.ObjectId()
                 const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`)
                 const json = await response.json()
 
@@ -1677,6 +1678,326 @@ describe('Integration Tests:', () => {
                 expect(response.status).toBe(404)
                 expect(json.status).toBe("not found")
                 expect(json.message).toBe("Service not found")
+            })
+
+            test('GET returns 400 Bad Request with invalid serviceId', async () => {
+                const abn = businesses[0].abn
+                const serviceId = "invalid mongoose id"
+                const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`)
+                const json = await response.json()
+
+                if(response.status !== 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(Array.isArray(json.errors)).toBe(true)
+                expect(json.errors.length).toBeGreaterThan(0)
+            })
+
+            test('GET returns 400 Bad Request with invalid abn', async () => {
+                const abn = "invalid abn"
+                const serviceId = mongoose.Types.ObjectId()
+                const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`)
+                const json = await response.json()
+
+                if(response.status !== 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(Array.isArray(json.errors)).toBe(true)
+                expect(json.errors.length).toBeGreaterThan(0)
+            })
+
+            test("PUT returns 200 OK with valid abn, serviceId and service content", async () => {
+                const abn = businesses[0].abn
+                let updatedService = JSON.parse(JSON.stringify(mockService))
+                updatedService.name = "Updated Service"
+                const payload = {
+                    method: "PUT",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedService)
+                }
+
+                const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(json.updatedData.services[0].name).toBe("Updated Service")
+            })
+
+            test("PUT returns 404 Not Found with valid abn not in DB", async () => {
+                const abn = 10000000000
+                let updatedService = JSON.parse(JSON.stringify(mockService))
+                updatedService.name = "Updated Service"
+                const payload = {
+                    method: "PUT",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedService)
+                }
+
+                const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 404) console.log(response, json)
+
+                expect(response.status).toBe(404)
+                expect(json.status).toBe("error")
+                expect(json.message).toBe("Business not found")
+            })
+
+            test("PUT returns 400 Bad Request with valid serviceId not in DB", async () => {
+                const abn = businesses[0].abn
+                let updatedService = JSON.parse(JSON.stringify(mockService))
+                updatedService.name = "Updated Service"
+                const payload = {
+                    method: "PUT",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedService)
+                }
+
+                const response = await fetch(`${domain}/api/businesses/services/${abn}/${mongoose.Types.ObjectId()}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 400) console.log(response, json)
+                console.log(response, json)
+                expect(response.status).toBe(400)
+                expect(json.status).toBe("error")
+                expect(json.message).toBe("An unexpected error occurred")
+            })
+
+            // Validation tests
+            test("PUT returns 400 Bad Request with invalid abn", async () => {
+                const abn = "invalid abn"
+                let updatedService = JSON.parse(JSON.stringify(mockService))
+                updatedService.name = "Updated Service"
+                const payload = {
+                    method: "PUT",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedService)
+                }
+
+                const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(Array.isArray(json.errors)).toBe(true)
+                expect(json.errors.length).toBeGreaterThan(0)
+            })
+
+            test("PUT returns 400 Bad Request with invalid serviceId", async () => {
+                const abn = businesses[0].abn
+                let updatedService = JSON.parse(JSON.stringify(mockService))
+                updatedService.name = "Updated Service"
+                const payload = {
+                    method: "PUT",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedService)
+                }
+
+                const response = await fetch(`${domain}/api/businesses/services/${abn}/invalid`, payload)
+                const json = await response.json()
+
+                if(response.status !== 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(Array.isArray(json.errors)).toBe(true)
+                expect(json.errors.length).toBeGreaterThan(0)
+            })
+
+            test("PUT returns 400 Bad Request with missing service values", async () => {
+                const abn = businesses[0].abn
+                let updatedService = {
+                    name: "",
+                    description: "",
+                    duration: "",
+                    bookingTimes: "",
+                    break: "",
+                    fee: ""
+                }
+                updatedService.name = "Updated Service"
+                const payload = {
+                    method: "PUT",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedService)
+                }
+
+                const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(Array.isArray(json.errors)).toBe(true)
+                expect(json.errors.length).toBeGreaterThan(0)
+            })
+
+            test("PUT returns 400 Bad Request with unexpected keys in request body", async () => {
+                const abn = businesses[0].abn
+                let updatedService = JSON.parse(JSON.stringify(mockService))
+                updatedService.name = "Updated Service"
+                updatedService.unexpectedKey = "unexpected key"
+                const payload = {
+                    method: "PUT",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedService)
+                }
+
+                const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 400) console.log(response, json)
+
+                expect(response.status).toBe(400)
+                expect(json.status).toBe("error")
+                expect(json.message).toMatch(/unexpectedKey/)
+            })
+            describe('DELETE', () => {
+                let business
+                let service
+                beforeEach(async () => {
+                    // Clear Businesses from DB
+                    await Business.deleteMany({})
+                    // Create new business in DB
+                    business = new Business(businesses[0])
+
+                    // Add service to business
+                    await business.services.push(mockService)
+                    service = business.services[business.services.length -1]
+                    await business.save()
+                })
+
+                test('DELETE returns 200 OK with valid abn and serviceId', async () => {                   
+                    const abn = business.abn
+                    const payload = {
+                        method: "DELETE",
+                        headers: {
+                            "content-type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                    
+                    const response = await fetch(`${domain}/api/businesses/services/${abn}/${service._id}`, payload)
+    
+                    if(response.status !== 204) console.log(response)
+    
+                    expect(response.status).toBe(204)
+                    expect(response.size).toBe(0)
+                    const result2 = await Business.findOne({ abn: business.abn })
+                    expect(result2.services.length).toBe(1)
+                    console.log(service, result2.services[0])
+                    expect(business.services[0]._id.toString()).toBe(result2.services[0]._id.toString())
+                })
+    
+                test('DELETE returns 400 Bad Request with valid abn not in DB', async () => {                    
+                    const abn = business.abn
+                    const payload = {
+                        method: "DELETE",
+                        headers: {
+                            "content-type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                    
+                    const response = await fetch(`${domain}/api/businesses/services/12345609873/${service._id}`, payload)
+                    const json = await response.json()
+    
+                    if(response.status !== 404) console.log(response)
+    
+                    expect(response.status).toBe(404)
+                    expect(json.status).toBe("error")
+                    expect(json.message).toBe("Business not found")
+                    const result2 = await Business.findOne({ abn: business.abn })
+                    expect(result2.services.length).toBe(2)
+                })
+    
+                test('DELETE returns 400 Bad Request with valid serviceId not in DB', async () => {
+                    const abn = business.abn
+                    const serviceId = mongoose.Types.ObjectId()
+                    const payload = {
+                        method: "DELETE",
+                        headers: {
+                            "content-type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                    
+                    const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`, payload)
+                    const json = await response.json()
+    
+                    if(response.status !== 400) console.log(response)
+    
+                    expect(response.status).toBe(400)
+                    expect(json.status).toBe("error")
+                    expect(json.message).toBe("An unexpected error occurred")
+                    const result2 = await Business.findOne({ abn: business.abn })
+                    expect(result2.services.length).toBe(2)
+                })
+
+                // Validation Tests
+                test('DELETE returns 400 Bad Request with invalid abn', async () => {
+                    const abn = "Not a valid ABN"
+                    const payload = {
+                        method: "DELETE",
+                        headers: {
+                            "content-type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                    
+                    const response = await fetch(`${domain}/api/businesses/services/${abn}/${service._id}`, payload)
+                    const json = await response.json()
+
+                    if(response.status !== 400) console.log(response)
+    
+                    expect(response.status).toBe(400)
+                    expect(Array.isArray(json.errors)).toBe(true)
+                    expect(json.errors.length).toBeGreaterThan(0)
+                })
+
+                test("DELETE returns 400 Bad Request with invalid serviceId", async () => {
+                    const abn = business.abn
+                    const serviceId = "Not a valid serviceId"
+                    const payload = {
+                        method: "DELETE",
+                        headers: {
+                            "content-type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                    
+                    const response = await fetch(`${domain}/api/businesses/services/${abn}/${serviceId}`, payload)
+                    const json = await response.json()
+
+                    if(response.status !== 400) console.log(response)
+    
+                    expect(response.status).toBe(400)
+                    expect(Array.isArray(json.errors)).toBe(true)
+                    expect(json.errors.length).toBeGreaterThan(0)
+                })
             })
         })
     })

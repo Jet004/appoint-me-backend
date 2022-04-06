@@ -2,13 +2,13 @@ import express from "express"
 const router = express.Router()
 
 // Import business controllers
-import { createBusinessService, getBusinessByABN, getBusinessByID, getBusinessServiceById, getBusinessServices, updateBusiness } from "../controllers/businessController"
-import { requireLogin, requireRoles } from "../middleware/sessionHandler"
+import { createBusinessService, deleteBusinessService, getBusinessByABN, getBusinessByID, getBusinessServiceById, getBusinessServices, updateBusiness, updateBusinessService } from "../controllers/businessController"
+import { requireLogin, requireRoles, isAuthorised } from "../middleware/sessionHandler"
 // Import Business model ODM methods
-import { DbCreateBusinessService, DbGetBusinessByABN, DbGetBusinessByID, DbGetBusinessServiceById, DbUpdateBusiness } from "../models/businessModel"
+import { DbCreateBusinessService, DbDeleteBusinessService, DbGetBusinessByABN, DbGetBusinessByID, DbGetBusinessServiceById, DbUpdateBusiness, DbUpdateBusinessService } from "../models/businessModel"
 // Import validators
 import { accessTokenValidator } from "../validation/authValidator"
-import { idValidator, abnValidator, businessValidator, checkKeys, serviceValidator } from "../validation/businessValidators"
+import { idValidator, abnValidator, businessValidator, checkKeys, serviceValidator, serviceIdValidator } from "../validation/businessValidators"
 import validationCheck  from "../validation/checkValidators"
 
 // Business routes
@@ -26,13 +26,39 @@ router.route('/services/:abn')
         validationCheck, 
         checkKeys, 
         requireLogin(), 
-        requireRoles(['businessRep']), 
+        requireRoles(['businessRep']),
+        isAuthorised(),
         createBusinessService(DbGetBusinessByABN, DbCreateBusinessService)
     )
 
-// Get service by ID for business with given ABN
+// Get/update service by ID for business with given ABN
 router.route('/services/:abn/:serviceId')
-    .get(getBusinessServiceById(DbGetBusinessServiceById))
+    .get(
+        abnValidator, 
+        serviceIdValidator, 
+        validationCheck, 
+        getBusinessServiceById(DbGetBusinessServiceById)
+    )
+    .put(
+        abnValidator,
+        serviceIdValidator,
+        serviceValidator,
+        validationCheck,
+        checkKeys,
+        requireLogin(),
+        requireRoles(['businessRep']),
+        isAuthorised(),
+        updateBusinessService(DbUpdateBusinessService)
+    )
+    .delete(
+        abnValidator,
+        serviceIdValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles(['businessRep']),
+        isAuthorised(),
+        deleteBusinessService(DbDeleteBusinessService)
+    )
 
 // Get/Update business by ABN
 router.route('/:abn')
@@ -48,7 +74,8 @@ router.route('/:abn')
         validationCheck, 
         checkKeys, 
         requireLogin(), 
-        requireRoles(['businessRep']), 
+        requireRoles(['businessRep']),
+        isAuthorised(),
         updateBusiness(DbUpdateBusiness)
     )
 

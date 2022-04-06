@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import User from '../models/userModel'
 import BusinessRep from '../models/businessRepModel'
+import Business from '../models/businessModel'
 import dotenv from 'dotenv'
 import TokenBlacklist from '../models/authBlacklistModel'
 dotenv.config()
@@ -138,4 +139,27 @@ export const requireRoles = (allowedRoles) => (req, res, next) => {
 
     // User is logged in and has the required role, pass control to next middleware
     return next()
+}
+
+export const isAuthorised = () => async (req, res, next) => {
+    try {
+        const results = await Business.findOne({ abn: req.params.abn })
+
+        if(!results) {
+            // Business not found, respond with 404 Not Found
+            return res.status(404).json({ status: "error", message: "Business not found" })
+        }
+
+        if(results.businessRep.toString() === req.session.user._id.toString()) {
+            // User is authorised to access the requested resource, pass control to next middleware
+            next()
+        } else {
+            // User is not authorised to access the requested resource, respond with 401 Unauthorized
+            return res.status(401).json({ status: "error", message: "Unauthorized" })
+        }
+
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({ status: "error", message: e.message })
+    }
 }

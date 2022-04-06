@@ -79,3 +79,31 @@ export const DbCreateBusinessService = async (business, service, cb) => {
 
     return await business.save()
 }
+
+export const DbUpdateBusinessService = async (abn, serviceId, service) => {
+    const business = await mongoose.model("Business").findOne({abn: abn})
+    // Return null if no business found with the given ABN
+    if(!business) return null
+    // Returns service OR null if no service found with the given ID
+    const serviceToUpdate = await business.services.id(serviceId)
+    // Return null if no service found with the given ID
+    if(!serviceToUpdate) return null
+    // Update service
+    await serviceToUpdate.set(service)
+    // Save business
+    return await business.save()
+}
+
+export const DbDeleteBusinessService = async (abn, serviceId) => {
+    const business = await mongoose.model("Business").findOne({abn: abn})
+    // Return null if no business found with the given ABN
+    if(!business) return null
+    // Returns service OR null if no service found with the given ID
+    const serviceToDelete = await business.services.id(serviceId)
+    // Return null if no service found with the given ID
+    if(!serviceToDelete) return null
+    // Delete service
+    await business.services.id(serviceId).remove()
+    // Save business
+    return await business.save()
+}

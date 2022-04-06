@@ -54,7 +54,7 @@ export const updateBusiness = (DbUpdateBusiness) => async (req, res) => {
 export const getBusinessServices = (DbGetBusinessByABN) => async (req, res) => {
     try {
         const business = await DbGetBusinessByABN(req.params.abn)
-        console.log("business: ", business)
+
         if(business) {
             res.status(200).json({ status: "success", services: business.services })
         } else {
@@ -100,3 +100,33 @@ export const createBusinessService = (DbGetBusinessByABN, DbCreateBusinessServic
     }
 }
 
+export const updateBusinessService = (DbUpdateBusinessService) => async (req, res) => {
+    console.log("update business service")
+    try {
+        const results = await DbUpdateBusinessService(req.params.abn, req.params.serviceId, req.body)
+
+        if(results) {
+            res.status(200).json({ status: "success", updatedData: results })
+        } else {
+            res.status(400).json({ status: "error", message: "An unexpected error occurred"})
+        }
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ status: "error", message: e.message })
+    }
+}
+
+export const deleteBusinessService = (DbDeleteBusinessService) => async (req, res) => {
+    try {
+        const results = await DbDeleteBusinessService(req.params.abn, req.params.serviceId)
+        
+        if(results) {
+            res.status(204).json({ status: "success", message: "Service deleted" })
+        } else {
+            res.status(400).json({ status: "error", message: "An unexpected error occurred"})
+        }
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ status: "error", message: e.message })
+    }
+}

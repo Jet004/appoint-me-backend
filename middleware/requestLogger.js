@@ -21,7 +21,6 @@ const requestLogger = (createRequestLog) => async (req, res, next) => {
     // Create a new request log
     try {
         const results = await createRequestLog(logData)
-        console.log(results)
         // If the request log was created successfully, continue to the next middleware
         if(results) {
             next()

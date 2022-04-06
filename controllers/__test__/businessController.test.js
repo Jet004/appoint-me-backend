@@ -1,8 +1,9 @@
 // Import controllers
-import { getBusinessByABN, getBusinessByID, updateBusiness, createBusinessService, getBusinessServices, getBusinessServiceById } from '../businessController'
+import { getBusinessByABN, getBusinessByID, updateBusiness, createBusinessService, getBusinessServices, getBusinessServiceById, updateBusinessService, deleteBusinessService } from '../businessController'
 
 // Import mock business
 import mockBusiness from '../../__test__/mockBusiness.js'
+import mongoose from 'mongoose'
 
 describe('Business controller unit tests:', () => {
     describe('Test controller: getBusinessByABN', () => {
@@ -631,8 +632,234 @@ describe('Business controller unit tests:', () => {
         })
     })
 
-    // describe('Test controller: updateBusinessServices', () => {
-    //     test('returns 200 OK with valid input')
-    // })
+    describe('Test controller: updateBusinessServices', () => {
+        test('returns 200 OK + creates a new business service with valid input', async () => {
+            const business = JSON.parse(JSON.stringify(mockBusiness[0]))
+            business.services.push({
+                _id: "5eg9f8f8f8f8f8f8f8f8f8f8",
+                name: "Individual Classes",
+                description: "One-to-one class with an experienced teacher",
+                duration: 55,
+                bookingTimes: {},
+                break: 5,
+                fee: 50
+            })
+
+            const updatedService = JSON.parse(JSON.stringify(business.services[0]))
+            delete updatedService._id
+            updatedService.name = "Group Classes"
+
+            const DbUpdateBusinessService = jest.fn().mockResolvedValue(updatedService)
+            const req = {
+                params: {
+                    abn: business.abn,
+                    serviceId: business.services[0]._id
+                },
+                body: updatedService
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = await updateBusinessService(DbUpdateBusinessService)
+            await controller(req, res)
+
+            expect(DbUpdateBusinessService).toHaveBeenCalledTimes(1)
+            expect(DbUpdateBusinessService).toHaveBeenCalledWith(business.abn, business.services[0]._id, req.body)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "success", updatedData: updatedService })
+        })
+
+        test('returns 400 Bad Request when serviceId not found', async () => {
+            const business = JSON.parse(JSON.stringify(mockBusiness[0]))
+            business.services.push({
+                _id: "5eg9f8f8f8f8f8f8f8f8f8f8",
+                name: "Individual Classes",
+                description: "One-to-one class with an experienced teacher",
+                duration: 55,
+                bookingTimes: {},
+                break: 5,
+                fee: 50
+            })
+
+            const updatedService = JSON.parse(JSON.stringify(business.services[0]))
+            delete updatedService._id
+            updatedService.name = "Group Classes"
+
+            const DbUpdateBusinessService = jest.fn().mockResolvedValue(null)
+            const req = {
+                params: {
+                    abn: business.abn,
+                    serviceId: business.services[0]._id
+                },
+                body: updatedService
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = await updateBusinessService(DbUpdateBusinessService)
+            await controller(req, res)
+
+            expect(DbUpdateBusinessService).toHaveBeenCalledTimes(1)
+            expect(DbUpdateBusinessService).toHaveBeenCalledWith(business.abn, business.services[0]._id, req.body)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(400)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "An unexpected error occurred" })
+        })
+
+        test('returns 500 Internal Server Error when DB returns an error', async () => {
+            const business = JSON.parse(JSON.stringify(mockBusiness[0]))
+            business.services.push({
+                _id: "5eg9f8f8f8f8f8f8f8f8f8f8",
+                name: "Individual Classes",
+                description: "One-to-one class with an experienced teacher",
+                duration: 55,
+                bookingTimes: {},
+                break: 5,
+                fee: 50
+            })
+
+            const updatedService = JSON.parse(JSON.stringify(business.services[0]))
+            delete updatedService._id
+            updatedService.name = "Group Classes"
+
+            const DbUpdateBusinessService = jest.fn().mockRejectedValue(new Error("Db error"))
+            const req = {
+                params: {
+                    abn: business.abn,
+                    serviceId: business.services[0]._id
+                },
+                body: updatedService
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = await updateBusinessService(DbUpdateBusinessService)
+            await controller(req, res)
+
+            expect(DbUpdateBusinessService).toHaveBeenCalledTimes(1)
+            expect(DbUpdateBusinessService).toHaveBeenCalledWith(business.abn, business.services[0]._id, req.body)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(500)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Db error" })
+        })
+    })
+
+    describe('Test controller: deleteBusinessService', () => {
+        test('returns 204 No Content + deletes a business service with valid input', async () => {
+            const business = JSON.parse(JSON.stringify(mockBusiness[0]))
+            business.services.push({
+                _id: "5eg9f8f8f8f8f8f8f8f8f8o9",
+                name: "Individual Classes",
+                description: "One-to-one class with an experienced teacher",
+                duration: 55,
+                bookingTimes: {},
+                break: 5,
+                fee: 50
+            })
+            expect(business.services.length).toBe(1)
+
+            const fakeDbDeleteBusinessService = jest.fn().mockResolvedValue(true)
+            const req = {
+                params: {
+                    abn: business.abn,
+                    serviceId: business.services[0]._id
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = await deleteBusinessService(fakeDbDeleteBusinessService)
+            await controller(req, res)
+
+            expect(fakeDbDeleteBusinessService).toHaveBeenCalledTimes(1)
+            expect(fakeDbDeleteBusinessService).toHaveBeenCalledWith(business.abn, business.services[0]._id)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(204)
+        })
+
+        test("returns 400 Bad Request when valid abn or serviceId not in DB", async () => {
+            const business = JSON.parse(JSON.stringify(mockBusiness[0]))
+            business.services.push({
+                _id: "5eg9f8f8f8f8f8f8f8f8f8o9",
+                name: "Individual Classes",
+                description: "One-to-one class with an experienced teacher",
+                duration: 55,
+                bookingTimes: {},
+                break: 5,
+                fee: 50
+            })
+            expect(business.services.length).toBe(1)
+
+            const fakeDbDeleteBusinessService = jest.fn().mockResolvedValue(null)
+            const req = {
+                params: {
+                    abn: "1234533333",
+                    serviceId: business.services[0]._id
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = await deleteBusinessService(fakeDbDeleteBusinessService)
+            await controller(req, res)
+
+            expect(fakeDbDeleteBusinessService).toHaveBeenCalledTimes(1)
+            expect(fakeDbDeleteBusinessService).toHaveBeenCalledWith("1234533333", business.services[0]._id)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(400)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "An unexpected error occurred" })
+        })
+
+        test("returns 500 Internal Server Error when DB returns and error", async () => {
+            const business = JSON.parse(JSON.stringify(mockBusiness[0]))
+            business.services.push({
+                _id: "5eg9f8f8f8f8f8f8f8f8f8o9",
+                name: "Individual Classes",
+                description: "One-to-one class with an experienced teacher",
+                duration: 55,
+                bookingTimes: {},
+                break: 5,
+                fee: 50
+            })
+            expect(business.services.length).toBe(1)
+
+            const fakeDbDeleteBusinessService = jest.fn().mockRejectedValue(new Error("Db error"))
+            const req = {
+                params: {
+                    abn: business.abn,
+                    serviceId: business.services[0]._id
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = await deleteBusinessService(fakeDbDeleteBusinessService)
+            await controller(req, res)
+
+            expect(fakeDbDeleteBusinessService).toHaveBeenCalledTimes(1)
+            expect(fakeDbDeleteBusinessService).toHaveBeenCalledWith(business.abn, business.services[0]._id)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(500)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Db error" })
+        })
+    })
 
 })
