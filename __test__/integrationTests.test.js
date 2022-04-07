@@ -3,6 +3,7 @@ import connect from '../models/database'
 import pushMockData from './pushMockData'
 
 import fetch from 'node-fetch'
+import bcrypt from 'bcrypt'
 
 import dotenv from 'dotenv'
 dotenv.config()
@@ -17,6 +18,7 @@ import TempUser from '../models/tempUserModel'
 import BusinessRep from '../models/businessRepModel'
 import Business from '../models/businessModel'
 import Auth from '../models/authModel'
+import CRM from '../models/crmModel'
 import tempUsers from './mockTempUsers'
 
 const domain = "http:localhost:8200"
@@ -39,17 +41,19 @@ describe('Integration Tests:', () => {
     })
 
     describe('User Routes', () => {
+        
         describe("Route: /api/users", () => {
-            test('GET returns 200 OK + array of users when data in DB', async () => {
-                const response = await fetch(`${domain}/api/users/`)
-                const json = await response.json()
+            // This route is not needed at the moment
+            // test('GET returns 200 OK + array of users when data in DB', async () => {
+            //     const response = await fetch(`${domain}/api/users/`)
+            //     const json = await response.json()
     
-                if(response.status != 200) console.log(response, json)
+            //     if(response.status != 200) console.log(response, json)
     
-                expect(response.status).toBe(200)
-                expect(json.status).toBe('success')
-                expect(json.user.length).toBe(users.length)
-            })
+            //     expect(response.status).toBe(200)
+            //     expect(json.status).toBe('success')
+            //     expect(json.user.length).toBe(users.length)
+            // })
 
             test(`POST returns 200 OK with valid user data adds new user to the DB`, async () => {
                 const payload = {
@@ -199,50 +203,64 @@ describe('Integration Tests:', () => {
 
         })
 
-        describe('Route: /api/users/:email', () => {
-            test('GET returns 200 OK + user with valid email', async () => {
-                const email = "e.rodder@gmail.com"
-                const response = await fetch(`${domain}/api/users/${email}`)
-                const json = await response.json()
+        // These routes are not needed at the moment
+        // describe('Route: /api/users/:email', () => {
+        //     test('GET returns 200 OK + user with valid email', async () => {
+        //         const email = "e.rodder@gmail.com"
+        //         const response = await fetch(`${domain}/api/users/${email}`)
+        //         const json = await response.json()
     
-                if(response.status != 200) console.log(response, json)
+        //         if(response.status != 200) console.log(response, json)
     
-                expect(response.status).toBe(200)
+        //         expect(response.status).toBe(200)
     
-                expect(json.status).toBe('success')
-                expect(json.user.email).toBe(email)
-                expect(json.user.fname).toBe('Emily')
-            })
+        //         expect(json.status).toBe('success')
+        //         expect(json.user.email).toBe(email)
+        //         expect(json.user.fname).toBe('Emily')
+        //     })
 
-            test('GET returns 404 Not Found with non registered email', async () => {
-                const email = "mary.poppins@jacketfarmer.com.cn"
-                const response = await fetch(`${domain}/api/users/${email}`)
-                const json = await response.json()
+        //     test('GET returns 404 Not Found with non registered email', async () => {
+        //         const email = "mary.poppins@jacketfarmer.com.cn"
+        //         const response = await fetch(`${domain}/api/users/${email}`)
+        //         const json = await response.json()
 
-                if(response.status != 404) console.log(response, json)
+        //         if(response.status != 404) console.log(response, json)
 
-                expect(response.status).toBe(404)
-                expect(json.status).toBe('not found')
-                expect(json.user.length).toBe(0)
-            })
+        //         expect(response.status).toBe(404)
+        //         expect(json.status).toBe('not found')
+        //         expect(json.user.length).toBe(0)
+        //     })
 
-            test('GET returns 400 Bad Request with invalid email', async () => {
-                const email = "NotAnEmail"
-                const response = await fetch(`${domain}/api/users/${email}`)
-                const json = await response.json()
+        //     test('GET returns 400 Bad Request with invalid email', async () => {
+        //         const email = "NotAnEmail"
+        //         const response = await fetch(`${domain}/api/users/${email}`)
+        //         const json = await response.json()
 
-                if(response.status != 400) console.log(response, json)
+        //         if(response.status != 400) console.log(response, json)
 
-                expect(response.status).toBe(400)
-                expect(Array.isArray(json.errors)).toBe(true)
-                expect(json.errors.length).toBe(1)
-            })
+        //         expect(response.status).toBe(400)
+        //         expect(Array.isArray(json.errors)).toBe(true)
+        //         expect(json.errors.length).toBe(1)
+        //     })
 
-            // No test for missing email as it will default to route /api/users/
-        })
+        //     // No test for missing email as it will default to route /api/users/
+        // })
 
         describe('Route: /api/users/:id', () => {
+            let token
+            beforeEach( async () => {
+                const result = await User.findOne({ email: 'e.rodder@gmail.com' })
+                const payload = {
+                    "iss": 'http://localhost:8200',
+                    "azp": result._id,
+                    "aud": 'http://localhost:8200',
+                    "roles": "user"
+                }
             
+                // Generate access and refresh tokens
+                token = jwt.sign(payload , process.env.JWT_SECRET)
+            })
+
             test('PUT returns 200 OK + original user object', async () => {               
                 // Get user data from database
                 const user = await User.find({email: 'e.rodder@gmail.com'})
@@ -260,7 +278,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(updatedData)
                 }
@@ -277,14 +296,15 @@ describe('Integration Tests:', () => {
                 expect(dbUser.fname).toBe('Updated Name')
             })
 
-            test('PUT returns 404 Not Found if id not in DB', async () => {
+            test('PUT returns 403 Forbidden if id not the same as logged in user', async () => {
                 const userID = mongoose.Types.ObjectId()
                 const mockUser = users[0]
 
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(mockUser)
                 }
@@ -292,11 +312,11 @@ describe('Integration Tests:', () => {
                 const response = await fetch(`${domain}/api/users/${userID}`, payload)
                 const json = await response.json()
 
-                if(response.status != 404) console.log(response, json)
+                if(response.status != 403) console.log(response, json)
 
-                expect(response.status).toBe(404)
-                expect(json.status).toBe('not found')
-                expect(json.user.length).toBe(0)
+                expect(response.status).toBe(403)
+                expect(json.status).toBe('Forbidden')
+                expect(json.message).toBe("You are not authorised to edit this account")
             })
 
             test('PUT returns 400 Bad Request with invalid input', async () => {
@@ -311,7 +331,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         email: '',
@@ -350,7 +371,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(mockUser)
                 }
@@ -365,46 +387,91 @@ describe('Integration Tests:', () => {
                 expect(json.errors.length).toBe(1)
             })
 
-            test('DELETE returns 204 No Content with valid input', async () => {
-                const mockUser = await User.findOne({ email: 'e.rodder@gmail.com' })
+            describe('DELETE', () => {
+                let userToDelete
+                beforeEach( async () => {
+                    // Create user to delete
+                    userToDelete = await User.create({
+                        email: "jbloggs@gmail.com",
+                        password: bcrypt.hashSync("Abc_1234", 6),
+                        fname: "Joe",
+                        lname: "Bloggs",
+                        phone: "0473982982",
+                        address: {
+                            streetNumber: "32",
+                            streetName: "High Street",
+                            city: "Berkshire",
+                            state: "QLD",
+                            postCode: "4557",
+                            country: "Australia",
+                        },
+                        dob: new Date(1972, 1, 12),
+                        appointments: []
+                    })
 
-                const response = await fetch(`${domain}/api/users/${mockUser._id}`, {
-                    method: 'DELETE'
+                    // Log in as Joe Bloggs
+                    const payload = {
+                        "iss": 'http://localhost:8200',
+                        "azp": userToDelete._id,
+                        "aud": 'http://localhost:8200',
+                        "roles": "user"
+                    }
+                
+                    // Generate access and refresh tokens
+                    token = jwt.sign(payload , process.env.JWT_SECRET)
                 })
 
-                if(response.status != 204) console.log(response)
-
-                expect(response.status).toBe(204)
-                expect(response.size).toBe(0)
-            })
-
-            test('DELETE returns 404 Not Found when user ID not in DB', async () => {
-                const userID = mongoose.Types.ObjectId()
-
-                const response = await fetch(`${domain}/api/users/${userID}`, {
-                    method: 'DELETE'
+                afterEach( async () => {
+                    const results = await User.deleteMany({ email: "jbloggs@gmail.com" })
                 })
-                const json = await response.json()
+            
+                test('DELETE returns 204 No Content with valid input', async () => {
+                    const mockUser = userToDelete
 
-                if(response.status != 404) console.log(response, json)
+                    const response = await fetch(`${domain}/api/users/${mockUser._id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    })
 
-                expect(response.status).toBe(404)
-                expect(json.status).toBe('not found')
-            })
+                    if(response.status != 204) console.log(response)
 
-            test('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
-                const userID = 'NotAnID'
-
-                const response = await fetch(`${domain}/api/users/${userID}`, {
-                    method: 'DELETE'
+                    expect(response.status).toBe(204)
+                    expect(response.size).toBe(0)
                 })
-                const json = await response.json()
 
-                if(response.status != 400) console.log(response, json)
+                test('DELETE returns 403 Forbidden when user ID not the same as the logged in user', async () => {
+                    const userID = mongoose.Types.ObjectId()
 
-                expect(response.status).toBe(400)
-                expect(Array.isArray(json.errors)).toBe(true)
-                expect(json.errors.length).toBe(1)
+                    const response = await fetch(`${domain}/api/users/${userID}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    })
+                    const json = await response.json()
+
+                    if(response.status != 403) console.log(response, json)
+
+                    expect(response.status).toBe(403)
+                    expect(json.status).toBe('Forbidden')
+                })
+
+                test('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
+                    const userID = 'NotAnID'
+
+                    const response = await fetch(`${domain}/api/users/${userID}`, {
+                        method: 'DELETE'
+                    })
+                    const json = await response.json()
+
+                    if(response.status != 400) console.log(response, json)
+
+                    expect(response.status).toBe(400)
+                    expect(Array.isArray(json.errors)).toBe(true)
+                    expect(json.errors.length).toBe(1)
+                })
             })
         })
 
@@ -412,56 +479,80 @@ describe('Integration Tests:', () => {
 
     describe('Temp User Routes', () => {
         describe("Route: /api/temp-users", () => {
-            test('GET returns 200 OK + array of users when data in DB', async () => {
-                const response = await fetch(`${domain}/api/temp-users/`)
-                const json = await response.json()
-    
-                if(response.status != 200) console.log(response, json)
-    
-                expect(response.status).toBe(200)
-                expect(json.status).toBe('success')
-                expect(json.user.length).toBe(tempUsers.length)
+            let token
+            let tempUser
+            beforeEach( async () => {
+                tempUser = {
+                    email: 'k.free@gmail.com',
+                    fname: 'Katherine',
+                    lname: 'Free',
+                    phone: '0423456789',
+                    address: {
+                        streetNumber: "",
+                        streetName: "",
+                        city: "",
+                        state: "",
+                        postCode: "",
+                        country: "",
+                    },
+                    dob: "",
+                }
+
+                // Log in as business rep
+                const user = await BusinessRep.findOne({ email: "j.chen@chencorp.com" })
+                const payload = {
+                    "iss": 'http://localhost:8200',
+                    "azp": user._id,
+                    "aud": 'http://localhost:8200',
+                    "roles": "businessRep"
+                }
+            
+                // Generate access and refresh tokens
+                token = jwt.sign(payload , process.env.JWT_SECRET)
             })
+
+            afterEach( async () => {
+                const results = await TempUser.deleteMany({ email: 'k.free@gmail.com' })
+            })
+
+            // Not needed at the moment
+            // test('GET returns 200 OK + array of users when data in DB', async () => {
+            //     const response = await fetch(`${domain}/api/temp-users/`)
+            //     const json = await response.json()
+    
+            //     if(response.status != 200) console.log(response, json)
+    
+            //     expect(response.status).toBe(200)
+            //     expect(json.status).toBe('success')
+            //     expect(json.user.length).toBe(tempUsers.length)
+            // })
 
             test(`POST returns 200 OK with valid user data adds new user to the DB without address or dob`, async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({
-                        email: 'k.free@gmail.com',
-                        password: "Asdf_1234",
-                        fname: 'Katherine',
-                        lname: 'Free',
-                        phone: '0423456789',
-                        address: {
-                            streetNumber: "",
-                            streetName: "",
-                            city: "",
-                            state: "",
-                            postCode: "",
-                            country: "",
-                        },
-                        dob: "",
-                    })
+                    body: JSON.stringify(tempUser)
                 }
 
-                const response = await fetch(`${domain}/api/temp-users/`, payload)
+                const response = await fetch(`${domain}/api/temp-users/create/5ee9f9f8f9f9f9f9f9f9f9f9`, payload)
                 const json = await response.json()
 
                 if(response.status != 201) console.log(response, json)
 
                 expect(response.status).toBe(201)
                 expect(json.status).toBe('success')
-                expect(json.user.email).toBe('k.free@gmail.com')
+                expect(json.user.email).toBe(tempUser.email)
             })
 
             test(`POST returns 200 OK with valid user data adds new user to the DB with address or dob`, async () => {
                 const payload = {
                     method: 'POST',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         email: 'k.free@gmail.com',
@@ -481,7 +572,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`${domain}/api/temp-users/`, payload)
+                const response = await fetch(`${domain}/api/temp-users/create/5ee9f9f8f9f9f9f9f9f9f9f9`, payload)
                 const json = await response.json()
 
                 if(response.status != 201) console.log(response, json)
@@ -518,14 +609,14 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`${domain}/api/temp-users/`, payload)
+                const response = await fetch(`${domain}/api/temp-users/create/5ee9f9f8f9f9f9f9f9f9f9f9`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
 
                 expect(response.status).toBe(400)
                 expect(Array.isArray(json.errors)).toBe(true)
-                expect(json.errors.length).toBe(12)
+                expect(json.errors.length).toBeGreaterThan(0)
             })
 
             test("POST returns 400 Bad Request when input contains duplicate key with invalid data", async () => {
@@ -555,7 +646,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`${domain}/api/temp-users/`, payload)
+                const response = await fetch(`${domain}/api/temp-users/create/5ee9f9f8f9f9f9f9f9f9f9f9`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -592,7 +683,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`${domain}/api/temp-users/`, payload)
+                const response = await fetch(`${domain}/api/temp-users/create/5ee9f9f8f9f9f9f9f9f9f9f9`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -604,119 +695,164 @@ describe('Integration Tests:', () => {
 
         })
 
-        describe('Route: /api/users/:email', () => {
-            test('GET returns 200 OK + user with valid email', async () => {
-                const email = "temp.user@gmail.com"
-                const response = await fetch(`${domain}/api/temp-users/${email}`)
-                const json = await response.json()
+        // This route is not needed at the moment
+        // describe('Route: /api/users/:email', () => {
+        //     test('GET returns 200 OK + user with valid email', async () => {
+        //         const email = "temp.user@gmail.com"
+        //         const response = await fetch(`${domain}/api/temp-users/${email}`)
+        //         const json = await response.json()
     
-                if(response.status != 200) console.log(response, json)
+        //         if(response.status != 200) console.log(response, json)
     
-                expect(response.status).toBe(200)
+        //         expect(response.status).toBe(200)
     
-                expect(json.status).toBe('success')
-                expect(json.user.email).toBe(email)
-                expect(json.user.fname).toBe('Temp')
+        //         expect(json.status).toBe('success')
+        //         expect(json.user.email).toBe(email)
+        //         expect(json.user.fname).toBe('Temp')
+        //     })
+
+        //     test('GET returns 404 Not Found with non registered email', async () => {
+        //         const email = "mary.poppins@jacketfarmer.com.cn"
+        //         const response = await fetch(`${domain}/api/temp-users/${email}`)
+        //         const json = await response.json()
+
+        //         if(response.status != 404) console.log(response, json)
+
+        //         expect(response.status).toBe(404)
+        //         expect(json.status).toBe('not found')
+        //         expect(json.user.length).toBe(0)
+        //     })
+
+        //     test('GET returns 400 Bad Request with invalid email', async () => {
+        //         const email = "NotAnEmail"
+        //         const response = await fetch(`${domain}/api/temp-users/${email}`)
+        //         const json = await response.json()
+
+        //         if(response.status != 400) console.log(response, json)
+
+        //         expect(response.status).toBe(400)
+        //         expect(Array.isArray(json.errors)).toBe(true)
+        //         expect(json.errors.length).toBe(1)
+        //     })
+
+        //     // No test for missing email as it will default to route /api/users/
+        // })
+
+        describe('Route: /api/temp-users/:businessId/:id', () => {
+            let token
+            let tempUser
+            const businessId = "5ee9f9f8f9f9f9f9f9f9f9f9"
+            beforeEach( async () => {
+                // Create user to update / delete
+                const userObject = {
+                    email: 'k.free@gmail.com',
+                    fname: 'Katherine',
+                    lname: 'Free',
+                    phone: '0423456789',
+                    address: {
+                        streetNumber: "",
+                        streetName: "",
+                        city: "",
+                        state: "",
+                        postCode: "",
+                        country: "",
+                    },
+                    dob: "",
+                }
+                
+                // Insert temp user into DB
+                tempUser = await TempUser.create(userObject)
+
+                // Create a CRM entry for the user
+                const crm = {
+                    userModel: 'TempUser',
+                    user: tempUser._id,
+                    business: businessId,
+                    tempFlag: true,
+                    appointments: [],
+                    allowAccess: true,
+                    notes: ""
+                }
+
+                const crmResult = await CRM.create(crm)
+
+                // Log in as business rep
+                const user = await BusinessRep.findOne({ email: "j.chen@chencorp.com" })
+                const payload = {
+                    "iss": 'http://localhost:8200',
+                    "azp": user._id,
+                    "aud": 'http://localhost:8200',
+                    "roles": "businessRep"
+                }
+            
+                // Generate access and refresh tokens
+                token = jwt.sign(payload , process.env.JWT_SECRET)
             })
 
-            test('GET returns 404 Not Found with non registered email', async () => {
-                const email = "mary.poppins@jacketfarmer.com.cn"
-                const response = await fetch(`${domain}/api/users/${email}`)
-                const json = await response.json()
-
-                if(response.status != 404) console.log(response, json)
-
-                expect(response.status).toBe(404)
-                expect(json.status).toBe('not found')
-                expect(json.user.length).toBe(0)
+            afterEach( async () => {
+                const crmResults = await CRM.deleteMany({ user: tempUser._id })
+                const results = await TempUser.deleteMany({ email: 'k.free@gmail.com' })
             })
-
-            test('GET returns 400 Bad Request with invalid email', async () => {
-                const email = "NotAnEmail"
-                const response = await fetch(`${domain}/api/users/${email}`)
-                const json = await response.json()
-
-                if(response.status != 400) console.log(response, json)
-
-                expect(response.status).toBe(400)
-                expect(Array.isArray(json.errors)).toBe(true)
-                expect(json.errors.length).toBe(1)
-            })
-
-            // No test for missing email as it will default to route /api/users/
-        })
-
-        describe('Route: /api/users/:id', () => {
             
             test('PUT returns 200 OK + original user object', async () => {               
-                // Get user data from database
-                const user = await TempUser.find({email: 'temp.user@gmail.com'})
-                const userData = user[0].toJSON()
-                // Get user ID and set to user object
-                const userID = userData._id.valueOf()
-                delete userData._id
-                userData._id = userID
-
                 // Copy mock user object and change name
-                const updatedData = {...userData}
+                const updatedData = {...tempUser._doc}
                 updatedData.fname = 'Updated Name'
+                delete updatedData._id
+                delete updatedData.__v
+                delete updatedData.createdAt
+                delete updatedData.updatedAt
                 
                 // Create payload
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(updatedData)
                 }
                 // Send request
-                const response = await fetch(`${domain}/api/temp-users/${userData._id}`, payload)
+                const response = await fetch(`${domain}/api/temp-users/${businessId}/${tempUser._id}`, payload)
                 const json = await response.json()
 
                 if(response.status != 200) console.log(response, json)
 
                 expect(response.status).toBe(200)
                 expect(json.status).toBe('success')
-                expect(json.originalData.fname).toBe(userData.fname)
-                const dbUser = await TempUser.findOne({ email: 'temp.user@gmail.com' })
+                expect(json.originalData.fname).toBe(tempUser.fname)
+                const dbUser = await TempUser.findOne({ email: 'k.free@gmail.com' })
                 expect(dbUser.fname).toBe('Updated Name')
             })
 
-            test('PUT returns 404 Not Found if id not in DB', async () => {
+            test('PUT returns 400 Bad Request if id not in DB', async () => {
                 const userID = mongoose.Types.ObjectId()
                 const mockUser = users[0]
 
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(mockUser)
                 }
 
-                const response = await fetch(`${domain}/api/temp-users/${userID}`, payload)
+                const response = await fetch(`${domain}/api/temp-users/${businessId}/${userID}`, payload)
                 const json = await response.json()
 
-                if(response.status != 404) console.log(response, json)
+                if(response.status != 400) console.log(response, json)
 
-                expect(response.status).toBe(404)
-                expect(json.status).toBe('not found')
-                expect(json.user.length).toBe(0)
+                expect(response.status).toBe(400)
+                expect(json.status).toBe('error')
             })
 
             test('PUT returns 400 Bad Request with invalid input', async () => {
-                // Get user data from database
-                const user = await TempUser.find({email: 'temp.user@gmail.com'})
-                const userData = user[0].toJSON()
-                // Get user ID and set to user object
-                const userID = userData._id.valueOf()
-                delete userData._id
-                userData._id = userID
-
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         email: '',
@@ -738,7 +874,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`${domain}/api/temp-users/${userData._id}`, payload)
+                const response = await fetch(`${domain}/api/temp-users/${businessId}/${tempUser._id}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -755,12 +891,13 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(mockUser)
                 }
 
-                const response = await fetch(`${domain}/api/temp-users/${userID}`, payload)
+                const response = await fetch(`${domain}/api/temp-users/${businessId}/${userID}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -771,10 +908,11 @@ describe('Integration Tests:', () => {
             })
 
             test('DELETE returns 204 No Content with valid input', async () => {
-                const mockUser = await TempUser.findOne({ email: 'temp.user@gmail.com' })
-
-                const response = await fetch(`${domain}/api/temp-users/${mockUser._id}`, {
-                    method: 'DELETE'
+                const response = await fetch(`${domain}/api/temp-users/${businessId}/${tempUser._id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 })
 
                 if(response.status != 204) console.log(response)
@@ -786,21 +924,24 @@ describe('Integration Tests:', () => {
             test('DELETE returns 404 Not Found when user ID not in DB', async () => {
                 const userID = mongoose.Types.ObjectId()
 
-                const response = await fetch(`${domain}/api/temp-users/${userID}`, {
-                    method: 'DELETE'
+                const response = await fetch(`${domain}/api/temp-users/${businessId}/${userID}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 })
                 const json = await response.json()
 
-                if(response.status != 404) console.log(response, json)
+                if(response.status != 400) console.log(response, json)
 
-                expect(response.status).toBe(404)
-                expect(json.status).toBe('not found')
+                expect(response.status).toBe(400)
+                expect(json.status).toBe('error')
             })
 
             test('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
                 const userID = 'NotAnID'
 
-                const response = await fetch(`${domain}/api/temp-users/${userID}`, {
+                const response = await fetch(`${domain}/api/temp-users/${businessId}/${userID}`, {
                     method: 'DELETE'
                 })
                 const json = await response.json()
@@ -827,148 +968,148 @@ describe('Integration Tests:', () => {
                 expect(json.status).toBe('success')
                 expect(json.user.length).toBe(businessReps.length)
             })
+// The following routes will be implemented in the future
+            // test(`POST returns 200 OK with valid business rep data - adds new business rep to the DB`, async () => {
+            //     const payload = {
+            //         method: 'POST',
+            //         headers: {
+            //             'content-type': 'application/json'
+            //         },
+            //         body: JSON.stringify({
+            //             email: 'b.simpson@gmail.com',
+            //             password: "Asdf_1234",
+            //             fname: 'Bart',
+            //             lname: 'Simpson',
+            //             phone: '0423456789',
+            //             address: {
+            //                 streetNumber: 123,
+            //                 streetName: 'Fake Street',
+            //                 city: 'Fake City',
+            //                 state: 'QLD',
+            //                 postCode: '4000',
+            //                 country: 'Australia'
+            //             },
+            //             dob: '1990-01-01'
+            //         })
+            //     }
 
-            test(`POST returns 200 OK with valid business rep data - adds new business rep to the DB`, async () => {
-                const payload = {
-                    method: 'POST',
-                    headers: {
-                        'content-type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: 'b.simpson@gmail.com',
-                        password: "Asdf_1234",
-                        fname: 'Bart',
-                        lname: 'Simpson',
-                        phone: '0423456789',
-                        address: {
-                            streetNumber: 123,
-                            streetName: 'Fake Street',
-                            city: 'Fake City',
-                            state: 'QLD',
-                            postCode: '4000',
-                            country: 'Australia'
-                        },
-                        dob: '1990-01-01'
-                    })
-                }
+            //     const response = await fetch(`${domain}/api/business-reps/`, payload)
+            //     const json = await response.json()
 
-                const response = await fetch(`${domain}/api/business-reps/`, payload)
-                const json = await response.json()
+            //     if(response.status != 201) console.log(response, json)
 
-                if(response.status != 201) console.log(response, json)
+            //     expect(response.status).toBe(201)
+            //     expect(json.status).toBe('success')
+            //     expect(json.user.email).toBe('b.simpson@gmail.com')
+            // })
 
-                expect(response.status).toBe(201)
-                expect(json.status).toBe('success')
-                expect(json.user.email).toBe('b.simpson@gmail.com')
-            })
+            // // Test validation
+            // test('POST returns 400 Bad Request with missing input data', async () => {
+            //     const payload = {
+            //         method: 'POST',
+            //         headers: {
+            //             'content-type': 'application/json'
+            //         },
+            //         body: JSON.stringify({
+            //             email: '',
+            //             password: '',
+            //             fname: '',
+            //             lname: '',
+            //             phone: '',
+            //             address: {
+            //                 streetNumber: '',
+            //                 streetName: '',
+            //                 suburb: '',
+            //                 city: '',
+            //                 state: '',
+            //                 postCode: '',
+            //                 country: ''
+            //             },
+            //             dob: ''
+            //         })
+            //     }
 
-            // Test validation
-            test('POST returns 400 Bad Request with missing input data', async () => {
-                const payload = {
-                    method: 'POST',
-                    headers: {
-                        'content-type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: '',
-                        password: '',
-                        fname: '',
-                        lname: '',
-                        phone: '',
-                        address: {
-                            streetNumber: '',
-                            streetName: '',
-                            suburb: '',
-                            city: '',
-                            state: '',
-                            postCode: '',
-                            country: ''
-                        },
-                        dob: ''
-                    })
-                }
+            //     const response = await fetch(`${domain}/api/business-reps/`, payload)
+            //     const json = await response.json()
 
-                const response = await fetch(`${domain}/api/business-reps/`, payload)
-                const json = await response.json()
+            //     if(response.status != 400) console.log(response, json)
 
-                if(response.status != 400) console.log(response, json)
+            //     expect(response.status).toBe(400)
+            //     expect(Array.isArray(json.errors)).toBe(true)
+            //     expect(json.errors.length).toBe(32)
+            // })
 
-                expect(response.status).toBe(400)
-                expect(Array.isArray(json.errors)).toBe(true)
-                expect(json.errors.length).toBe(32)
-            })
+            // test("POST returns 400 Bad Request when input contains duplicate key with invalid data", async () => {
+            //     const payload = {
+            //         method: 'POST',
+            //         headers: {
+            //             'content-type': 'application/json'
+            //         },
+            //         body: JSON.stringify({
+            //             email: 'b.simpson@gmail.com',
+            //             email: "Not a valid email",
+            //             password: "Asdf_1234",
+            //             fname: 'Bart',
+            //             lname: 'Simpson',
+            //             phone: '0423456789',
+            //             address: {
+            //                 streetNumber: 123,
+            //                 streetName: 'Fake Street',
+            //                 suburb: 'Fake Suburb',
+            //                 city: 'Fake City',
+            //                 state: 'QLD',
+            //                 postCode: '4000',
+            //                 country: 'Australia'
+            //             },
+            //             dob: '1990-01-01'
+            //         })
+            //     }
 
-            test("POST returns 400 Bad Request when input contains duplicate key with invalid data", async () => {
-                const payload = {
-                    method: 'POST',
-                    headers: {
-                        'content-type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: 'b.simpson@gmail.com',
-                        email: "Not a valid email",
-                        password: "Asdf_1234",
-                        fname: 'Bart',
-                        lname: 'Simpson',
-                        phone: '0423456789',
-                        address: {
-                            streetNumber: 123,
-                            streetName: 'Fake Street',
-                            suburb: 'Fake Suburb',
-                            city: 'Fake City',
-                            state: 'QLD',
-                            postCode: '4000',
-                            country: 'Australia'
-                        },
-                        dob: '1990-01-01'
-                    })
-                }
+            //     const response = await fetch(`${domain}/api/business-reps/`, payload)
+            //     const json = await response.json()
 
-                const response = await fetch(`${domain}/api/business-reps/`, payload)
-                const json = await response.json()
+            //     if(response.status != 400) console.log(response, json)
 
-                if(response.status != 400) console.log(response, json)
+            //     expect(response.status).toBe(400)
+            //     expect(Array.isArray(json.errors)).toBe(true)
+            //     expect(json.errors.length).toBe(1)
+            // })
 
-                expect(response.status).toBe(400)
-                expect(Array.isArray(json.errors)).toBe(true)
-                expect(json.errors.length).toBe(1)
-            })
+            // test("POST returns 400 Bad Request when request body contains unexpected keys", async () => {
+            //     const payload = {
+            //         method: 'POST',
+            //         headers: {
+            //             'content-type': 'application/json'
+            //         },
+            //         body: JSON.stringify({
+            //             email: 'b.simpson@gmail.com',
+            //             bio: "This key is unexpected",
+            //             password: "Asdf_1234",
+            //             fname: 'Bart',
+            //             lname: 'Simpson',
+            //             phone: '0423456789',
+            //             address: {
+            //                 streetNumber: 123,
+            //                 streetName: 'Fake Street',
+            //                 city: 'Fake City',
+            //                 state: 'QLD',
+            //                 postCode: '4000',
+            //                 country: 'Australia',
+            //                 province: "Jiangsu"
+            //             },
+            //             dob: '1990-01-01'
+            //         })
+            //     }
 
-            test("POST returns 400 Bad Request when request body contains unexpected keys", async () => {
-                const payload = {
-                    method: 'POST',
-                    headers: {
-                        'content-type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: 'b.simpson@gmail.com',
-                        bio: "This key is unexpected",
-                        password: "Asdf_1234",
-                        fname: 'Bart',
-                        lname: 'Simpson',
-                        phone: '0423456789',
-                        address: {
-                            streetNumber: 123,
-                            streetName: 'Fake Street',
-                            city: 'Fake City',
-                            state: 'QLD',
-                            postCode: '4000',
-                            country: 'Australia',
-                            province: "Jiangsu"
-                        },
-                        dob: '1990-01-01'
-                    })
-                }
+            //     const response = await fetch(`${domain}/api/business-reps/`, payload)
+            //     const json = await response.json()
 
-                const response = await fetch(`${domain}/api/business-reps/`, payload)
-                const json = await response.json()
+            //     if(response.status != 400) console.log(response, json)
 
-                if(response.status != 400) console.log(response, json)
-
-                expect(response.status).toBe(400)
-                expect(json.status).toBe('error')
-                expect(json.message).toMatch(/bio, address.province/)
-            })
+            //     expect(response.status).toBe(400)
+            //     expect(json.status).toBe('error')
+            //     expect(json.message).toMatch(/bio, address.province/)
+            // })
 
         })
 
@@ -1015,7 +1156,42 @@ describe('Integration Tests:', () => {
         })
 
         describe('Route: /api/business-reps/:id', () => {
+            let token
+            beforeEach(async () => {
+                const newRep = {
+                    email: 'b.simpson@gmail.com',
+                    password: "Asdf_1234",
+                    fname: 'Bart',
+                    lname: 'Simpson',
+                    phone: '0423456789',
+                    address: {
+                        streetNumber: 123,
+                        streetName: 'Fake Street',
+                        city: 'Fake City',
+                        state: 'QLD',
+                        postCode: '4000',
+                        country: 'Australia'
+                    },
+                    dob: '1990-01-01'
+                }
+                const result = await BusinessRep.create(newRep)
+
+                // Log in as new account
+                const payload = {
+                    "iss": 'http://localhost:8200',
+                    "azp": result._id,
+                    "aud": 'http://localhost:8200',
+                    "roles": "businessRep"
+                }
             
+                // Generate access and refresh tokens
+                token = jwt.sign(payload , process.env.JWT_SECRET)
+            })
+
+            afterEach(async () => {
+                await BusinessRep.deleteOne({ email: 'b.simpson@gmail.com' })
+            })
+
             test('PUT returns 200 OK + original business rep object', async () => {               
                 // Get business rep data from database
                 const user = await BusinessRep.find({email: 'b.simpson@gmail.com'})
@@ -1033,7 +1209,8 @@ describe('Integration Tests:', () => {
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(updatedData)
                 }
@@ -1050,14 +1227,15 @@ describe('Integration Tests:', () => {
                 expect(dbUser.fname).toBe('Updated Name')
             })
 
-            test('PUT returns 404 Not Found if id not in DB', async () => {
+            test('PUT returns 403 Forbidden if id not for target account', async () => {
                 const userID = mongoose.Types.ObjectId()
                 const mockUser = businessReps[0]
 
                 const payload = {
                     method: 'PUT',
                     headers: {
-                        'content-type': 'application/json'
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(mockUser)
                 }
@@ -1065,11 +1243,11 @@ describe('Integration Tests:', () => {
                 const response = await fetch(`${domain}/api/business-reps/${userID}`, payload)
                 const json = await response.json()
 
-                if(response.status != 404) console.log(response, json)
+                if(response.status != 403) console.log(response, json)
 
-                expect(response.status).toBe(404)
-                expect(json.status).toBe('not found')
-                expect(json.user.length).toBe(0)
+                expect(response.status).toBe(403)
+                expect(json.status).toBe('Forbidden')
+                expect(json.message).toBe('You are not authorised to edit this account')
             })
 
             test('PUT returns 400 Bad Request with invalid input', async () => {
@@ -1141,7 +1319,10 @@ describe('Integration Tests:', () => {
                 const mockUser = await BusinessRep.findOne({ email: 'b.simpson@gmail.com' })
 
                 const response = await fetch(`${domain}/api/business-reps/${mockUser._id}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 })
 
                 if(response.status != 204) console.log(response)
@@ -1150,18 +1331,21 @@ describe('Integration Tests:', () => {
                 expect(response.size).toBe(0)
             })
 
-            test('DELETE returns 404 Not Found when user ID not in DB', async () => {
+            test('DELETE returns 403 Forbidden when user ID not for logged in account', async () => {
                 const userID = mongoose.Types.ObjectId()
 
                 const response = await fetch(`${domain}/api/business-reps/${userID}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 })
                 const json = await response.json()
 
-                if(response.status != 404) console.log(response, json)
+                if(response.status != 403) console.log(response, json)
 
-                expect(response.status).toBe(404)
-                expect(json.status).toBe('not found')
+                expect(response.status).toBe(403)
+                expect(json.status).toBe('Forbidden')
             })
 
             test('DELETE returns 400 Bad Request with invalid Mongoose user ID', async () => {
@@ -1767,7 +1951,7 @@ describe('Integration Tests:', () => {
                 const json = await response.json()
 
                 if(response.status !== 400) console.log(response, json)
-                console.log(response, json)
+
                 expect(response.status).toBe(400)
                 expect(json.status).toBe("error")
                 expect(json.message).toBe("An unexpected error occurred")
@@ -1906,7 +2090,6 @@ describe('Integration Tests:', () => {
                     expect(response.size).toBe(0)
                     const result2 = await Business.findOne({ abn: business.abn })
                     expect(result2.services.length).toBe(1)
-                    console.log(service, result2.services[0])
                     expect(business.services[0]._id.toString()).toBe(result2.services[0]._id.toString())
                 })
     
@@ -2401,7 +2584,6 @@ describe('Integration Tests:', () => {
                     method: "POST",
                     headers: {
                         "content-type": "application/json",
-                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify(userCredentials)
                 }

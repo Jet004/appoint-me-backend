@@ -59,3 +59,25 @@ export const checkAuthKeys = (req, res, next) => {
     
     next()
 }
+
+export const isAuthorisedToModifyTempUser = (DbGetCRMByMatch) => async (req, res, next) => {
+    // Need to check that the user is authorised to modify the temp user
+
+    // Get CRM for user / business match populating the business and business rep
+    const crm = await DbGetCRMByMatch(req.params.businessId, req.params.id)
+
+    // Return error if no CRM found
+    if(!crm) return res.status(400).json({ status: "error", message: `No CRM match found for user: ${req.params.id} and business: ${req.params.businessId}` })
+
+    // Populate the business and business rep data from the CRM
+    await crm.populate({ path: 'business'})
+
+    // Return error if no business rep information populated
+    if(!crm.business.businessRep) return res.status(500).json({ status: "error", message: "An unexpected error occurred" })
+    
+    // Check that logged in user is the business rep of the business
+    if(crm.business.businessRep.toString() !== req.session.user._id.toString()) return res.status(403).json({ status: "error", message: "You are not authorised to modify this user" })
+
+    // Business rep is autorised to modify this temp user. Pass control to the next middleware
+    return next()
+}

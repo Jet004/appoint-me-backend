@@ -29,10 +29,15 @@ router.route('/register/:userType')
 
 router.route('/login/:userType')
     .post(
-        emailValidator, 
-        passwordValidator, 
-        validationCheck, 
-        checkAuthKeys, 
+        emailValidator,
+        passwordValidator,
+        validationCheck,
+        checkAuthKeys,
+        (req, res, next) => { // Check if user is already logged in
+            if(req.session.loggedIn) {
+                return res.status(400).json({ status: "error", message: "User already logged in" })
+             }
+             return next()},
         loginUser(DbGetUserByEmail, DbGetRepByEmail, DbSaveRefreshToken)
     )
 

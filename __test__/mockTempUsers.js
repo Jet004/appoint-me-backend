@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt');
 const tempUsers = [
     {
         email: "temp.user@gmail.com",
-        password: bcrypt.hashSync("sdfvdf", 6),
         fname: "Temp",
         lname: "User",
         phone: "0473982982",
@@ -18,7 +17,6 @@ const tempUsers = [
         dob: new Date(1995, 1, 12),
     },{
         email: "temp.user1@gmail.com",
-        password: bcrypt.hashSync("sdfvdf", 6),
         fname: "Temp",
         lname: "User1",
         phone: "0473982982",

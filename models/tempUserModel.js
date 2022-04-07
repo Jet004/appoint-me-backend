@@ -6,10 +6,6 @@ const tempUserSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    password: {
-        type: String,
-        required: true,
-    },
     fname: {
         type: String,
         required: true,

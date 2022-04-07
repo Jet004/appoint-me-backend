@@ -89,6 +89,15 @@ export const idValidator = [
         .escape()
 ]
 
+// Mongoose ObjectId param validator
+export const businessIdValidator = [
+    param('businessId')
+        .isMongoId()
+        .withMessage('Please enter a valid ID')
+        .trim()
+        .escape()
+]
+
 // Return 400 Bad Request if there are unexpected keys in the request body
 export const checkKeys = (req, res, next) => {
     const acceptedKeys = [
@@ -127,4 +136,17 @@ export const checkKeys = (req, res, next) => {
     }  
     
     next()
+}
+
+export const isAuthorisedToCreateBusinessRep = () => (req, res, next) => {
+    // This validator will change once admin panel implemented to handle multiple employees
+    // Reject all requests for the time being
+    return res.status(403).json({ status: "Forbidden", message: "You are not authorised to create a business representative" })
+}
+
+export const isOwnAccount = () => (req, res, next) => {
+    if(req.session.user._id.toString() !== req.params.id.toString()) {
+        return res.status(403).json({ status: "Forbidden", message: "You are not authorised to edit this account" })
+    }
+    return next()
 }
