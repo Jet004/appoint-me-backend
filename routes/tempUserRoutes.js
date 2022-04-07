@@ -5,7 +5,7 @@ const router = express.Router()
 import { getAllUsers, getUserByEmail, createTempUser, updateUser, deleteUser } from '../controllers/userController'
 // ODM methods
 import { DbGetAllUsers, DbGetUserByEmail, DbCreateUser, DbUpdateUser, DbDeleteUser } from '../models/tempUserModel'
-import { DbCreateCRM, DbGetCRMByMatch } from '../models/crmModel'
+import { DbCreateCRM, DbGetCRMByMatch, DbSoftDeleteCRM } from '../models/crmModel'
 // Validators
 import { userValidator, tempUserValidator, emailValidator, passwordValidator, idValidator, checkKeys, businessIdValidator } from '../validation/userValidators'
 import { isAuthorisedToModifyTempUser } from '../validation/authValidator'

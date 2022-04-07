@@ -5,6 +5,8 @@
 
 ## TODO
 
+- test that CRM and appointments cascade delete when user / temp user deleted
+
 - Middleware to redirect if already logged in/not logged in... - Handle the redirect on the front end
 
 
@@ -32,6 +34,13 @@
  - tests on all protected routes checking that authorisation middleware working correctly
  - Add email validation for account creation
  - Add testing for createTempUser controller - modify integration tests for same - add validation tests for login, user type, abn
+ - Need to add more validation testing for logged in user authorisation on all relevant routes
+ - Improve how user deletion is handled. At the moment deleting any user type results in a hard delete of any associated CRM (and will be extended to appointments). Ideally:
+    - if a user deletes their account it causes a soft delete so businesses retain historical data (but not sensitive user data details)
+    - if temp user deleted it is a hard delete after confirmation and data is lost
+    - if Business rep is deleted, no CRM operation is performed - but need to check if business should be deleted or not - and therefore also associated CRMs.
+    - business deleted user from their side - results in a soft delete - user still has access to data
+    - The current cascade delete is not compatible with a multi business version of this app
 
 ## Necessary changes to ERD
 
@@ -60,3 +69,6 @@
  
 
 
+## Notes
+
+- When a user is deleted, the user account will be deleted, but not the CRM. This is to prevent the business from losing access to past services rendered for metrics, tracking and analytics. Instead, set a deleted flag on the CRM entry to show that that user no longer exists

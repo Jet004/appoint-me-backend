@@ -61,9 +61,13 @@ export const updateUser = (DbUpdateUser) => async (req, res) => {
 
 export const deleteUser = (DbDeleteUser) => async (req, res) => {
     try {
+        // CRMs and Appointments will cascade delete when user / temp 
+        // user deleted. The logic for this is handled in the model
+        
         const result = await DbDeleteUser(req.params.id)
         result ? res.status(204).json()
             : res.status(404).json({ status: "not found" })
+
     } catch (e) {
         console.error(e)
         res.status(500).json({ status: "error", message: e.message });

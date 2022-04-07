@@ -20,10 +20,6 @@ const crmSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
-    apopintments: {
-            type: [appointmentSchema],
-            ref: "Appointment",
-    },
     allowAccess: {
         type: Boolean,
         required: true,
@@ -33,7 +29,20 @@ const crmSchema = new mongoose.Schema({
         type: String,
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+})
+
+crmSchema.virtual("appointments", {
+    ref: "Appointment",
+    localField: "_id",
+    foreignField: "crm"
+})
+
+crmSchema.post('remove', async function (doc) {
+    // Delete Appointments
+    await appointmentSchema.deleteMany({ crm: doc._id })
 })
 
 const CRM = mongoose.model("CRM", crmSchema)

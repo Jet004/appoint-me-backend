@@ -481,6 +481,7 @@ describe('Integration Tests:', () => {
         describe("Route: /api/temp-users", () => {
             let token
             let tempUser
+            const businessId = "5ee9f9f8f9f9f9f9f9f9f9f9"
             beforeEach( async () => {
                 tempUser = {
                     email: 'k.free@gmail.com',
@@ -537,7 +538,7 @@ describe('Integration Tests:', () => {
                     body: JSON.stringify(tempUser)
                 }
 
-                const response = await fetch(`${domain}/api/temp-users/create/5ee9f9f8f9f9f9f9f9f9f9f9`, payload)
+                const response = await fetch(`${domain}/api/temp-users/create/${businessId}`, payload)
                 const json = await response.json()
 
                 if(response.status != 201) console.log(response, json)
@@ -609,7 +610,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`${domain}/api/temp-users/create/5ee9f9f8f9f9f9f9f9f9f9f9`, payload)
+                const response = await fetch(`${domain}/api/temp-users/create/${businessId}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -646,7 +647,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`${domain}/api/temp-users/create/5ee9f9f8f9f9f9f9f9f9f9f9`, payload)
+                const response = await fetch(`${domain}/api/temp-users/create/${businessId}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)
@@ -683,7 +684,7 @@ describe('Integration Tests:', () => {
                     })
                 }
 
-                const response = await fetch(`${domain}/api/temp-users/create/5ee9f9f8f9f9f9f9f9f9f9f9`, payload)
+                const response = await fetch(`${domain}/api/temp-users/create/${businessId}`, payload)
                 const json = await response.json()
 
                 if(response.status != 400) console.log(response, json)

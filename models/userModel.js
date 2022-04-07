@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import addressSchema from './addressSchema'
 import appointmentSchema from './appointmentSchema'
+import CRM from './crmModel'
 
 
 const userSchema = new mongoose.Schema({
@@ -38,6 +39,12 @@ const userSchema = new mongoose.Schema({
     },
 },{
     timestamps: true,
+})
+
+// Cascade delete CRMs when user is deleted
+userSchema.post('remove', async function (doc) {
+    // Delete CRMs
+    await CRM.deleteMany({ user: doc._id })
 })
 
 const User = mongoose.model('User', userSchema)

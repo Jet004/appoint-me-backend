@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import addressSchema from './addressSchema'
+import CRM from './crmModel'
 
 const tempUserSchema = new mongoose.Schema({
     email: {
@@ -31,6 +32,12 @@ const tempUserSchema = new mongoose.Schema({
 // Manually override "required" status for address schema fields
 tempUserSchema.path('address').schema.eachPath((path, schema) => {
     schema.required(false)
+})
+
+// Cascade delete CRMs when temp user is deleted
+tempUserSchema.post('remove', async function (doc) {
+    // Delete CRMs
+    await CRM.deleteMany({ user: doc._id })
 })
 
 const TempUser = mongoose.model('TempUser', tempUserSchema)
