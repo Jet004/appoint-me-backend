@@ -145,8 +145,19 @@ export const isAuthorisedToCreateBusinessRep = () => (req, res, next) => {
 }
 
 export const isOwnAccount = () => (req, res, next) => {
-    if(req.session.user._id.toString() !== req.params.id.toString()) {
+    if(req.params.id) {
+        if(req.session.user._id.toString() !== req.params.id.toString()) {
+            return res.status(403).json({ status: "Forbidden", message: "You are not authorised to edit this account" })
+        }
+    } else if(req.params.email) {
+        if(req.session.user.email !== req.params.email) {
+            return res.status(403).json({ status: "Forbidden", message: "You are not authorised to edit this account" })
+        }
+    } else {
+        // Not a valid request
         return res.status(403).json({ status: "Forbidden", message: "You are not authorised to edit this account" })
     }
+
+    // User is authorised to perform the requested operation, pass control to the next middleware
     return next()
 }

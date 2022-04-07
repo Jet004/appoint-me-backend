@@ -12,7 +12,7 @@ import { idValidator, abnValidator, businessValidator, checkKeys, serviceValidat
 import validationCheck  from "../validation/checkValidators"
 
 // Business routes
-// Get/Create service by business ABN
+// Get/Create services by business ABN
 router.route('/services/:abn')
     .get(
         abnValidator, 

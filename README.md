@@ -22,6 +22,7 @@
 - subdocument appointments to be implemented if have time
 - Add appointment validator to user validators and adjust integration tests
 - Limit get all users to those related to a business - also limit get user by ID/email
+- Delete temp user already implemented - handle business deletion of user. ie. CRM
 
 ## Todo when have time
 
@@ -41,6 +42,8 @@
     - if Business rep is deleted, no CRM operation is performed - but need to check if business should be deleted or not - and therefore also associated CRMs.
     - business deleted user from their side - results in a soft delete - user still has access to data
     - The current cascade delete is not compatible with a multi business version of this app
+- Add appointment status: upcoming, completed, cancelled
+- Add attendance record to appointment: no show, attended
 
 ## Necessary changes to ERD
 

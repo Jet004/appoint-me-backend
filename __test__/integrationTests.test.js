@@ -42,7 +42,7 @@ describe('Integration Tests:', () => {
 
     describe('User Routes', () => {
         
-        describe("Route: /api/users", () => {
+        describe("Route: /api/users/", () => {
             // This route is not needed at the moment
             // test('GET returns 200 OK + array of users when data in DB', async () => {
             //     const response = await fetch(`${domain}/api/users/`)
@@ -203,48 +203,78 @@ describe('Integration Tests:', () => {
 
         })
 
-        // These routes are not needed at the moment
-        // describe('Route: /api/users/:email', () => {
-        //     test('GET returns 200 OK + user with valid email', async () => {
-        //         const email = "e.rodder@gmail.com"
-        //         const response = await fetch(`${domain}/api/users/${email}`)
-        //         const json = await response.json()
+        describe('Route: /api/users/:email', () => {
+            let email = "e.rodder@gmail.com"
+            let token
+            beforeEach( async () => {
+                const result = await User.findOne({ email: email })
+                const payload = {
+                    "iss": 'http://localhost:8200',
+                    "azp": result._id,
+                    "aud": 'http://localhost:8200',
+                    "roles": "user"
+                }
+            
+                // Generate access and refresh tokens
+                token = jwt.sign(payload , process.env.JWT_SECRET)
+            })
+
+            test('GET returns 200 OK + user with valid email', async () => {
+                const payload = {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+                const response = await fetch(`${domain}/api/users/${email}`, payload)
+                const json = await response.json()
     
-        //         if(response.status != 200) console.log(response, json)
+                if(response.status != 200) console.log(response, json)
     
-        //         expect(response.status).toBe(200)
+                expect(response.status).toBe(200)
     
-        //         expect(json.status).toBe('success')
-        //         expect(json.user.email).toBe(email)
-        //         expect(json.user.fname).toBe('Emily')
-        //     })
+                expect(json.status).toBe('success')
+                expect(json.user.email).toBe(email)
+                expect(json.user.fname).toBe('Emily')
+            })
 
-        //     test('GET returns 404 Not Found with non registered email', async () => {
-        //         const email = "mary.poppins@jacketfarmer.com.cn"
-        //         const response = await fetch(`${domain}/api/users/${email}`)
-        //         const json = await response.json()
+            test('GET returns 403 Forbidden with non registered email', async () => {
+                const email = "mary.poppins@jacketfarmer.com.cn"
+                const payload = {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+                const response = await fetch(`${domain}/api/users/${email}`, payload)
+                const json = await response.json()
 
-        //         if(response.status != 404) console.log(response, json)
+                if(response.status != 403) console.log(response, json)
 
-        //         expect(response.status).toBe(404)
-        //         expect(json.status).toBe('not found')
-        //         expect(json.user.length).toBe(0)
-        //     })
+                expect(response.status).toBe(403)
+                expect(json.status).toBe('Forbidden')
+            })
 
-        //     test('GET returns 400 Bad Request with invalid email', async () => {
-        //         const email = "NotAnEmail"
-        //         const response = await fetch(`${domain}/api/users/${email}`)
-        //         const json = await response.json()
+            test('GET returns 400 Bad Request with invalid email', async () => {
+                const email = "NotAnEmail"
+                const payload = {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+                const response = await fetch(`${domain}/api/users/${email}`, payload)
+                const json = await response.json()
 
-        //         if(response.status != 400) console.log(response, json)
+                if(response.status != 400) console.log(response, json)
 
-        //         expect(response.status).toBe(400)
-        //         expect(Array.isArray(json.errors)).toBe(true)
-        //         expect(json.errors.length).toBe(1)
-        //     })
+                expect(response.status).toBe(400)
+                expect(Array.isArray(json.errors)).toBe(true)
+                expect(json.errors.length).toBe(1)
+            })
 
-        //     // No test for missing email as it will default to route /api/users/
-        // })
+            // No test for missing email as it will default to route /api/users/
+        })
 
         describe('Route: /api/users/:id', () => {
             let token

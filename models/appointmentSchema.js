@@ -3,6 +3,7 @@ const mongoose  = require('mongoose')
 const appointmentSchema = new mongoose.Schema({
     crmId: {
         type: String,
+        ref: "CRM",
         required: true,
     },
     serviceId: {

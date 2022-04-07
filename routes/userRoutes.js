@@ -25,12 +25,15 @@ router.route('/')
         createUser(DbCreateUser)
     )
 
-// router.route('/:email')// Not needed at this point in time
-//     .get(
-//         emailValidator,
-//         validationCheck,
-//         getUserByEmail(DbGetUserByEmail)
-//     )
+router.route('/:email')// Not needed at this point in time
+    .get(
+        emailValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles('user'),
+        isOwnAccount(),
+        getUserByEmail(DbGetUserByEmail)
+    )
 
 router.route('/:id')
     .put(
