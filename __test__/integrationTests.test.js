@@ -1453,6 +1453,11 @@ describe('Integration Tests:', () => {
                 token = jwt.sign(payload , process.env.JWT_SECRET)
             })
 
+            afterAll( async () => {
+                // Reset business in to original values
+                await Business.findOneAndUpdate({ abn: businesses[0].abn }, businesses[0] )
+            })
+
             test('GET returns 200 OK + business with valid ABN', async () => {
                 const abn = businesses[0].abn
                 const response = await fetch(`${domain}/api/businesses/${abn}`)
@@ -1676,6 +1681,7 @@ describe('Integration Tests:', () => {
                         phone: "0412345678",
                         email: "jet@jetmandarin.com",
                         businessRep: "623d340fd6dd133325228406",
+                        operatingHours: [],
                         industry: "Education",
                         appointments: [],
                     })

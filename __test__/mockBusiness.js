@@ -14,6 +14,13 @@ const business = [
         phone: "0412345678",
         email: "jet@jetmandarin.com",
         businessRep: "623d340fd6dd133325228406",
+        operatingHours: [
+            { day: "Monday", startTime: "0900", endTime: "1700" },
+            { day: "Tuesday", startTime: "0900", endTime: "1700" },
+            { day: "Wednesday", startTime: "0900", endTime: "1700" },
+            { day: "Thursday", startTime: "0900", endTime: "1700" },
+            { day: "Friday", startTime: "0900", endTime: "1700" }
+        ],
         services: [],
         appointments: [],
     }

@@ -71,7 +71,7 @@ router.route('/:abn')
         accessTokenValidator, 
         abnValidator, 
         businessValidator, 
-        validationCheck, 
+        validationCheck,
         checkKeys, 
         requireLogin(), 
         requireRoles(['businessRep']),

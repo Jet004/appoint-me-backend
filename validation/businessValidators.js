@@ -32,6 +32,40 @@ export const businessValidator = [
         .isMongoId()
         .trim()
         .escape(),
+    body("operatingHours")
+        .exists({checkFalsy: true}).withMessage('Operating hours are required')
+        .isArray().withMessage('Operating hours must be an array')
+        .custom((operatingHours) => {
+            if (operatingHours.length > 7) {
+                throw new Error('Operating hours must be less than 7 days long')
+            }
+            return true
+        }),
+    body("operatingHours.*.day")
+        .exists({checkFalsy: true}).withMessage('Operating hours day is required')
+        .isIn(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']).withMessage('Operating hours day must be a valid day')
+        .trim()
+        .escape(),
+    body("operatingHours.*.startTime")
+        .exists({checkFalsy: true}).withMessage('Operating hours start time is required')
+        .isNumeric({no_symbols: true}).withMessage('Operating hours start time must be numeric')
+        .isLength({min: 4, max: 4}).withMessage('Operating hours start time must be 4 numbers long')
+        .custom((startTime) => {
+            if (startTime < 0 || startTime > 2400) {
+                throw new Error('Operating hours start time must be between 0000 and 2400')
+            }
+            return true
+        }),
+    body("operatingHours.*.endTime")
+        .exists({checkFalsy: true}).withMessage('Operating hours end time is required')
+        .isNumeric({no_symbols: true}).withMessage('Operating hours end time must be numeric')
+        .isLength({min: 4, max: 4}).withMessage('Operating hours end time must be 4 numbers long')
+        .custom((endTime) => {
+            if (endTime < 0 || endTime > 2400) {
+                throw new Error('Operating hours end time must be between 0000 and 2400')
+            }
+            return true
+        }),
 ]
 
 export const serviceValidator = [
@@ -122,6 +156,9 @@ export const checkKeys = (req, res, next) => {
             "createdAt",
             "updatedAt",
             "__v",
+            "operatingHours.day",
+            "operatingHours.startTime",
+            "operatingHours.endTime",
             "address.unit",
             "address.streetNumber",
             "address.streetName",

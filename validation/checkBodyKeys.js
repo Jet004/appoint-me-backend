@@ -3,18 +3,20 @@
 // This function will work for arrays of objects but not for 
 // multidimensional arrays
 const getKeys = (obj) => {
+    console.log(obj)
     const keys = []
     for(let [key, value] of Object.entries(obj)) {
         if(Array.isArray(value)) {
-            keys.push(...value.map(item => {
+            value.map(item => {
                 // Disregard nested arrays
                 if(!Array.isArray(item)) {
                     // Check if item is an object
                     if(typeof item === 'object') {
-                        return getKeys(item)
+                        const nestedKeys = getKeys(item)
+                        keys.push(...nestedKeys.map(childKey => key + "." + childKey))
                     }
                 }
-            }))
+            })
         } else if(typeof value === "object") {
             const nestedKeys = getKeys(value)
             keys.push(...nestedKeys.map(childKey => key + "." + childKey))
@@ -22,6 +24,7 @@ const getKeys = (obj) => {
             keys.push(key)
         }
     }
+    console.log(keys)
     return keys
 }
 

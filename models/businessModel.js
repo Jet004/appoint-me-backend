@@ -31,6 +31,24 @@ const BusinessSchema = new mongoose.Schema({
         ref: "BusinessRep",
         required: true,
     },
+    operatingHours: [
+        new mongoose.Schema({
+            day: {
+                type: String,
+                required: true,
+            },
+            startTime: {
+                type: String, // String of 4 numbers representing 24hr time
+                required: true,
+                default: "0900"
+            },
+            endTime: {
+                type: String, // String of 4 numbers representing 24hr time
+                required: true,
+                default: "1700",
+            },
+        },{ _id: false })
+    ],
     services: [serviceSchema],
     appointments: {
         type: [appointmentSchema],
