@@ -49,6 +49,23 @@ const users = [
         },
         dob: new Date(1980, 5, 23),
         appointments: [],
+    },{
+        _id: "4ee9f9f8f9f9f9f9f9f9f9f9",
+        email: "j.squire@gmail.com",
+        password: bcrypt.hashSync("Abc_1234", 6),
+        fname: "James",
+        lname: "Squire",
+        phone: "0473982982",
+        address: {
+            streetNumber: "32",
+            streetName: "High Street",
+            city: "Berkshire",
+            state: "QLD",
+            postCode: "4557",
+            country: "Australia",
+        },
+        dob: new Date(1972, 1, 12),
+        appointments: [],
     }
 ]
 

@@ -60,9 +60,9 @@ export const checkAuthKeys = (req, res, next) => {
     next()
 }
 
-export const isAuthorisedToModifyTempUser = (DbGetCRMByMatch) => async (req, res, next) => {
+export const isAuthorisedRep = (DbGetCRMByMatch) => async (req, res, next) => {
     // Need to check that the user is authorised to modify the temp user
-
+console.log("Auth Validator")
     // Get CRM for user / business match populating the business and business rep
     const crm = await DbGetCRMByMatch(req.params.businessId, req.params.id)
 

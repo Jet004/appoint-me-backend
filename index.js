@@ -18,6 +18,13 @@ connect(process.env.DB_URL)
 // Logs the connection status to the console
 mongoose.connection.on('open', () => console.log(`Database --> Connected to database "${mongoose.connection.name}"`))
 mongoose.connection.on('error', (err) => console.log(`Database --> Error connecting to database "${mongoose.connection.name}"`, err))
+// // // // // Load up test data
+// import pushMockData from './__test__/pushMockData.js'
+// if(mongoose.model("User").countDocuments() === 0) {
+//     (async () => {
+//         console.log(await pushMockData(['all']))
+//     })()
+// }
 
 // Handle user sessions
 import { sessionHandler } from './middleware/sessionHandler.js'
@@ -44,6 +51,8 @@ import businessRoutes from './routes/businessRoutes'
 server.use('/api/businesses', businessRoutes)
 import authRoutes from './routes/authRoutes'
 server.use('/api/auth', authRoutes)
+import appointmentRoutes from './routes/appointmentRoutes'
+server.use('/api/appointments', appointmentRoutes)
 
 // Run server
 server.listen(process.env.PORT, () => {

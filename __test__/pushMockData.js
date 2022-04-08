@@ -76,6 +76,7 @@ const pushMockData = async (functionArray) => {
             await value()
         }
     }
+    return true
 }
 
 export default pushMockData

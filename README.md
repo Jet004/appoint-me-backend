@@ -23,6 +23,7 @@
 - Add appointment validator to user validators and adjust integration tests
 - Limit get all users to those related to a business - also limit get user by ID/email
 - Delete temp user already implemented - handle business deletion of user. ie. CRM
+- Delete statement in index.js to load test data
 
 ## Todo when have time
 
@@ -44,6 +45,9 @@
     - The current cascade delete is not compatible with a multi business version of this app
 - Add appointment status: upcoming, completed, cancelled
 - Add attendance record to appointment: no show, attended
+- Add payments to appointments? Or as separate collection? Track payments and account balances etc.
+- appointment must be within business operating hours
+- Add failure tests for appointment routes
 
 ## Necessary changes to ERD
 

@@ -174,7 +174,7 @@ export const checkKeys = (req, res, next) => {
     
 
     const unexpectedKeys = checkForUnexpectedKeys(acceptedKeys, req.body)
-    console.log("unexpected keys: ", unexpectedKeys)
+
     if(unexpectedKeys.length > 0) {
         // Return the response to prevent the response from continuing
         return res.status(400).json({

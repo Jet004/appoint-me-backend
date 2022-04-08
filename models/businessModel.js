@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import addressSchema from "./addressSchema";
-import appointmentSchema from "./appointmentSchema";
+import { appointmentSchema } from "./appointmentModel";
 import serviceSchema from "./serviceSchema"
 
 const BusinessSchema = new mongoose.Schema({

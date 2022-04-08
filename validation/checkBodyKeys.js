@@ -3,7 +3,6 @@
 // This function will work for arrays of objects but not for 
 // multidimensional arrays
 const getKeys = (obj) => {
-    console.log(obj)
     const keys = []
     for(let [key, value] of Object.entries(obj)) {
         if(Array.isArray(value)) {
@@ -24,7 +23,7 @@ const getKeys = (obj) => {
             keys.push(key)
         }
     }
-    console.log(keys)
+    
     return keys
 }
 

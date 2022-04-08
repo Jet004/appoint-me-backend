@@ -47,7 +47,7 @@ export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbSaveRefreshToken)
         } else {
             return res.status(400).json({ status: "error", message: "Something went wrong..." })
         }
-        
+
         // Check if email and password are correct
         if(!results || !bcrypt.compareSync(userCredentials.password, results.password)) {
             return res.status(400).json({ status: "error", message: "Invalid credentials" })

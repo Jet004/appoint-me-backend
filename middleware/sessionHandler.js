@@ -15,7 +15,7 @@ export const sessionHandler = () => async (req, res, next) => {
     let accessToken
     req.session = {}
     
-    // Check for JWT in request header and body
+    // Check for JWT in request header
     if (req.headers.authorization) {
         accessToken = req.headers.authorization.split(' ')[1]
     }

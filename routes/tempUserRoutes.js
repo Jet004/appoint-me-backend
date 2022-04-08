@@ -8,7 +8,7 @@ import { DbGetAllUsers, DbGetUserByEmail, DbCreateUser, DbUpdateUser, DbDeleteUs
 import { DbCreateCRM, DbGetCRMByMatch, DbSoftDeleteCRM } from '../models/crmModel'
 // Validators
 import { userValidator, tempUserValidator, emailValidator, passwordValidator, idValidator, checkKeys, businessIdValidator } from '../validation/userValidators'
-import { isAuthorisedToModifyTempUser } from '../validation/authValidator'
+import { isAuthorisedRep } from '../validation/authValidator'
 // Validation checker - responds with 400 Bad Request if there are validation errors then prevents the request from continuing
 import validationCheck from '../validation/checkValidators'
 import { requireLogin, requireRoles } from '../middleware/sessionHandler'
@@ -47,7 +47,7 @@ router.route('/:businessId/:id')
         checkKeys,
         requireLogin(),
         requireRoles(['businessRep']),
-        isAuthorisedToModifyTempUser(DbGetCRMByMatch),
+        isAuthorisedRep(DbGetCRMByMatch),
         updateUser(DbUpdateUser)
     )
     .delete(
@@ -56,7 +56,7 @@ router.route('/:businessId/:id')
         validationCheck,
         requireLogin(),
         requireRoles(['businessRep']),
-        isAuthorisedToModifyTempUser(DbGetCRMByMatch),
+        isAuthorisedRep(DbGetCRMByMatch),
         deleteUser(DbDeleteUser)
     )
 

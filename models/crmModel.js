@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import appointmentSchema from "./appointmentSchema"
+import { appointmentSchema } from "./appointmentModel"
 
 const crmSchema = new mongoose.Schema({
     userModel: {
@@ -22,8 +22,6 @@ const crmSchema = new mongoose.Schema({
     },
     allowAccess: {
         type: Boolean,
-        required: true,
-        default: false
     },
     notes: {
         type: String,
