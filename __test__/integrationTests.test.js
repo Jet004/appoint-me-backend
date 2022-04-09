@@ -2899,7 +2899,7 @@ describe('Integration Tests:', () => {
     })
 
     describe('Appointment Routes', () => {
-        describe('Route: /api/appointments/user', () => {
+        describe('Route: /api/appointments/user/:businessId', () => {
             beforeAll(async () => {
                 // Remove all appointments from the Database
                 const result = await mongoose.model('Appointment').deleteMany({})
@@ -3118,7 +3118,7 @@ describe('Integration Tests:', () => {
         })
 
         describe('Route: /ai/appointments/user/crud/:appointmentId', () => {
-            describe('Updated performed by user', () => {
+            describe('Operations performed by user', () => {
                 beforeAll(async () => {
                     // Remove all appointments from the Database
                     const result = await mongoose.model('Appointment').deleteMany({})
@@ -3233,12 +3233,31 @@ describe('Integration Tests:', () => {
                     const checkAppt = await Appointment.findById(appointment._id)
                     expect(checkAppt.details).toBe(updatedAppointment.details)
                 })
+
+                test('DELETE returns 204 No Content and deletes appointment with valid inputs', async () => {
+                    const payload = {
+                        method: "delete",
+                        headers: {
+                            "content-type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+
+                    const response = await fetch(`${domain}/api/appointments/user/crud/${appointment._id}`, payload)
+        
+                    if(response.status !== 204) console.log(response)
+
+                    expect(response.status).toBe(204)
+                    expect(response.size).toBe(0)
+                    const checkAppt = await Appointment.findById(appointment._id)
+                    expect(checkAppt).toBe(null)
+                })
             })
 
         })
 
         describe('Route: /ai/appointments/business-rep/crud/:appointmentId', () => {
-            describe('Update performed by businessRep', () => {
+            describe('Operations performed by businessRep', () => {
                 beforeAll(async () => {
                     // Remove all appointments from the Database
                     const result = await mongoose.model('Appointment').deleteMany({})
@@ -3355,6 +3374,25 @@ describe('Integration Tests:', () => {
                     expect(json.data.details).toBe(appointment.details)
                     const checkAppt = await Appointment.findById(appointment._id)
                     expect(checkAppt.details).toBe(updatedAppointment.details)
+                })
+
+                test('DELETE returns 204 No Content and deletes appointment with valid inputs', async () => {
+                    const payload = {
+                        method: "delete",
+                        headers: {
+                            "content-type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+
+                    const response = await fetch(`${domain}/api/appointments/business-rep/crud/${appointment._id}`, payload)
+        
+                    if(response.status !== 204) console.log(response)
+
+                    expect(response.status).toBe(204)
+                    expect(response.size).toBe(0)
+                    const checkAppt = await Appointment.findById(appointment._id)
+                    expect(checkAppt).toBe(null)
                 })
             })
         })

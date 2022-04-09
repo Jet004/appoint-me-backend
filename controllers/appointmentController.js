@@ -132,3 +132,24 @@ export const getAppointmentById = (DbGetAppointmentById) => async (req, res, nex
         return res.status(500).json({ status: "error", message: e.message })
     }
 }
+
+export const deleteAppointment = (DbDeleteAppointment) => async (req, res, next) => {
+    try {
+        // This controller is accessible by logged in users of userType 'user' or 'businessRep'
+        // Delete Appointment
+        const result = await DbDeleteAppointment(req.params.appointmentId)
+
+        // Check if Appointment was deleted
+        if(!result || result.deletedCount === 0) {
+            // Appointment not deleted, respond with 404 Not Found
+            return res.status(404).json({ status: "error", message: "Appointment not found" })
+        }
+
+        // Appointment deleted, respond with 204 No Content
+        return res.status(204).json()
+
+    } catch(e) {
+        console.log(e)
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+}

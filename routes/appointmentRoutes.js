@@ -2,10 +2,10 @@ import express from "express"
 const router = express.Router()
 
 // Import controllers
-import { userCreateAppointment, updateAppointment, businessRepCreateAppointment, getAppointmentById } from "../controllers/appointmentController"
+import { userCreateAppointment, updateAppointment, businessRepCreateAppointment, getAppointmentById, deleteAppointment } from "../controllers/appointmentController"
 // Import DB ODM methods
 import { DbGetCRMByMatch, DbCreateCRM } from "../models/crmModel"
-import { DbCreateAppointment, DbGetAppointmentById, DbUpdateAppointment } from "../models/appointmentModel"
+import { DbCreateAppointment, DbGetAppointmentById, DbUpdateAppointment, DbDeleteAppointment } from "../models/appointmentModel"
 import { businessIdValidator, idValidator, verifyOwnAccountByAppointmentId } from "../validation/userValidators"
 import validationCheck from "../validation/checkValidators"
 import { accessTokenValidator, isAuthorisedRep } from "../validation/authValidator"
@@ -42,6 +42,14 @@ router.route('/user/crud/:appointmentId')
         verifyOwnAccountByAppointmentId(DbGetAppointmentById),
         updateAppointment(DbUpdateAppointment)
     )
+    .delete(
+        appointmentIdValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles([ "user" ]),
+        verifyOwnAccountByAppointmentId(DbGetAppointmentById),
+        deleteAppointment(DbDeleteAppointment)
+    )
 
 
 router.route('/business-rep/:businessId/:id')
@@ -73,6 +81,14 @@ router.route('/business-rep/crud/:appointmentId')
         requireRoles([ "businessRep" ]),
         checkRepAuthByAppointmentId(DbGetAppointmentById),
         updateAppointment(DbUpdateAppointment)
+    )
+    .delete(
+        appointmentIdValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles([ "businessRep" ]),
+        checkRepAuthByAppointmentId(DbGetAppointmentById),
+        deleteAppointment(DbDeleteAppointment)
     )
 
 export default router

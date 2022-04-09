@@ -1,4 +1,4 @@
-import { userCreateAppointment, businessRepCreateAppointment, updateAppointment, getAppointmentById } from "../appointmentController"
+import { userCreateAppointment, businessRepCreateAppointment, updateAppointment, getAppointmentById, deleteAppointment } from "../appointmentController"
 
 import business from "../../__test__/mockBusiness"
 import users from "../../__test__/mockUsers"
@@ -198,6 +198,32 @@ describe('Appointment Controller Unit Tests', () => {
             expect(res.status).toHaveBeenCalledWith(200)
             expect(res.json).toHaveBeenCalledTimes(1)
             expect(res.json).toHaveBeenCalledWith({ status: "success", appointment: mockAppointment })
+        })
+    })
+
+    describe('Test controller: deleteAppointment', () => {
+        test('returns 200 OK and deletes appointment with valid inputs', async () => {
+            mockAppointment._id = mongoose.Types.ObjectId()
+            const fakeDbDeleteAppointment = jest.fn().mockResolvedValue(mockAppointment)
+            const req = {
+                params: {
+                    appointmentId: mockAppointment._id
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = deleteAppointment(fakeDbDeleteAppointment)
+            expect(typeof controller).toBe("function")
+
+            await controller(req, res)
+            expect(fakeDbDeleteAppointment).toHaveBeenCalledTimes(1)
+            expect(fakeDbDeleteAppointment).toHaveBeenCalledWith(mockAppointment._id)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(204)
+            expect(res.json).toHaveBeenCalledTimes(1)
         })
     })
 })
