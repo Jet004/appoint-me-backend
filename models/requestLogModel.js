@@ -21,11 +21,14 @@ const requestLogSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    sessionID: {
+        type: String
+    },
     userId: {
-        type: String,
+        type: String
     },
     userType: {
-        type: String,
+        type: String
     },
 }, {
     timestamps: true,

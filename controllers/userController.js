@@ -22,7 +22,9 @@ export const getAllUsers = (DbGetAllUsers) => async (req, res) => {
 // so the related imports don't throw errors
 export const getUserByEmail = (DbGetUserByEmail) => async (req, res) => {
     try {
+        // Get user by email
         const user = await DbGetUserByEmail(req.params.email)
+        // Check if user exists
         if(user) {
             user.password = null
             res.status(200).json({ status: "success", user: user })
@@ -39,7 +41,9 @@ export const createUser = (DbCreateUser) => async (req, res) => {
     try {
         const user = req.body
         user.password = hashSync(user.password, 6)
+        // Create user
         const result = await DbCreateUser(user)
+        // Check if user was created
         result ? res.status(201).json({ status: "success", user: result })
             : res.status(500).json({ status: "error", message: "An unexpected error occurred" })
     } catch (e) {
@@ -77,8 +81,10 @@ export const deleteUser = (DbDeleteUser) => async (req, res) => {
 export const createTempUser = (DbCreateUser, DbCreateCRM) => async (req, res) => {
     try {
         const user = req.body
+        // Create a temp user
         const result = await DbCreateUser(user)
 
+        // Check if the user was created
         if(!result) {
             return res.status(500).json({ status: "error", message: "An unexpected error occurred" })
         }

@@ -14,6 +14,7 @@ const requestLogger = (createRequestLog) => async (req, res, next) => {
 
     // If the user is logged in, add the session id to the log data
     if(req.session.loggedIn) {
+        logData.sessionID = req.headers.authorization.split(' ')[1]
         logData.userId = req.session.user._id
         logData.userType = req.session.userType
     }
