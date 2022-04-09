@@ -14,8 +14,8 @@ const TokenBlacklist = mongoose.model("TokenBlacklist", tokenBlacklistSchema)
 export default TokenBlacklist
 
 // Model methods
-export const DbAddTokenToBlacklist = (token, cb) => mongoose.model("TokenBlacklist").create({ accessToken: token }, cb)
+export const DbAddTokenToBlacklist = (token) => mongoose.model("TokenBlacklist").create({ accessToken: token })
 
-export const DbIsTokenBlacklisted = (token, cb) => mongoose.model("TokenBlacklist").findOne({ accessToken: token }, cb)
+export const DbIsTokenBlacklisted = (token) => mongoose.model("TokenBlacklist").findOne({ accessToken: token })
 
-export const DbDeleteExpiredTokens = (cb) => mongoose.model("TokenBlacklist").deleteMany({ createdAt: { $lt: Date.now() - (2 * 60 * 60 * 1000) } }, cb)// 2 hours
+export const DbDeleteExpiredTokens = () => mongoose.model("TokenBlacklist").deleteMany({ createdAt: { $lt: Date.now() - (2 * 60 * 60 * 1000) } })// 2 hours

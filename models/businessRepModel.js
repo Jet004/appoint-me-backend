@@ -40,17 +40,17 @@ const BusinessRep = mongoose.model('BusinessRep', businessRepSchema)
 
 export default BusinessRep
 
-export const DbGetAllReps = (cb) => mongoose.model('BusinessRep').find({}, cb)
+export const DbGetAllReps = () => mongoose.model('BusinessRep').find({})
 
-export const DbGetRepByEmail = (email, cb) => mongoose.model('BusinessRep').findOne({email}, cb)
+export const DbGetRepByEmail = (email) => mongoose.model('BusinessRep').findOne({email})
 
-export const DbGetRepByID = (id, cb) => mongoose.model('BusinessRep').findById(id, cb)
+export const DbGetRepByID = (id) => mongoose.model('BusinessRep').findById(id)
 
-export const DbCreateRep = (businessRep, cb) => mongoose.model('BusinessRep').create(businessRep, cb)
+export const DbCreateRep = (businessRep) => mongoose.model('BusinessRep').create(businessRep)
 
-export const DbUpdateRep = (id, businessRep, cb) => mongoose.model('BusinessRep').findByIdAndUpdate(id, businessRep, cb)
+export const DbUpdateRep = (id, businessRep) => mongoose.model('BusinessRep').findByIdAndUpdate(id, businessRep)
 
-export const DbDeleteRep = (id, cb) => mongoose.model('BusinessRep').findByIdAndDelete(id, cb)
+export const DbDeleteRep = (id) => mongoose.model('BusinessRep').findByIdAndDelete(id)
 
 // Auth operations
-export const DbRegisterBusinessRep = (businessRep, cb) => mongoose.model('BusinessRep').create(businessRep, cb)
+export const DbRegisterBusinessRep = (businessRep) => mongoose.model('BusinessRep').create(businessRep)

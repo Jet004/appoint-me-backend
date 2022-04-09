@@ -2,7 +2,7 @@ import express from "express"
 const router = express.Router()
 
 // Import controllers
-import { userCreateAppointment, updateAppointment, businessRepCreateAppointment } from "../controllers/appointmentController"
+import { userCreateAppointment, updateAppointment, businessRepCreateAppointment, getAppointmentById } from "../controllers/appointmentController"
 // Import DB ODM methods
 import { DbGetCRMByMatch, DbCreateCRM } from "../models/crmModel"
 import { DbCreateAppointment, DbGetAppointmentById, DbUpdateAppointment } from "../models/appointmentModel"
@@ -24,7 +24,15 @@ router.route('/user/:businessId')
         userCreateAppointment(DbGetCRMByMatch, DbCreateCRM, DbCreateAppointment)
     )
 
-router.route('/user/update/:appointmentId')
+router.route('/user/crud/:appointmentId')
+    .get(
+        appointmentIdValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles([ "user" ]),
+        verifyOwnAccountByAppointmentId(DbGetAppointmentById),
+        getAppointmentById(DbGetAppointmentById)
+    )
     .put(
         appointmentIdValidator,
         appointmentValidator,
@@ -34,6 +42,7 @@ router.route('/user/update/:appointmentId')
         verifyOwnAccountByAppointmentId(DbGetAppointmentById),
         updateAppointment(DbUpdateAppointment)
     )
+
 
 router.route('/business-rep/:businessId/:id')
     .post(
@@ -47,7 +56,15 @@ router.route('/business-rep/:businessId/:id')
         businessRepCreateAppointment(DbGetCRMByMatch, DbCreateAppointment)
     )
 
-router.route('/business-rep/update/:appointmentId')
+router.route('/business-rep/crud/:appointmentId')
+    .get(
+        appointmentIdValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles([ "businessRep" ]),
+        checkRepAuthByAppointmentId(DbGetAppointmentById),
+        getAppointmentById(DbGetAppointmentById)
+    )
     .put(
         appointmentIdValidator,
         appointmentValidator,

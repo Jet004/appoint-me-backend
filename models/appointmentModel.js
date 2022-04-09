@@ -66,12 +66,12 @@ const Appointment = mongoose.model("Appointment", appointmentSchema)
 
 export default Appointment
 
-export const DbCreateAppointment = async (appointment) => Appointment.create(appointment)
+export const DbCreateAppointment = (appointment) => Appointment.create(appointment)
 
-export const DbGetAppointmentById = async (appointmentId) => Appointment.findById(appointmentId)
+export const DbGetAppointmentById = (appointmentId) => Appointment.findById(appointmentId)
 
-export const DbGetAppointmentsByCRMId = async (crmId) => Appointment.find({ crmId: crmId })
+export const DbGetAppointmentsByCRMId = (crmId) => Appointment.find({ crmId: crmId })
 
-export const DbUpdateAppointment = async (appointmentId, appointment) => Appointment.findByIdAndUpdate(appointmentId, appointment)
+export const DbUpdateAppointment = (appointmentId, appointment) => Appointment.findByIdAndUpdate(appointmentId, appointment)
 
-export const DbDeleteAppointment = async (appointmentId) => Appointment.findByIdAndDelete(appointmentId)
+export const DbDeleteAppointment = (appointmentId) => Appointment.findByIdAndDelete(appointmentId)

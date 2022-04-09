@@ -1,4 +1,4 @@
-import { userCreateAppointment, businessRepCreateAppointment, updateAppointment } from "../appointmentController"
+import { userCreateAppointment, businessRepCreateAppointment, updateAppointment, getAppointmentById } from "../appointmentController"
 
 import business from "../../__test__/mockBusiness"
 import users from "../../__test__/mockUsers"
@@ -171,6 +171,33 @@ describe('Appointment Controller Unit Tests', () => {
             expect(res.status).toHaveBeenCalledWith(200)
             expect(res.json).toHaveBeenCalledTimes(1)
             expect(res.json).toHaveBeenCalledWith({ status: "success", message: "Appointment updated", data: mockAppointment })
+        })
+    })
+
+    describe('Test controller: getAppointmentById', () => {
+        test('returns 200 OK and returns appointment with valid inputs', async () => {
+            mockAppointment._id = mongoose.Types.ObjectId()
+            const fakeDbGetAppointmentById = jest.fn().mockResolvedValue(mockAppointment)
+            const req = {
+                params: {
+                    appointmentId: mockAppointment._id
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = getAppointmentById(fakeDbGetAppointmentById)
+            expect(typeof controller).toBe("function")
+
+            await controller(req, res)
+            expect(fakeDbGetAppointmentById).toHaveBeenCalledTimes(1)
+            expect(fakeDbGetAppointmentById).toHaveBeenCalledWith(mockAppointment._id)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "success", appointment: mockAppointment })
         })
     })
 })

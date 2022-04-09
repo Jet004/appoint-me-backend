@@ -51,17 +51,17 @@ const User = mongoose.model('User', userSchema)
 
 export default User
 
-export const DbGetAllUsers = (cb) => mongoose.model('User').find({}, cb)
+export const DbGetAllUsers = () => mongoose.model('User').find({})
 
-export const DbGetUserByEmail = (email, cb) => mongoose.model('User').findOne({email}, cb)
+export const DbGetUserByEmail = (email) => mongoose.model('User').findOne({email})
 
-export const DbGetUserByID = (id, cb) => mongoose.model('User').findById(id, cb)
+export const DbGetUserByID = (id) => mongoose.model('User').findById(id)
 
-export const DbCreateUser = (user, cb) => mongoose.model('User').create(user, cb)
+export const DbCreateUser = (user) => mongoose.model('User').create(user)
 
-export const DbUpdateUser = (id, user, cb) => mongoose.model('User').findByIdAndUpdate(id, user, cb)
+export const DbUpdateUser = (id, user) => mongoose.model('User').findByIdAndUpdate(id, user)
 
-export const DbDeleteUser = (id, cb) => mongoose.model('User').findByIdAndDelete(id, cb)
+export const DbDeleteUser = (id) => mongoose.model('User').findByIdAndDelete(id)
 
 // Authentication operations
-export const DbRegisterUser = (user, cb) => mongoose.model('User').create(user, cb)
+export const DbRegisterUser = (user) => mongoose.model('User').create(user)

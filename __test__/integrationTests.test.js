@@ -2772,10 +2772,9 @@ describe('Integration Tests:', () => {
             beforeAll(async () => {
                 // Remove refresh token from the Database
                 try {
-                    const result = await mongoose.model('Auth').deleteMany({}, () => {})    
-                    const acResult = await mongoose.model('TokenBlacklist').deleteMany({}, () => {})
+                    const result = await mongoose.model('Auth').deleteMany({})    
                 } catch(e) {
-                    console.error(e)
+                    console.log(e)
                 }
             })
 
@@ -2784,16 +2783,16 @@ describe('Integration Tests:', () => {
                 try {
                     const result = await mongoose.model('Auth').create({ refreshToken: token })
                 } catch(e) {
-                    console.error(e)
+                    console.log(e)
                 }
             })
 
             afterEach(async () => {
                 // Remove refresh token from the Database
                 try {
-                    const result = await mongoose.model('Auth').deleteMany({}, () => {})
+                    const result = await mongoose.model('Auth').deleteMany({})
                 } catch(e) {
-                    console.error(e)
+                    console.log(e)
                 }
             })
 
@@ -3118,7 +3117,7 @@ describe('Integration Tests:', () => {
     
         })
 
-        describe('Route: /ai/appointments/update/:appointmentId', () => {
+        describe('Route: /ai/appointments/user/crud/:appointmentId', () => {
             describe('Updated performed by user', () => {
                 beforeAll(async () => {
                     // Remove all appointments from the Database
@@ -3188,6 +3187,26 @@ describe('Integration Tests:', () => {
                     // Remove CRM
                     const crmResult = await CRM.deleteMany({ business: business._id, user: user._id })
                 })
+
+                test('GET returns 200 OK and returns the appointment with valid inputs', async () => {
+                    const payload = {
+                        method: "get",
+                        headers: {
+                            "content-type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+
+                    const response = await fetch(`${domain}/api/appointments/user/crud/${appointment._id}`, payload)
+                    const json = await response.json()
+
+                    if(response.status !== 200) console.log(response, json)
+
+                    expect(response.status).toBe(200)
+                    expect(json.status).toBe("success")
+                    expect(json.appointment._id.toString()).toBe(appointment._id.toString())
+                    expect(json.appointment.crm.toString()).toBe(crm._id.toString())
+                })
     
                 test('PUT returns 200 OK and updates appointment with valid inputs', async () => {
                     const updatedAppointment = JSON.parse(JSON.stringify(appointment))
@@ -3201,7 +3220,7 @@ describe('Integration Tests:', () => {
                         body: JSON.stringify(updatedAppointment)
                     }
 
-                    const response = await fetch(`${domain}/api/appointments/user/update/${appointment._id}`, payload)
+                    const response = await fetch(`${domain}/api/appointments/user/crud/${appointment._id}`, payload)
                     const json = await response.json()
         
                     if(response.status !== 200) console.log(response, json)
@@ -3216,7 +3235,10 @@ describe('Integration Tests:', () => {
                 })
             })
 
-            describe('Updated performed by businessRep', () => {
+        })
+
+        describe('Route: /ai/appointments/business-rep/crud/:appointmentId', () => {
+            describe('Update performed by businessRep', () => {
                 beforeAll(async () => {
                     // Remove all appointments from the Database
                     const result = await mongoose.model('Appointment').deleteMany({})
@@ -3253,7 +3275,7 @@ describe('Integration Tests:', () => {
                         break: 5,
                         fee: 50
                     })
-    
+
                     // Define the appointment
                     appointment = {
                         service: business.services[0]._id,
@@ -3264,7 +3286,7 @@ describe('Integration Tests:', () => {
                         paymentStatus: "unpaid",
                         details: "Test Details"
                     }
-    
+
                     // Create CRM
                     crm = await CRM.create({
                         userModel: 'User',
@@ -3288,7 +3310,27 @@ describe('Integration Tests:', () => {
                     // Remove CRM
                     const crmResult = await CRM.deleteMany({ business: business._id, user: user._id })
                 })
-    
+
+                test('GET returns 200 OK and returns the appointment with valid inputs', async () => {
+                    const payload = {
+                        method: "get",
+                        headers: {
+                            "content-type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+
+                    const response = await fetch(`${domain}/api/appointments/business-rep/crud/${appointment._id}`, payload)
+                    const json = await response.json()
+
+                    if(response.status !== 200) console.log(response, json)
+
+                    expect(response.status).toBe(200)
+                    expect(json.status).toBe("success")
+                    expect(json.appointment._id.toString()).toBe(appointment._id.toString())
+                    expect(json.appointment.crm.toString()).toBe(crm._id.toString())
+                })
+
                 test('PUT returns 200 OK and updates appointment with valid inputs', async () => {
                     const updatedAppointment = JSON.parse(JSON.stringify(appointment))
                     updatedAppointment.details = "Updated Details"
@@ -3301,7 +3343,7 @@ describe('Integration Tests:', () => {
                         body: JSON.stringify(updatedAppointment)
                     }
 
-                    const response = await fetch(`${domain}/api/appointments/business-rep/update/${appointment._id}`, payload)
+                    const response = await fetch(`${domain}/api/appointments/business-rep/crud/${appointment._id}`, payload)
                     const json = await response.json()
         
                     if(response.status !== 200) console.log(response, json)

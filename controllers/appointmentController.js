@@ -1,6 +1,6 @@
 
 
-export const userCreateAppointment = (DbGetCRMByMatch, DbCreateCRM, DbCreateAppointment) => async (req, res, next) => {
+export const userCreateAppointment = (DbGetCRMByMatch, DbCreateCRM, DbCreateAppointment, DbGetAppointmentById) => async (req, res, next) => {
     try {
         // This controller is only accessible by logged in users of userType 'user'
         // Get or create CRM
@@ -109,6 +109,24 @@ export const updateAppointment = (DbUpdateAppointment) => async (req, res, next)
         // Appointment updated, respond with 200 OK
         return res.status(200).json({ status: "success", message: "Appointment updated", data: appointment })
 
+    } catch(e) {
+        console.log(e)
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+}
+
+export const getAppointmentById = (DbGetAppointmentById) => async (req, res, next) => {
+    try {
+        const appointment = await DbGetAppointmentById(req.params.appointmentId)
+
+        // Check if Appointment was found
+        if(!appointment) {
+            // Appointment not found, respond with 404 Not Found
+            return res.status(404).json({ status: "error", message: "Appointment not found" })
+        }
+
+        // Appointment found, respond with 200 OK
+        return res.status(200).json({ status: "success", appointment: appointment })
     } catch(e) {
         console.log(e)
         return res.status(500).json({ status: "error", message: e.message })

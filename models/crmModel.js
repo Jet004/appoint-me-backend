@@ -49,16 +49,16 @@ export default CRM
 
 // Define CRM CRUD operations
 
-export const DbCreateCRM = async (crm) => CRM.create(crm)
+export const DbCreateCRM = (crm) => CRM.create(crm)
 
-export const DbGetCRMById = async (crmId) => CRM.findById(crmId)
+export const DbGetCRMById = (crmId) => CRM.findById(crmId)
 
-export const DbGetCRMByMatch = async (businessId, userId) => CRM.findOne({business: businessId, user: userId})
+export const DbGetCRMByMatch = (businessId, userId) => CRM.findOne({business: businessId, user: userId})
 
-export const DbGetCRMsByABN = async (abn) => CRM.find({ businessId: abn })
+export const DbGetCRMsByABN = (abn) => CRM.find({ businessId: abn })
 
-export const DbGetCRMsByUserId = async (userId) => CRM.find({ userId: userId })
+export const DbGetCRMsByUserId = (userId) => CRM.find({ userId: userId })
 
-export const DbUpdateCRM = async (crm) => CRM.findByIdAndUpdate(crm._id, crm)
+export const DbUpdateCRM = (crm) => CRM.findByIdAndUpdate(crm._id, crm)
 
-export const DbDeleteCRM = async (crmId) => CRM.findByIdAndDelete(crmId)
+export const DbDeleteCRM = (crmId) => CRM.findByIdAndDelete(crmId)

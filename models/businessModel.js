@@ -67,31 +67,31 @@ export default Business
 // Define queries for interacting with this model
 
 // Not implemented yet
-// export const DbGetAllBusinesses = (cb) => mongoose.model('User').find({}, cb)
+// export const DbGetAllBusinesses = () => mongoose.model('User').find({})
 
-export const DbGetBusinessByABN = (abn, cb) => mongoose.model('Business').findOne({abn: abn}, cb)
+export const DbGetBusinessByABN = (abn) => mongoose.model('Business').findOne({abn: abn})
 
-export const DbGetBusinessByID = (id, cb) => mongoose.model('Business').findById(id, cb)
-
-// Not implemented yet
-// export const DbCreateBusiness = (business, cb) => mongoose.model('Business').create(business, cb)
-
-export const DbUpdateBusiness = (abn, business, cb) => mongoose.model('Business').findOneAndUpdate({abn: abn}, business, cb)
+export const DbGetBusinessByID = (id) => mongoose.model('Business').findById(id)
 
 // Not implemented yet
-// export const DbDeleteBusiness = (id, cb) => mongoose.model('Business').findByIdAndDelete(id, cb)
+// export const DbCreateBusiness = (business) => mongoose.model('Business').create(business)
+
+export const DbUpdateBusiness = (abn, business) => mongoose.model('Business').findOneAndUpdate({abn: abn}, business)
+
+// Not implemented yet
+// export const DbDeleteBusiness = (id) => mongoose.model('Business').findByIdAndDelete(id)
 
 
 // CRUD functions for services subdocument
-export const DbGetBusinessServiceById = async (abn, serviceId, cb) => {
-    const business = await mongoose.model("Business").findOne({abn: abn}, cb)
+export const DbGetBusinessServiceById = async (abn, serviceId) => {
+    const business = await mongoose.model("Business").findOne({abn: abn})
     // Return null if no business found with the given ABN
     if(!business) return null
     // Returns service OR null if no service found with the given ID
     return await business.services.id(serviceId)
 }
 
-export const DbCreateBusinessService = async (business, service, cb) => {
+export const DbCreateBusinessService = async (business, service) => {
 
     await business.services.push(service)
 

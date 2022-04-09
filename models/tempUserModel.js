@@ -44,14 +44,14 @@ const TempUser = mongoose.model('TempUser', tempUserSchema)
 
 export default TempUser
 
-export const DbGetAllUsers = (cb) => mongoose.model('TempUser').find({}, cb)
+export const DbGetAllUsers = () => mongoose.model('TempUser').find({})
 
-export const DbGetUserByEmail = (email, cb) => mongoose.model('TempUser').findOne({email}, cb)
+export const DbGetUserByEmail = (email) => mongoose.model('TempUser').findOne({email})
 
-export const DbGetUserByID = (id, cb) => mongoose.model('TempUser').findById(id, cb)
+export const DbGetUserByID = (id) => mongoose.model('TempUser').findById(id)
 
-export const DbCreateUser = (user, cb) => mongoose.model('TempUser').create(user, cb)
+export const DbCreateUser = (user) => mongoose.model('TempUser').create(user)
 
-export const DbUpdateUser = (id, user, cb) => mongoose.model('TempUser').findByIdAndUpdate(id, user, cb)
+export const DbUpdateUser = (id, user) => mongoose.model('TempUser').findByIdAndUpdate(id, user)
 
-export const DbDeleteUser = (id, cb) => mongoose.model('TempUser').findByIdAndDelete(id, cb)
+export const DbDeleteUser = (id) => mongoose.model('TempUser').findByIdAndDelete(id)

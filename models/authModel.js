@@ -14,6 +14,6 @@ const Auth = mongoose.model("Auth", authSchema)
 
 export default Auth
 
-export const DbSaveRefreshToken = (refreshToken, cb) => mongoose.model('Auth').create({refreshToken}, cb)
+export const DbSaveRefreshToken = (refreshToken) => mongoose.model('Auth').create({refreshToken})
 
-export const DbDeleteRefreshToken = (refreshToken, cb) => mongoose.model('Auth').deleteOne({refreshToken}, cb)
+export const DbDeleteRefreshToken = (refreshToken) => mongoose.model('Auth').deleteOne({refreshToken})
