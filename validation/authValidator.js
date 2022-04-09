@@ -1,4 +1,5 @@
 import { body, header } from 'express-validator';
+import { DbGetBusinessByID } from '../models/businessModel'
 
 import checkForUnexpectedKeys from './checkBodyKeys';
 
@@ -77,6 +78,22 @@ export const isAuthorisedRep = (DbGetCRMByMatch) => async (req, res, next) => {
     // Check that logged in user is the business rep of the business
     if(crm.business.businessRep.toString() !== req.session.user._id.toString()) return res.status(403).json({ status: "error", message: "You are not authorised to modify this user" })
 
-    // Business rep is autorised to modify this temp user. Pass control to the next middleware
+    // Business rep is authorised to modify this temp user. Pass control to the next middleware
+    return next()
+}
+
+export const verifyRepByBusinessId = (DbGetBusinessByID) => async (req, res, next) => {
+    // Get business by business id
+    const business = await DbGetBusinessByID(req.params.businessId)
+
+    // Return error if no business found
+    if(!business) return res.status(400).json({ status: "error", message: `No business found for business id: ${req.params.businessId}` })
+
+    // Check that logged in user is the business rep of the business
+    if(business.businessRep.toString() !== req.session.user._id.toString()) {
+        return res.status(403).json({ status: "error", message: "You are not authorised to modify this user" })
+    }
+
+    // Business rep is authorised to perform this operation. Pass control to the next middleware
     return next()
 }

@@ -2899,7 +2899,7 @@ describe('Integration Tests:', () => {
     })
 
     describe('Appointment Routes', () => {
-        describe('Route: /api/appointments/user/:businessId', () => {
+        describe('Route: /api/appointments/user-appointments', () => {
             beforeAll(async () => {
                 // Remove all appointments from the Database
                 const result = await mongoose.model('Appointment').deleteMany({})
@@ -2908,7 +2908,111 @@ describe('Integration Tests:', () => {
             let user
             let token
             let business
+            let crm
             let appointment
+            let appointments
+            beforeEach(async () => {
+                // Get and log the user in
+                user = await User.findOne({ email: 'e.rodder@gmail.com' })
+                const payload = {
+                    "iss": 'http://localhost:8200',
+                    "azp": user._id,
+                    "aud": 'http://localhost:8200',
+                    "roles": "user"
+                }
+            
+                // Generate access and refresh tokens
+                token = jwt.sign(payload , process.env.JWT_SECRET)
+    
+                // Get the business
+                business = await Business.findOne({ abn: 12345678912 })
+                business.services.push({
+                    _id: mongoose.Types.ObjectId(),
+                    name: "Test Service",
+                    description: "This is a test service",
+                    duration: 55,
+                    break: 5,
+                    fee: 50
+                })
+
+                // Define the appointment
+                appointment = {
+                    service: business.services[0]._id,
+                    appointmentTime: "2020-01-01T00:00:00.000Z",
+                    appointmentEnd: "2020-01-01T00:00:00.000Z",
+                    fee: 50,
+                    feeDue: "2020-01-01T00:00:00.000Z",
+                    paymentStatus: "unpaid",
+                    details: "Test Details"
+                }
+
+                // Create CRM
+                crm = await CRM.create({
+                    userModel: 'User',
+                    user: user._id,
+                    business: business._id,
+                    tempFlag: false,
+                    allowAccess: true,
+                    notes: ""
+                })
+
+                // Create appointment
+                appointments = await Appointment.create([
+                    {
+                        crm: crm._id,
+                        ...appointment
+                    }, {
+                        crm: crm._id,
+                        ...appointment
+                    }, {
+                        crm: crm._id,
+                        ...appointment
+                    },
+
+                ])
+            })
+    
+            afterEach(async () => {
+                // Delete appointments
+                const result = await mongoose.model('Appointment').deleteMany({})
+                // Remove CRM
+                const crmResult = await CRM.deleteMany({})
+            })
+
+            test('GET returns 200 Ok and returns the user\'s appointments', async () => {
+                const payload = {
+                    method: "get",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+
+                const response = await fetch(`${domain}/api/appointments/user-appointments`, payload)
+                const json = await response.json()
+
+                if(response.status !== 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(json.data[0].appointments.length).toBe(3)
+                expect(json.data[0].appointments[0]._id).toBe(appointments[0]._id.toString())
+            })
+        })
+
+        describe('Route: /api/appointments/user/:businessId', () => {
+            beforeAll(async () => {
+                // Remove all appointments from the Database
+                const result = await mongoose.model('Appointment').deleteMany({})
+                // Remove all CRMs
+                const crmResult = await CRM.deleteMany({})
+            })
+    
+            let user
+            let token
+            let business
+            let appointment
+            let crm
             beforeEach(async () => {
                 // Get and log the user in
                 user = await User.findOne({ email: 'e.rodder@gmail.com' })
@@ -2948,6 +3052,8 @@ describe('Integration Tests:', () => {
             afterEach(async () => {
                 // Delete appointments
                 const result = await mongoose.model('Appointment').deleteMany({})
+                // Remove CRM
+                const crmResult = await CRM.deleteMany({ business: business._id, user: user._id })
             })
     
             describe('CRM exists', () => {
@@ -3015,7 +3121,111 @@ describe('Integration Tests:', () => {
             })
         })
 
-        describe('Route: /api/appointments/business-rep', () => {
+        describe('Route: /api/appointments/business-rep-appointments/:businessId', () => {
+            beforeAll(async () => {
+                // Remove all appointments from the Database
+                const result = await mongoose.model('Appointment').deleteMany({})
+            })
+    
+            let user
+            let rep
+            let token
+            let business
+            let crm
+            let appointment
+            let appointments
+            beforeEach(async () => {
+                // Get and log the user in
+                user = await User.findOne({ email: 'e.rodder@gmail.com' })
+                // Log in business rep
+                rep = await BusinessRep.findOne({ email: 'j.chen@chencorp.com' })
+                const payload = {
+                    "iss": 'http://localhost:8200',
+                    "azp": rep._id,
+                    "aud": 'http://localhost:8200',
+                    "roles": "businessRep"
+                }
+            
+                // Generate access and refresh tokens
+                token = jwt.sign(payload , process.env.JWT_SECRET)
+    
+                // Get the business
+                business = await Business.findOne({ abn: 12345678912 })
+                business.services.push({
+                    _id: mongoose.Types.ObjectId(),
+                    name: "Test Service",
+                    description: "This is a test service",
+                    duration: 55,
+                    break: 5,
+                    fee: 50
+                })
+
+                // Define the appointment
+                appointment = {
+                    service: business.services[0]._id,
+                    appointmentTime: "2020-01-01T00:00:00.000Z",
+                    appointmentEnd: "2020-01-01T00:00:00.000Z",
+                    fee: 50,
+                    feeDue: "2020-01-01T00:00:00.000Z",
+                    paymentStatus: "unpaid",
+                    details: "Test Details"
+                }
+
+                // Create CRM
+                crm = await CRM.create({
+                    userModel: 'User',
+                    user: user._id,
+                    business: business._id,
+                    tempFlag: false,
+                    allowAccess: true,
+                    notes: ""
+                })
+
+                // Create appointment
+                appointments = await Appointment.create([
+                    {
+                        crm: crm._id,
+                        ...appointment
+                    }, {
+                        crm: crm._id,
+                        ...appointment
+                    }, {
+                        crm: crm._id,
+                        ...appointment
+                    },
+
+                ])
+            })
+    
+            afterEach(async () => {
+                // Delete appointments
+                const result = await mongoose.model('Appointment').deleteMany({})
+                // Remove CRM
+                const crmResult = await CRM.deleteMany({})
+            })
+
+            test('GET returns 200 Ok and returns the businesses appointments', async () => {
+                const payload = {
+                    method: "get",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+
+                const response = await fetch(`${domain}/api/appointments/business-rep-appointments/${business._id}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 200) console.log(response, json)
+
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(json.data[0].appointments.length).toBe(3)
+                expect(json.data[0].appointments[0]._id).toBe(appointments[0]._id.toString())
+            })
+        })
+
+        describe('Route: /api/appointments/business-rep/:businessId/:id', () => {
             beforeAll(async () => {
                 // Remove all appointments from the Database
                 const result = await mongoose.model('Appointment').deleteMany({})
@@ -3256,7 +3466,7 @@ describe('Integration Tests:', () => {
 
         })
 
-        describe('Route: /ai/appointments/business-rep/crud/:appointmentId', () => {
+        describe('Route: /api/appointments/business-rep/crud/:appointmentId', () => {
             describe('Operations performed by businessRep', () => {
                 beforeAll(async () => {
                     // Remove all appointments from the Database

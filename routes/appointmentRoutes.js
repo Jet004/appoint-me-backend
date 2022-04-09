@@ -2,15 +2,24 @@ import express from "express"
 const router = express.Router()
 
 // Import controllers
-import { userCreateAppointment, updateAppointment, businessRepCreateAppointment, getAppointmentById, deleteAppointment } from "../controllers/appointmentController"
+import { userCreateAppointment, updateAppointment, businessRepCreateAppointment, getAppointmentById, deleteAppointment, getAllUserAppointments, getAllBusinessAppointments } from "../controllers/appointmentController"
 // Import DB ODM methods
-import { DbGetCRMByMatch, DbCreateCRM } from "../models/crmModel"
+import { DbGetCRMByMatch, DbCreateCRM, DbGetAppointmentsByUserId, DbGetAppointmentsByBusinessId } from "../models/crmModel"
 import { DbCreateAppointment, DbGetAppointmentById, DbUpdateAppointment, DbDeleteAppointment } from "../models/appointmentModel"
+import { DbGetBusinessByID } from "../models/businessModel"
+// Import validators
 import { businessIdValidator, idValidator, verifyOwnAccountByAppointmentId } from "../validation/userValidators"
 import validationCheck from "../validation/checkValidators"
-import { accessTokenValidator, isAuthorisedRep } from "../validation/authValidator"
+import { accessTokenValidator, isAuthorisedRep, verifyRepByBusinessId } from "../validation/authValidator"
 import { appointmentIdValidator, appointmentValidator, checkAppointmentKeys, checkRepAuthByAppointmentId } from "../validation/appointmentValidator"
 import { requireLogin, requireRoles } from "../middleware/sessionHandler"
+
+router.route('/user-appointments')
+    .get(
+        requireLogin(),
+        requireRoles([ "user" ]),
+        getAllUserAppointments(DbGetAppointmentsByUserId)
+    )
 
 router.route('/user/:businessId')
     .post(
@@ -51,6 +60,13 @@ router.route('/user/crud/:appointmentId')
         deleteAppointment(DbDeleteAppointment)
     )
 
+router.route('/business-rep-appointments/:businessId')
+    .get(
+        requireLogin(),
+        requireRoles([ "businessRep" ]),
+        verifyRepByBusinessId(DbGetBusinessByID),
+        getAllBusinessAppointments(DbGetAppointmentsByBusinessId)
+    )
 
 router.route('/business-rep/:businessId/:id')
     .post(

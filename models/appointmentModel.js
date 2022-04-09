@@ -70,8 +70,6 @@ export const DbCreateAppointment = (appointment) => Appointment.create(appointme
 
 export const DbGetAppointmentById = (appointmentId) => Appointment.findById(appointmentId)
 
-export const DbGetAppointmentsByCRMId = (crmId) => Appointment.find({ crmId: crmId })
-
 export const DbUpdateAppointment = (appointmentId, appointment) => Appointment.findByIdAndUpdate(appointmentId, appointment)
 
 export const DbDeleteAppointment = (appointmentId) => Appointment.findByIdAndDelete(appointmentId)

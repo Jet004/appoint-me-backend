@@ -100,7 +100,6 @@ export const createBusinessService = (DbGetBusinessByABN, DbCreateBusinessServic
 }
 
 export const updateBusinessService = (DbUpdateBusinessService) => async (req, res) => {
-    console.log("update business service")
     try {
         const results = await DbUpdateBusinessService(req.params.abn, req.params.serviceId, req.body)
 

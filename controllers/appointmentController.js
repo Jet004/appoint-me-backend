@@ -1,4 +1,42 @@
 
+export const getAllUserAppointments = (DbGetAppointmentsByUserId) => async (req, res) => {
+    try {
+        // Get CRMs and populate appointment data
+        const crms = await DbGetAppointmentsByUserId(req.session.user._id)
+
+        // Check that relationships and appointments have loaded
+        if(!crms || crms.length === 0 || !crms[0].appointments || crms[0].appointments.length === 0) {
+            // No CRMs found, therefore no appointment data
+            return res.status(404).json({ status: "error", message: "No appointments found" })
+        }
+
+        // Return CRMs with appointments
+        return res.status(200).json({ status: "success", data: crms })
+
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+}
+
+export const getAllBusinessAppointments = (DbGetAppointmentsByBusinessId) => async (req, res) => {
+    try {
+        const crms = await DbGetAppointmentsByBusinessId(req.params.businessId)
+
+        // Check that relationships and appointments have loaded
+        if(!crms || crms.length === 0 || !crms[0].appointments || crms[0].appointments.length === 0) {
+            // No CRMs found, therefore no appointment data
+            return res.status(404).json({ status: "error", message: "No appointments found" })
+        }
+
+        // Return CRMs with appointments
+        return res.status(200).json({ status: "success", data: crms })
+
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+}
 
 export const userCreateAppointment = (DbGetCRMByMatch, DbCreateCRM, DbCreateAppointment, DbGetAppointmentById) => async (req, res, next) => {
     try {

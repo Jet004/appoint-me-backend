@@ -47,7 +47,7 @@ const CRM = mongoose.model("CRM", crmSchema)
 
 export default CRM
 
-// Define CRM CRUD operations
+// Define CRM operations
 
 export const DbCreateCRM = (crm) => CRM.create(crm)
 
@@ -57,8 +57,14 @@ export const DbGetCRMByMatch = (businessId, userId) => CRM.findOne({business: bu
 
 export const DbGetCRMsByABN = (abn) => CRM.find({ businessId: abn })
 
-export const DbGetCRMsByUserId = (userId) => CRM.find({ userId: userId })
+export const DbGetCRMsByUserId = (userId) => CRM.find({ user: userId })
 
 export const DbUpdateCRM = (crm) => CRM.findByIdAndUpdate(crm._id, crm)
 
 export const DbDeleteCRM = (crmId) => CRM.findByIdAndDelete(crmId)
+
+// Although the primary purpose of the following queries are to return all appointments,
+// they are included here as they are reliant on the CRM model
+export const DbGetAppointmentsByUserId = (userId) => CRM.find({ user: userId }).populate("appointments")
+
+export const DbGetAppointmentsByBusinessId = (businessId) => CRM.find({ business: businessId }).populate("appointments")

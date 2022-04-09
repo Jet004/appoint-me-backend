@@ -1,4 +1,4 @@
-import { userCreateAppointment, businessRepCreateAppointment, updateAppointment, getAppointmentById, deleteAppointment } from "../appointmentController"
+import { userCreateAppointment, businessRepCreateAppointment, updateAppointment, getAppointmentById, deleteAppointment, getAllUserAppointments, getAllBusinessAppointments } from "../appointmentController"
 
 import business from "../../__test__/mockBusiness"
 import users from "../../__test__/mockUsers"
@@ -16,9 +16,10 @@ describe('Appointment Controller Unit Tests', () => {
         jest.resetAllMocks()
 
         // Set up common variables
-        mockBusiness = JSON.parse(JSON.stringify(business))
+        mockBusiness = JSON.parse(JSON.stringify(business[0]))
         mockUser = JSON.parse(JSON.stringify(users[3]))
         mockCRM = {
+            _id: mongoose.Types.ObjectId(),
             userModel: "User",
             user: mockUser._id,
             business: mockBusiness._id,
@@ -26,6 +27,7 @@ describe('Appointment Controller Unit Tests', () => {
             allowAccess: true,
             notes: ""
         }
+
         mockAppointment = {
             crm: mockCRM._id,
             service: mongoose.Types.ObjectId(),
@@ -38,6 +40,70 @@ describe('Appointment Controller Unit Tests', () => {
         
     })
 
+    describe('Test controller: getAllUserAppointments', () => {
+        test('returns 200 OK + all user appointments with valid inputs', async () => {
+            const mockPopulateCRMAppointments = JSON.parse(JSON.stringify(mockCRM))
+            mockPopulateCRMAppointments.appointments = [mockAppointment, mockAppointment, mockAppointment]
+            const fakeDbGetAppointmentsByUserId = jest.fn().mockResolvedValue([mockPopulateCRMAppointments])
+            const req = {
+                session: {
+                    loggedIn: true,
+                    user: mockUser,
+                    userType: 'user'
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = getAllUserAppointments(fakeDbGetAppointmentsByUserId)
+            expect(typeof controller).toBe('function')
+
+            const rest = await controller(req, res)
+            expect(fakeDbGetAppointmentsByUserId).toHaveBeenCalledTimes(1)
+            expect(fakeDbGetAppointmentsByUserId).toHaveBeenCalledWith(req.session.user._id)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: 'success', data: [mockPopulateCRMAppointments] })
+        })
+    })
+
+    describe('Test controller: getAllBusinessAppointments', () => {
+        const rep = JSON.parse(JSON.stringify(businessReps[1]))
+        test('returns 200 OK + all business appointments with valid inputs', async () => {
+            const mockPopulateCRMAppointments = JSON.parse(JSON.stringify(mockCRM))
+            mockPopulateCRMAppointments.appointments = [mockAppointment, mockAppointment, mockAppointment]
+            const fakeDbGetAppointmentsByBusinessId = jest.fn().mockResolvedValue([mockPopulateCRMAppointments])
+            const req = {
+                session: {
+                    loggedIn: true,
+                    user: rep,
+                    userType: 'businessRep'
+                },
+                params: {
+                    businessId: mockBusiness._id
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = getAllBusinessAppointments(fakeDbGetAppointmentsByBusinessId)
+            expect(typeof controller).toBe('function')
+
+            const rest = await controller(req, res)
+            expect(fakeDbGetAppointmentsByBusinessId).toHaveBeenCalledTimes(1)
+            expect(fakeDbGetAppointmentsByBusinessId).toHaveBeenCalledWith(req.params.businessId)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: 'success', data: [mockPopulateCRMAppointments] })
+        })
+    })
+
     describe('Test controller: userCreateAppointment', () => {
         describe('When CRM exists:', () => {
             test('returns 201 Created when user creates a new appointment', async () => {
@@ -46,7 +112,7 @@ describe('Appointment Controller Unit Tests', () => {
                 const fakeDbCreateAppointment = jest.fn().mockResolvedValue(mockAppointment)
                 const req = {
                     params: {
-                        abn: mockBusiness.abn
+                        businessId: mockBusiness._id
                     },
                     session: {
                         user: mockUser,
@@ -64,7 +130,7 @@ describe('Appointment Controller Unit Tests', () => {
                 
                 await controller(req, res)
                 expect(fakeDbGetCRMByMatch).toHaveBeenCalledTimes(1)
-                expect(fakeDbGetCRMByMatch).toHaveBeenCalledWith(mockBusiness.abn, mockUser._id)
+                expect(fakeDbGetCRMByMatch).toHaveBeenCalledWith(mockBusiness._id, mockUser._id)
                 expect(fakeDbCreateCRM).not.toHaveBeenCalled()
                 expect(fakeDbCreateAppointment).toHaveBeenCalledTimes(1)
                 expect(fakeDbCreateAppointment).toHaveBeenCalledWith(mockAppointment)
@@ -82,7 +148,7 @@ describe('Appointment Controller Unit Tests', () => {
                 const fakeDbCreateAppointment = jest.fn().mockResolvedValue(mockAppointment)
                 const req = {
                     params: {
-                        abn: mockBusiness.abn
+                        businessId: mockBusiness._id
                     },
                     session: {
                         user: mockUser,
@@ -99,10 +165,12 @@ describe('Appointment Controller Unit Tests', () => {
                 expect(typeof controller).toBe("function")
 
                 await controller(req, res)
+                const expectedCRM = JSON.parse(JSON.stringify(mockCRM))
+                delete expectedCRM._id
                 expect(fakeDbGetCRMByMatch).toHaveBeenCalledTimes(1)
-                expect(fakeDbGetCRMByMatch).toHaveBeenCalledWith(mockBusiness.abn, mockUser._id)
+                expect(fakeDbGetCRMByMatch).toHaveBeenCalledWith(mockBusiness._id, mockUser._id)
                 expect(fakeDbCreateCRM).toHaveBeenCalledTimes(1)
-                expect(fakeDbCreateCRM).toHaveBeenCalledWith(mockCRM)
+                expect(fakeDbCreateCRM).toHaveBeenCalledWith(expectedCRM)
                 expect(fakeDbCreateAppointment).toHaveBeenCalledTimes(1)
                 expect(fakeDbCreateAppointment).toHaveBeenCalledWith(mockAppointment)
                 expect(res.status).toHaveBeenCalledTimes(1)
@@ -119,7 +187,7 @@ describe('Appointment Controller Unit Tests', () => {
             const fakeDbCreateAppointment = jest.fn().mockResolvedValue(mockAppointment)
             const req = {
                 params: {
-                    abn: mockBusiness.abn,
+                    businessId: mockBusiness._id,
                     id: mockUser._id
                 },
                 body: mockAppointment
@@ -131,10 +199,10 @@ describe('Appointment Controller Unit Tests', () => {
 
             const controller = businessRepCreateAppointment(fakeDbGetCRMByMatch, fakeDbCreateAppointment)
             expect(typeof controller).toBe("function")
-            
+
             await controller(req, res)
             expect(fakeDbGetCRMByMatch).toHaveBeenCalledTimes(1)
-            expect(fakeDbGetCRMByMatch).toHaveBeenCalledWith(mockBusiness.abn, mockUser._id)
+            expect(fakeDbGetCRMByMatch).toHaveBeenCalledWith(mockBusiness._id, mockUser._id)
             expect(fakeDbCreateAppointment).toHaveBeenCalledTimes(1)
             expect(fakeDbCreateAppointment).toHaveBeenCalledWith(mockAppointment)
             expect(res.status).toHaveBeenCalledTimes(1)
