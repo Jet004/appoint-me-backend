@@ -19,6 +19,7 @@ import BusinessRep from '../models/businessRepModel'
 import Business from '../models/businessModel'
 import Auth from '../models/authModel'
 import CRM from '../models/crmModel'
+import Appointment from '../models/appointmentModel'
 import tempUsers from './mockTempUsers'
 
 const domain = "http:localhost:8200"
@@ -3115,6 +3116,205 @@ describe('Integration Tests:', () => {
             // No need to test for when a CRM does not exist as the user will be prompted
             // to select / create a client (and CRM) before the appointment can be created
     
+        })
+
+        describe('Route: /ai/appointments/update/:appointmentId', () => {
+            describe('Updated performed by user', () => {
+                beforeAll(async () => {
+                    // Remove all appointments from the Database
+                    const result = await mongoose.model('Appointment').deleteMany({})
+                })
+        
+                let user
+                let token
+                let business
+                let crm
+                let appointment
+                beforeEach(async () => {
+                    // Get and log the user in
+                    user = await User.findOne({ email: 'e.rodder@gmail.com' })
+                    const payload = {
+                        "iss": 'http://localhost:8200',
+                        "azp": user._id,
+                        "aud": 'http://localhost:8200',
+                        "roles": "user"
+                    }
+                
+                    // Generate access and refresh tokens
+                    token = jwt.sign(payload , process.env.JWT_SECRET)
+        
+                    // Get the business
+                    business = await Business.findOne({ abn: 12345678912 })
+                    business.services.push({
+                        _id: mongoose.Types.ObjectId(),
+                        name: "Test Service",
+                        description: "This is a test service",
+                        duration: 55,
+                        break: 5,
+                        fee: 50
+                    })
+    
+                    // Define the appointment
+                    appointment = {
+                        service: business.services[0]._id,
+                        appointmentTime: "2020-01-01T00:00:00.000Z",
+                        appointmentEnd: "2020-01-01T00:00:00.000Z",
+                        fee: 50,
+                        feeDue: "2020-01-01T00:00:00.000Z",
+                        paymentStatus: "unpaid",
+                        details: "Test Details"
+                    }
+    
+                    // Create CRM
+                    crm = await CRM.create({
+                        userModel: 'User',
+                        user: user._id,
+                        business: business._id,
+                        tempFlag: false,
+                        allowAccess: true,
+                        notes: ""
+                    })
+
+                    // Create appointment
+                    appointment = await Appointment.create({
+                        crm: crm._id,
+                        ...appointment
+                    })
+                })
+        
+                afterEach(async () => {
+                    // Delete appointments
+                    const result = await mongoose.model('Appointment').deleteMany({})
+                    // Remove CRM
+                    const crmResult = await CRM.deleteMany({ business: business._id, user: user._id })
+                })
+    
+                test('PUT returns 200 OK and updates appointment with valid inputs', async () => {
+                    const updatedAppointment = JSON.parse(JSON.stringify(appointment))
+                    updatedAppointment.details = "Updated Details"
+                    const payload = {
+                        method: "put",
+                        headers: {
+                            "content-type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify(updatedAppointment)
+                    }
+
+                    const response = await fetch(`${domain}/api/appointments/user/update/${appointment._id}`, payload)
+                    const json = await response.json()
+        
+                    if(response.status !== 200) console.log(response, json)
+
+                    expect(response.status).toBe(200)
+                    expect(json.status).toBe("success")
+                    expect(json.message).toBe("Appointment updated")
+                    expect(json.data.crm.toString()).toBe(crm._id.toString())
+                    expect(json.data.details).toBe(appointment.details)
+                    const checkAppt = await Appointment.findById(appointment._id)
+                    expect(checkAppt.details).toBe(updatedAppointment.details)
+                })
+            })
+
+            describe('Updated performed by businessRep', () => {
+                beforeAll(async () => {
+                    // Remove all appointments from the Database
+                    const result = await mongoose.model('Appointment').deleteMany({})
+                })
+        
+                let user
+                let token
+                let business
+                let crm
+                let appointment
+                beforeEach(async () => {
+                    // Get the user
+                    user = await User.findOne({ email: 'e.rodder@gmail.com' })
+
+                    // Log the businessRep in
+                    const rep = await BusinessRep.findOne({ email: 'j.chen@chencorp.com' })
+                    const payload = {
+                        "iss": 'http://localhost:8200',
+                        "azp": rep._id,
+                        "aud": 'http://localhost:8200',
+                        "roles": "businessRep"
+                    }
+                
+                    // Generate access and refresh tokens
+                    token = jwt.sign(payload , process.env.JWT_SECRET)
+        
+                    // Get the business
+                    business = await Business.findOne({ abn: 12345678912 })
+                    business.services.push({
+                        _id: mongoose.Types.ObjectId(),
+                        name: "Test Service",
+                        description: "This is a test service",
+                        duration: 55,
+                        break: 5,
+                        fee: 50
+                    })
+    
+                    // Define the appointment
+                    appointment = {
+                        service: business.services[0]._id,
+                        appointmentTime: "2020-01-01T00:00:00.000Z",
+                        appointmentEnd: "2020-01-01T00:00:00.000Z",
+                        fee: 50,
+                        feeDue: "2020-01-01T00:00:00.000Z",
+                        paymentStatus: "unpaid",
+                        details: "Test Details"
+                    }
+    
+                    // Create CRM
+                    crm = await CRM.create({
+                        userModel: 'User',
+                        user: user._id,
+                        business: business._id,
+                        tempFlag: false,
+                        allowAccess: true,
+                        notes: ""
+                    })
+
+                    // Create appointment
+                    appointment = await Appointment.create({
+                        crm: crm._id,
+                        ...appointment
+                    })
+                })
+        
+                afterEach(async () => {
+                    // Delete appointments
+                    const result = await mongoose.model('Appointment').deleteMany({})
+                    // Remove CRM
+                    const crmResult = await CRM.deleteMany({ business: business._id, user: user._id })
+                })
+    
+                test('PUT returns 200 OK and updates appointment with valid inputs', async () => {
+                    const updatedAppointment = JSON.parse(JSON.stringify(appointment))
+                    updatedAppointment.details = "Updated Details"
+                    const payload = {
+                        method: "put",
+                        headers: {
+                            "content-type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify(updatedAppointment)
+                    }
+
+                    const response = await fetch(`${domain}/api/appointments/business-rep/update/${appointment._id}`, payload)
+                    const json = await response.json()
+        
+                    if(response.status !== 200) console.log(response, json)
+
+                    expect(response.status).toBe(200)
+                    expect(json.status).toBe("success")
+                    expect(json.message).toBe("Appointment updated")
+                    expect(json.data.crm.toString()).toBe(crm._id.toString())
+                    expect(json.data.details).toBe(appointment.details)
+                    const checkAppt = await Appointment.findById(appointment._id)
+                    expect(checkAppt.details).toBe(updatedAppointment.details)
+                })
+            })
         })
     })
 })

@@ -5,11 +5,11 @@ const router = express.Router()
 import { userCreateAppointment, updateAppointment, businessRepCreateAppointment } from "../controllers/appointmentController"
 // Import DB ODM methods
 import { DbGetCRMByMatch, DbCreateCRM } from "../models/crmModel"
-import { DbCreateAppointment, DbUpdateAppointment } from "../models/appointmentModel"
-import { businessIdValidator, idValidator, isOwnAccount } from "../validation/userValidators"
+import { DbCreateAppointment, DbGetAppointmentById, DbUpdateAppointment } from "../models/appointmentModel"
+import { businessIdValidator, idValidator, verifyOwnAccountByAppointmentId } from "../validation/userValidators"
 import validationCheck from "../validation/checkValidators"
 import { accessTokenValidator, isAuthorisedRep } from "../validation/authValidator"
-import { appointmentValidator, checkAppointmentKeys } from "../validation/appointmentValidator"
+import { appointmentIdValidator, appointmentValidator, checkAppointmentKeys, checkRepAuthByAppointmentId } from "../validation/appointmentValidator"
 import { requireLogin, requireRoles } from "../middleware/sessionHandler"
 
 router.route('/user/:businessId')
@@ -24,6 +24,17 @@ router.route('/user/:businessId')
         userCreateAppointment(DbGetCRMByMatch, DbCreateCRM, DbCreateAppointment)
     )
 
+router.route('/user/update/:appointmentId')
+    .put(
+        appointmentIdValidator,
+        appointmentValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles([ "user" ]),
+        verifyOwnAccountByAppointmentId(DbGetAppointmentById),
+        updateAppointment(DbUpdateAppointment)
+    )
+
 router.route('/business-rep/:businessId/:id')
     .post(
         businessIdValidator,
@@ -36,13 +47,15 @@ router.route('/business-rep/:businessId/:id')
         businessRepCreateAppointment(DbGetCRMByMatch, DbCreateAppointment)
     )
 
-router.route('/update/:appointmentId')
+router.route('/business-rep/update/:appointmentId')
     .put(
-        (req, res, next) => {
-            // User access checks different for user and businessRep
-            return next()
-        },
-        updateAppointment(DbGetCRMByMatch, DbUpdateAppointment)
+        appointmentIdValidator,
+        appointmentValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles([ "businessRep" ]),
+        checkRepAuthByAppointmentId(DbGetAppointmentById),
+        updateAppointment(DbUpdateAppointment)
     )
 
 export default router

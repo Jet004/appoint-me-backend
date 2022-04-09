@@ -1,6 +1,7 @@
 import { body, param } from 'express-validator'
 import checkForUnexpectedKeys from './checkBodyKeys'
 import { validateAddressRequired, validateAddressOptional } from './addressValidators'
+import { DbGetAppointmentById } from '../models/appointmentModel'
 
 // This file sets out all of the validators for the user, tempUser and businessRep routes
 
@@ -160,4 +161,27 @@ export const isOwnAccount = () => (req, res, next) => {
 
     // User is authorised to perform the requested operation, pass control to the next middleware
     return next()
+}
+
+export const verifyOwnAccountByAppointmentId = (DbGetAppointmentById) => async (req, res, next) => {
+    try {
+        // Get the appointment from the database
+        const appointment = await DbGetAppointmentById(req.params.appointmentId)
+
+        // Check if the appointment exists
+        if(!appointment) {
+            return res.status(404).json({ status: "error", message: "Appointment not found" })
+        }
+
+        // Check if the appointment belongs to the user
+        await appointment.populate('crm')
+        if(appointment.crm.user.toString() !== req.session.user._id.toString()) {
+            return res.status(403).json({ status: "Forbidden", message: "You are not authorised to edit this appointment" })
+        }
+        
+        // User is authorised to perform the requested operation, pass control to the next middleware
+        next()
+    } catch (error) {
+        return res.status(500).json({ status: "error", message: "An error occurred while verifying your account" })
+    }
 }

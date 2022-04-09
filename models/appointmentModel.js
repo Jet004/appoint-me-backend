@@ -64,6 +64,8 @@ export const appointmentSchema = new mongoose.Schema({
 
 const Appointment = mongoose.model("Appointment", appointmentSchema)
 
+export default Appointment
+
 export const DbCreateAppointment = async (appointment) => Appointment.create(appointment)
 
 export const DbGetAppointmentById = async (appointmentId) => Appointment.findById(appointmentId)

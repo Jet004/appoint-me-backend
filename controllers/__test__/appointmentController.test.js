@@ -144,6 +144,7 @@ describe('Appointment Controller Unit Tests', () => {
         })
     })
 
+    // Unit tests for this controller are the same for both user and business rep
     describe('Test controller: updateAppointment', () => {
         test('returns 200 OK and updates appointment with valid inputs', async () => {
             mockAppointment._id = mongoose.Types.ObjectId(),
@@ -163,8 +164,13 @@ describe('Appointment Controller Unit Tests', () => {
             const controller = updateAppointment(fakeDbUpdateAppointment)
             expect(typeof controller).toBe("function")
 
-            const rest = await controller(req, res)
-            expect(rest).toBe(mockAppointment)
+            await controller(req, res)
+            expect(fakeDbUpdateAppointment).toHaveBeenCalledTimes(1)
+            expect(fakeDbUpdateAppointment).toHaveBeenCalledWith(mockAppointment._id, mockAppointment)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "success", message: "Appointment updated", data: mockAppointment })
         })
     })
 })

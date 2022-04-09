@@ -96,8 +96,19 @@ export const businessRepCreateAppointment = (DbGetCRMByMatch, DbCreateAppointmen
 
 export const updateAppointment = (DbUpdateAppointment) => async (req, res, next) => {
     try {
-        // 
-    return await DbUpdateAppointment(req.params.appointmentId, req.body)
+        // This controller is only accessible by logged in users of userType 'user' or 'businessRep'
+        // Update Appointment
+        const appointment = await DbUpdateAppointment(req.params.appointmentId, req.body)
+
+        // Check if Appointment was updated
+        if(!appointment) {
+            // Appointment not updated, respond with 500 Internal Server Error
+            return res.status(500).json({ status: "error", message: "Appointment not updated" })
+        }
+
+        // Appointment updated, respond with 200 OK
+        return res.status(200).json({ status: "success", message: "Appointment updated", data: appointment })
+
     } catch(e) {
         console.log(e)
         return res.status(500).json({ status: "error", message: e.message })

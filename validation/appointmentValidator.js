@@ -1,4 +1,5 @@
-import { body } from 'express-validator'
+import { body, param } from 'express-validator'
+import { DbGetAppointmentById } from '../models/appointmentModel'
 
 export const appointmentValidator = [
     // No need to validate the CRM id here as it will be automatically inserted in the controller
@@ -54,6 +55,15 @@ export const crmIdValidator = [
         .escape(),
 ]
 
+export const appointmentIdValidator = [
+    param('appointmentId')
+        .exists({ checkFalsy: true }).withMessage('Appointment ID is required')
+        .isMongoId().withMessage('Appointment ID must be a valid Mongo ID')
+        .isLength({ min: 1, max: 40 }).withMessage('Appointment ID must be between 1 and 40 characters')
+        .trim()
+        .escape()
+]
+
 export const checkAppointmentKeys = () => (req, res, next) => {
     let acceptedKeys
     
@@ -79,5 +89,26 @@ export const checkAppointmentKeys = () => (req, res, next) => {
             })
         }
     }
+    next()
+}
+
+export const checkRepAuthByAppointmentId = (DbGetAppointmentById) => async (req, res, next) => {
+    // Get appointment from DB
+    const appointment = await DbGetAppointmentById(req.params.appointmentId)
+    if (!appointment) {
+        return res.status(404).json({
+            message: `Appointment with ID ${req.params.appointmentId} not found`,
+        })
+    }
+    
+    // Check if the logged in user is an authorized rep of the business
+    // Populate the CRM and business
+    await appointment.populate({path: 'crm', populate: {path: 'business'}})
+    if(appointment.crm.business.businessRep.toString() !== req.session.user._id.toString()) {
+        // The user is not authorized to edit this appointment
+        return res.status(403).json({ status: "Forbidden", message: "You are not authorized to edit this appointment" })
+    }
+
+    // User is authorized to edit this appointment. Pass control to the next middleware
     next()
 }
