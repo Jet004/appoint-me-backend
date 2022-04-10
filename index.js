@@ -5,6 +5,25 @@ const server = express()
 import dotenv from 'dotenv'
 dotenv.config()
 
+// Run CORS middleware before anything else
+import cors from 'cors'
+server.use(cors({
+    origin: process.env.CORS_ORIGIN,
+}))
+
+// Check if user has reached their daily rate limit
+import rateLimit from 'express-rate-limit'
+// Disable the rate limiter for testing
+console.log(process.env.NODE_ENV)
+if (process.env.NODE_ENV !== 'test') {
+    server.use(rateLimit({
+        windowMs: 60 * 1000, // 1 minute
+        max: 20, // limit each IP to 10 requests per windowMs
+        standardHeaders: true,
+        message: 'Too many requests, please try again later.'
+    }))
+}
+
 // Connect to MongoDB database
 // Connection pool is established near the beginning of the express file
 // so that it is accessible to all routes and middleware
@@ -19,12 +38,15 @@ connect(process.env.DB_URL)
 mongoose.connection.on('open', () => console.log(`Database --> Connected to database "${mongoose.connection.name}"`))
 mongoose.connection.on('error', (err) => console.log(`Database --> Error connecting to database "${mongoose.connection.name}"`, err))
 // // // // // Load up test data
-// import pushMockData from './__test__/pushMockData.js'
-// if(mongoose.model("User").countDocuments() === 0) {
-//     (async () => {
-//         console.log(await pushMockData(['all']))
-//     })()
-// }
+import pushMockData from './__test__/pushMockData.js'
+const pushData = () => {return pushMockData(['all'])}
+server.use(async (req, res, next) => {
+    if(await mongoose.model("User").countDocuments() === 0) {
+        console.log(pushData())
+    }
+    next()
+
+})
 
 // Handle user sessions
 import { sessionHandler } from './middleware/sessionHandler.js'

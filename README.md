@@ -63,6 +63,7 @@
 - Change error messages to be more generic rather than returning error objects
 - Set up babel build command
 - remove push mock data from index.js
+- Update CORS allowed origins
 
 ## Possible future improvements
 
