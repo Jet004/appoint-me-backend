@@ -1,7 +1,11 @@
+import dotenv from 'dotenv'
+dotenv.config()
 
 const requestLogger = (createRequestLog) => async (req, res, next) => {
-    // Log each request to the console for debugging
-    console.log(`${req.method} ${req.path}`)
+    // Log each request to the console for debugging (disable when testing)
+    if (process.env.NODE_ENV !== 'test') {
+        console.log(`${req.method} ${req.path}`)
+    }
 
     // Get request data
     let logData = {

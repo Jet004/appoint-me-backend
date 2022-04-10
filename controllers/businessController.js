@@ -11,7 +11,7 @@ export const getBusinessByABN = (DbGetBusinessByABN) => async (req, res) => {
             res.status(404).json({ status: "not found", business: [] })
         }
     } catch (e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message });
     }
 }
@@ -27,7 +27,7 @@ export const getBusinessByID = (DbGetBusinessByID) => async (req, res) => {
             res.status(404).json({status: "not found", business: []})
         }
     } catch (e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({status: "error", message: e.message})
     }
 }
@@ -45,7 +45,7 @@ export const updateBusiness = (DbUpdateBusiness) => async (req, res) => {
             res.status(404).json({status: "not found", business: []})
         }
     } catch (e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({status: "error", message: e.message})
     }
 }
@@ -60,7 +60,7 @@ export const getBusinessServices = (DbGetBusinessByABN) => async (req, res) => {
             res.status(404).json({ status: "not found", message: "ABN not found" })
         }
     } catch(e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message })
 
     }
@@ -76,7 +76,7 @@ export const getBusinessServiceById = (DbGetBusinessServiceById) => async (req, 
             res.status(404).json({ status: "not found", message: "Service not found" })
         }
     } catch(e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message })
     }
 }
@@ -94,7 +94,7 @@ export const createBusinessService = (DbGetBusinessByABN, DbCreateBusinessServic
             res.status(400).json({ status: "error", message: "An unexpected error occurred"})
         }
     } catch (e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message })
     }
 }
@@ -109,7 +109,7 @@ export const updateBusinessService = (DbUpdateBusinessService) => async (req, re
             res.status(400).json({ status: "error", message: "An unexpected error occurred"})
         }
     } catch (e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message })
     }
 }
@@ -124,7 +124,7 @@ export const deleteBusinessService = (DbDeleteBusinessService) => async (req, re
             res.status(400).json({ status: "error", message: "An unexpected error occurred"})
         }
     } catch (e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message })
     }
 }
@@ -141,7 +141,7 @@ export const getClientList = (DbGetClientList) => async (req, res) => {
             res.status(404).json({ status: "not found", message: "No clients found" })
         }
     } catch (e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message })
     }
 }

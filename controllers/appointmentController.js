@@ -14,7 +14,7 @@ export const getAllUserAppointments = (DbGetAppointmentsByUserId) => async (req,
         return res.status(200).json({ status: "success", data: crms })
 
     } catch (e) {
-        console.log(e)
+        console.log(e.message)
         return res.status(500).json({ status: "error", message: e.message })
     }
 }
@@ -33,7 +33,7 @@ export const getAllBusinessAppointments = (DbGetAppointmentsByBusinessId) => asy
         return res.status(200).json({ status: "success", data: crms })
 
     } catch (e) {
-        console.log(e)
+        console.log(e.message)
         return res.status(500).json({ status: "error", message: e.message })
     }
 }
@@ -87,7 +87,7 @@ export const userCreateAppointment = (DbGetCRMByMatch, DbCreateCRM, DbCreateAppo
         return res.status(201).json({ status: "success", message: "Appointment created", data: appointment })
 
     } catch(e) {
-        console.log(e)
+        console.log(e.message)
         return res.status(500).json({ status: "error", message: e.message })
     }
 }
@@ -127,7 +127,7 @@ export const businessRepCreateAppointment = (DbGetCRMByMatch, DbCreateAppointmen
         return res.status(201).json({ status: "success", message: "Appointment created", data: appointment })
 
     } catch(e) {
-        console.log(e)
+        console.log(e.message)
         return res.status(500).json({ status: "error", message: e.message })
     }
 }
@@ -148,7 +148,7 @@ export const updateAppointment = (DbUpdateAppointment) => async (req, res, next)
         return res.status(200).json({ status: "success", message: "Appointment updated", data: appointment })
 
     } catch(e) {
-        console.log(e)
+        console.log(e.message)
         return res.status(500).json({ status: "error", message: e.message })
     }
 }
@@ -166,7 +166,7 @@ export const getAppointmentById = (DbGetAppointmentById) => async (req, res, nex
         // Appointment found, respond with 200 OK
         return res.status(200).json({ status: "success", appointment: appointment })
     } catch(e) {
-        console.log(e)
+        console.log(e.message)
         return res.status(500).json({ status: "error", message: e.message })
     }
 }
@@ -187,7 +187,7 @@ export const deleteAppointment = (DbDeleteAppointment) => async (req, res, next)
         return res.status(204).json()
 
     } catch(e) {
-        console.log(e)
+        console.log(e.message)
         return res.status(500).json({ status: "error", message: e.message })
     }
 }

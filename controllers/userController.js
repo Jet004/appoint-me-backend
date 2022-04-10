@@ -13,7 +13,7 @@ export const getAllUsers = (DbGetAllUsers) => async (req, res) => {
             res.status(500).json({ status: "error", message: "An unexpected error occurred" })
         }
     } catch (e) {
-        console.error(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message });
     }
 }
@@ -32,7 +32,7 @@ export const getUserByEmail = (DbGetUserByEmail) => async (req, res) => {
             res.status(404).json({ status: "not found", user: [] })
         }
     } catch (e) {
-        console.error(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message });
     }
 }
@@ -47,7 +47,7 @@ export const createUser = (DbCreateUser) => async (req, res) => {
         result ? res.status(201).json({ status: "success", user: result })
             : res.status(500).json({ status: "error", message: "An unexpected error occurred" })
     } catch (e) {
-        console.error(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message });
     }
 }
@@ -58,7 +58,7 @@ export const updateUser = (DbUpdateUser) => async (req, res) => {
         result ? res.status(200).json({ status: "success", originalData: result })
             : res.status(404).json({ status: "not found", user: [] })
     } catch (e) {
-        console.error(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message });
     }
 }
@@ -73,7 +73,7 @@ export const deleteUser = (DbDeleteUser) => async (req, res) => {
             : res.status(404).json({ status: "not found" })
 
     } catch (e) {
-        console.error(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message });
     }
 }
@@ -88,7 +88,7 @@ export const createTempUser = (DbCreateUser, DbCreateCRM) => async (req, res) =>
         if(!result) {
             return res.status(500).json({ status: "error", message: "An unexpected error occurred" })
         }
-        console.log(result._id)
+
         // Create a CRM for the user
         const crm = {
             userModel: "TempUser",
@@ -111,7 +111,7 @@ export const createTempUser = (DbCreateUser, DbCreateCRM) => async (req, res) =>
         res.status(201).json({ status: "success", user: result })
 
     } catch (e) {
-        console.error(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message });
     }
 }

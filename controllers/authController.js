@@ -27,7 +27,7 @@ export const registerUser = (DbRegisterUser, DbRegisterBusinessRep) => async (re
             res.status(400).json({ status: "error", message: "Something went wrong..." })
         }
     } catch(e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message })
     }
 }
@@ -80,7 +80,7 @@ export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbSaveRefreshToken)
         })
 
     } catch(e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message })
     }
 
@@ -116,7 +116,7 @@ export const logoutUser = (DbAddTokenToBlacklist, DbDeleteRefreshToken, DbDelete
             res.status(400).json({ status: "Authentication error", message: "Something went wrong..." })
         }
     } catch(e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message })
     }
 
@@ -125,7 +125,7 @@ export const logoutUser = (DbAddTokenToBlacklist, DbDeleteRefreshToken, DbDelete
     try {
         const deleteExpired = await DbDeleteExpiredTokens()
     } catch(e) {
-        console.log(e)
+        console.log(e.message)
     }
 }
 
@@ -142,7 +142,7 @@ export const tokenRefresh = (DbSaveRefreshToken, DbDeleteRefreshToken) => async 
             // Get token contents
             tokenContent = jwt.verify(refreshToken, process.env.JWT_SECRET)
         } catch(e) {
-            console.log(e)
+            console.log(e.message)
             return res.status(400).json({ status: "Validation error", message: "Refresh token can not be validated" })
         }
         // Delete unnecessary data from token
@@ -169,7 +169,7 @@ export const tokenRefresh = (DbSaveRefreshToken, DbDeleteRefreshToken) => async 
         res.status(200).json({ status: "success", accessToken: newAccessToken, refreshToken: newRefreshToken })
 
     } catch(e) {
-        console.log(e)
+        console.log(e.message)
         res.status(500).json({ status: "error", message: e.message })
     }
 }

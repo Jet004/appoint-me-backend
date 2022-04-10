@@ -20,21 +20,31 @@ import Business from '../models/businessModel'
 import Auth from '../models/authModel'
 import CRM from '../models/crmModel'
 import Appointment from '../models/appointmentModel'
-import tempUsers from './mockTempUsers'
+
+import app from '../app'
 
 const domain = "http:localhost:8200"
 
 describe('Integration Tests:', () => {
-
+    let runningServer
     beforeAll(async () => {
+        // Set up database
         await connect(process.env.DB_URL)
         await mongoose.connection.dropDatabase()
         await pushMockData(["all"])
+
+        // Instantiate express server and start listening
+        const server = app()
+        runningServer = server.listen(process.env.PORT)
     })
 
     afterAll(async () => {
+        // Desctroy database and clost connection
         await mongoose.connection.dropDatabase()
         await mongoose.disconnect()
+
+        // Stop express server
+        runningServer.close()
     })
 
     test('Connects to MongoDB database', () => {
@@ -2290,7 +2300,7 @@ describe('Integration Tests:', () => {
                 const json = await response.json()
 
                 if(response.status !== 200) console.log(response, json)
-                
+
                 expect(response.status).toBe(200)
                 expect(json.status).toBe("success")
                 expect(Array.isArray(json.clients)).toBe(true)
