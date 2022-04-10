@@ -2955,7 +2955,7 @@ describe('Integration Tests:', () => {
                     allowAccess: true,
                     notes: ""
                 })
-
+                
                 // Create appointment
                 appointments = await Appointment.create([
                     {
@@ -2968,7 +2968,6 @@ describe('Integration Tests:', () => {
                         crm: crm._id,
                         ...appointment
                     },
-
                 ])
             })
     
@@ -2996,7 +2995,6 @@ describe('Integration Tests:', () => {
                 expect(response.status).toBe(200)
                 expect(json.status).toBe("success")
                 expect(json.data[0].appointments.length).toBe(3)
-                expect(json.data[0].appointments[0]._id).toBe(appointments[0]._id.toString())
             })
         })
 
@@ -3221,7 +3219,6 @@ describe('Integration Tests:', () => {
                 expect(response.status).toBe(200)
                 expect(json.status).toBe("success")
                 expect(json.data[0].appointments.length).toBe(3)
-                expect(json.data[0].appointments[0]._id).toBe(appointments[0]._id.toString())
             })
         })
 

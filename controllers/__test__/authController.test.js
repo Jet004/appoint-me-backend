@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt'
 import { registerUser, loginUser, logoutUser, tokenRefresh } from '../authController';
-import User from '../../models/userModel';
+import mongoose from 'mongoose'
+import jwt from 'jsonwebtoken'
+
 // Set up mock users for registration tests
 const mockUser = {
     email: "p.wong@gmail.com",
@@ -731,12 +733,25 @@ describe('Auth Controller Unit Tests: ', () => {
     })
 
     describe('Test controller: tokenRefresh', () => {
+        let token
+        beforeAll(() => {
+            // Generate a refresh token to avoid expired token errors
+            const payload = {
+                "iss": 'http://localhost:8200',
+                "azp": mongoose.Types.ObjectId(),
+                "aud": 'http://localhost:8200',
+                "roles": "businessRep"
+            }
+
+            token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' })
+        })
+
         test('returns 200 OK with new access and refresh tokens with valid inputs', async () => {
             const fakeDbDeleteRefreshToken = jest.fn().mockResolvedValue('refreshToken')
             const fakeDbSaveRefreshToken = jest.fn().mockResolvedValue({ refreshToken: 'refreshToken' })
             const req = {
                 body: {
-                    refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ4ZGE5YzE5ZGE4ZTBjZTA0NWEwZGIiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg5NDE3MjQsImV4cCI6MTY0OTU0NjUyNH0.Wgoad_WS1TekzBywKqAK3dKgDnMEfWARrewrv0nOtbo"
+                    refreshToken: token
                 }
             }
             const res = {
@@ -818,7 +833,7 @@ describe('Auth Controller Unit Tests: ', () => {
 
             const req = {
                 body: {
-                    refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ4ZGE5YzE5ZGE4ZTBjZTA0NWEwZGIiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg5NDE3MjQsImV4cCI6MTY0OTU0NjUyNH0.Wgoad_WS1TekzBywKqAK3dKgDnMEfWARrewrv0nOtbo"
+                    refreshToken: token
                 }
             }
             const res = {
@@ -844,7 +859,7 @@ describe('Auth Controller Unit Tests: ', () => {
 
             const req = {
                 body: {
-                    refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJhenAiOiI2MjQ4ZGE5YzE5ZGE4ZTBjZTA0NWEwZGIiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgyMDAiLCJyb2xlcyI6InVzZXIiLCJpYXQiOjE2NDg5NDE3MjQsImV4cCI6MTY0OTU0NjUyNH0.Wgoad_WS1TekzBywKqAK3dKgDnMEfWARrewrv0nOtbo"
+                    refreshToken: token
                 }
             }
             const res = {
