@@ -32,10 +32,29 @@ You should always configure a unique .env file for the specific environment in w
 
 The following environment variables are required for the web service to run and should be implemented in a fashion suitable to your environment.
 
-PORT - the port number you want the web service to run on
-DB_URL - the MongoDb connection string for your database instance
-JWT_SECRET - the encryption string used to encrypt JWT tokens
-CORS_ORIGIN - the whitelist for domains which are allowd to make requests to the web service
+    PORT
+    DB_URL
+    JWT_SECRET
+    CORS_ORIGIN
 
+PORT
+The port number you want the web service to run on
+
+DB_URL  
+The MongoDb connection string for your database instance  
+
+
+JWT_SECRET  
+The encryption string used to encrypt JWT tokens  
+
+CORS_ORIGIN  
+The whitelist for domains which are allowd to make requests to the web service  
+
+
+#### Running the express server
+
+#### Building production files - not yet implemented
+
+#### Testing the web service
 
 ### Notes
