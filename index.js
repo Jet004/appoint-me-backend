@@ -30,10 +30,10 @@ server.use(async (req, res, next) => {
     next()
 
 })
-
+const PORT = process.env.PORT
 // Run server
-server.listen(process.env.PORT, () => {
-    console.log(`Server --> Server is running on port ${process.env.PORT}`)
+server.listen(PORT, () => {
+    console.log(`Server --> Server is running on port ${PORT}`)
 })
 
 

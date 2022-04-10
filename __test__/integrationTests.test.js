@@ -23,7 +23,7 @@ import Appointment from '../models/appointmentModel'
 
 import app from '../app'
 
-const domain = "http:localhost:8200"
+const domain = `http:localhost:${process.env.PORT}`
 
 describe('Integration Tests:', () => {
     let runningServer
