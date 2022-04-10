@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt'
 // Imprort JWT depenecies
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv';
-import mongoose from 'mongoose'
 dotenv.config();
 
 export const registerUser = (DbRegisterUser, DbRegisterBusinessRep) => async (req, res) => {

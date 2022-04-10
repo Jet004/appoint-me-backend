@@ -8,10 +8,11 @@ import { DbGetAllUsers, DbGetUserByEmail, DbCreateUser, DbUpdateUser, DbDeleteUs
 import { DbCreateCRM, DbGetCRMByMatch, DbSoftDeleteCRM } from '../models/crmModel'
 // Validators
 import { userValidator, tempUserValidator, emailValidator, passwordValidator, idValidator, checkKeys, businessIdValidator } from '../validation/userValidators'
-import { isAuthorisedRep } from '../validation/authValidator'
+import { isAuthorisedRep, verifyRepByBusinessId } from '../validation/authValidator'
 // Validation checker - responds with 400 Bad Request if there are validation errors then prevents the request from continuing
 import validationCheck from '../validation/checkValidators'
 import { requireLogin, requireRoles } from '../middleware/sessionHandler'
+import { DbGetBusinessByID } from '../models/businessModel'
 
 // Validators and validation error checker run as route middleware
 // Controllers use dependency injection to inject ODM methods. This approach allows 
@@ -26,6 +27,7 @@ router.route('/create/:businessId')
         checkKeys,
         requireLogin(),
         requireRoles(['businessRep']),
+        verifyRepByBusinessId(DbGetBusinessByID),
         createTempUser(DbCreateUser, DbCreateCRM)
     )
 

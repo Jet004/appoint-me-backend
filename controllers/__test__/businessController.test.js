@@ -1,8 +1,9 @@
 // Import controllers
-import { getBusinessByABN, getBusinessByID, updateBusiness, createBusinessService, getBusinessServices, getBusinessServiceById, updateBusinessService, deleteBusinessService } from '../businessController'
+import { getBusinessByABN, getBusinessByID, updateBusiness, createBusinessService, getBusinessServices, getBusinessServiceById, updateBusinessService, deleteBusinessService, getClientList } from '../businessController'
 
 // Import mock business
 import mockBusiness from '../../__test__/mockBusiness.js'
+import mockUsers from '../../__test__/mockUsers.js'
 import mongoose from 'mongoose'
 
 describe('Business controller unit tests:', () => {
@@ -860,6 +861,84 @@ describe('Business controller unit tests:', () => {
             expect(res.json).toHaveBeenCalledTimes(1)
             expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Db error" })
         })
+    })
+
+    describe('Test controller: getClientList', () => {
+        let business
+        let mockClientList
+        beforeEach(() => {
+            jest.clearAllMocks()
+
+            // Get business
+            business = JSON.parse(JSON.stringify(mockBusiness[0]))
+
+            // Create mock CRMs with clients
+            mockClientList = [
+                {
+                    _id: mongoose.Types.ObjectId(),
+                    userModel: "User",
+                    user: {
+                        _id: mongoose.Types.ObjectId(),
+                        ...mockUsers[0]
+                    },
+                    business: business._id,
+                    tempFlag: false,
+                    allowAccess: true,
+                    notes: "Some notes"
+                },{
+                    _id: mongoose.Types.ObjectId(),
+                    userModel: "User",
+                    user: {
+                        _id: mongoose.Types.ObjectId(),
+                        ...mockUsers[1]
+                    },
+                    business: business._id,
+                    tempFlag: false,
+                    allowAccess: true,
+                    notes: "Some notes"
+                }, {
+                    _id: mongoose.Types.ObjectId(),
+                    userModel: "User",
+                    user: {
+                        _id: mongoose.Types.ObjectId(),
+                        ...mockUsers[2]
+                    },
+                    business: business._id,
+                    tempFlag: false,
+                    allowAccess: true,
+                    notes: "Some notes"
+                }
+            ]
+
+        })
+
+        test('returns a function', () => {
+            expect(getClientList()).toBeInstanceOf(Function)
+        })
+
+        test('returns 200 OK + client list with valid inputs', async () => {
+            const fakeDbGetClientList = jest.fn().mockResolvedValue(mockClientList)
+            const req = {
+                params: {
+                    businessId:  business._id
+                }
+            }
+            const res = {
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn().mockReturnThis()
+            }
+
+            const controller = await getClientList(fakeDbGetClientList)
+            await controller(req, res)
+
+            expect(fakeDbGetClientList).toHaveBeenCalledTimes(1)
+            expect(fakeDbGetClientList).toHaveBeenCalledWith(business._id)
+            expect(res.status).toHaveBeenCalledTimes(1)
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledTimes(1)
+            expect(res.json).toHaveBeenCalledWith({ status: "success", clients: mockClientList })
+        })
+                
     })
 
 })

@@ -509,7 +509,7 @@ describe('Integration Tests:', () => {
     })
 
     describe('Temp User Routes', () => {
-        describe("Route: /api/temp-users", () => {
+        describe("Route: /api/temp-users/create/:businessId", () => {
             let token
             let tempUser
             const businessId = "5ee9f9f8f9f9f9f9f9f9f9f9"
@@ -545,6 +545,8 @@ describe('Integration Tests:', () => {
 
             afterEach( async () => {
                 const results = await TempUser.deleteMany({ email: 'k.free@gmail.com' })
+                // Delete CRM
+                await CRM.deleteMany({ userModel: 'TempUser' })
             })
 
             // Not needed at the moment
@@ -2217,6 +2219,83 @@ describe('Integration Tests:', () => {
                     expect(Array.isArray(json.errors)).toBe(true)
                     expect(json.errors.length).toBeGreaterThan(0)
                 })
+            })
+        })
+
+        describe('Route: /api/businesses/client-list/:businessId', () => {            
+            let business
+            let clients
+            let token
+            beforeEach(async () => {
+                // Log in business rep
+                const rep = await BusinessRep.findOne({ email: "j.chen@chencorp.com" })
+                const payload = {
+                    "iss": 'http://localhost:8200',
+                    "azp": rep._id,
+                    "aud": 'http://localhost:8200',
+                    "roles": "businessRep"
+                }
+            
+                // Generate access and refresh tokens
+                token = jwt.sign(payload , process.env.JWT_SECRET)
+
+                // Get business from DB
+                business = await Business.findOne({ abn: businesses[0].abn })
+
+                // Get users from DB
+                const users = await User.find({})
+                const tempUsers = await TempUser.find({})
+
+                // Create CRMs
+                clients = await CRM.create([
+                    {
+                        userModel: "User",
+                        user: users[0]._id,
+                        business: business._id,
+                        tempFlag: false,
+                        allowAccess: true,
+                        notes: "Some notes"
+                    },{
+                        userModel: "TempUser",
+                        user: tempUsers[0]._id,
+                        business: business._id,
+                        tempFlag: true,
+                        notes: "Some notes"
+                    }, {
+                        userModel: "User",
+                        user: users[1]._id,
+                        business: business._id,
+                        tempFlag: false,
+                        allowAccess: true,
+                        notes: "Some notes"
+                    }
+                ])
+            })
+
+            afterEach(async () => {
+                // Delete all CRMs
+                await CRM.deleteMany({})
+            })
+
+            test('GET returns 200 OK with valid businessId', async () => {
+                const payload = {
+                    method: "GET",
+                    headers: {
+                        "content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+                
+                const response = await fetch(`${domain}/api/businesses/client-list/${business._id}`, payload)
+                const json = await response.json()
+
+                if(response.status !== 200) console.log(response, json)
+                
+                expect(response.status).toBe(200)
+                expect(json.status).toBe("success")
+                expect(Array.isArray(json.clients)).toBe(true)
+                expect(json.clients.length).toBe(3)
+                expect(json.clients[0]._id.toString()).toBe(clients[0]._id.toString())
             })
         })
     })

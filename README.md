@@ -20,6 +20,8 @@
 
 - Add appointment validator to user validators and adjust integration tests
 - Delete temp user already implemented - handle business deletion of user. ie. CRM
+- no longer need tempFlag in CRM model as we now have the userModel field
+- negative tests for getClientList controller and route
 
 ## Todo when have time
 

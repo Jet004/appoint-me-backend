@@ -2,14 +2,16 @@ import express from "express"
 const router = express.Router()
 
 // Import business controllers
-import { createBusinessService, deleteBusinessService, getBusinessByABN, getBusinessByID, getBusinessServiceById, getBusinessServices, updateBusiness, updateBusinessService } from "../controllers/businessController"
+import { createBusinessService, deleteBusinessService, getBusinessByABN, getBusinessByID, getBusinessServiceById, getBusinessServices, updateBusiness, updateBusinessService, getClientList } from "../controllers/businessController"
 import { requireLogin, requireRoles, isAuthorised } from "../middleware/sessionHandler"
 // Import Business model ODM methods
 import { DbCreateBusinessService, DbDeleteBusinessService, DbGetBusinessByABN, DbGetBusinessByID, DbGetBusinessServiceById, DbUpdateBusiness, DbUpdateBusinessService } from "../models/businessModel"
+import { DbGetClientList } from "../models/crmModel"
 // Import validators
-import { accessTokenValidator } from "../validation/authValidator"
+import { accessTokenValidator, verifyRepByBusinessId } from "../validation/authValidator"
 import { idValidator, abnValidator, businessValidator, checkKeys, serviceValidator, serviceIdValidator } from "../validation/businessValidators"
 import validationCheck  from "../validation/checkValidators"
+import { businessIdValidator } from "../validation/userValidators"
 
 // Business routes
 // Get/Create services by business ABN
@@ -81,6 +83,20 @@ router.route('/:abn')
 
 // Get business by ID
 router.route("/id/:id")
-    .get(idValidator, validationCheck, getBusinessByID(DbGetBusinessByID))
+    .get(
+        idValidator, 
+        validationCheck, 
+        getBusinessByID(DbGetBusinessByID)
+    )
+
+router.route("/client-list/:businessId")
+    .get(
+        businessIdValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles(['businessRep']),
+        verifyRepByBusinessId(DbGetBusinessByID),
+        getClientList(DbGetClientList)
+    )
 
 export default router

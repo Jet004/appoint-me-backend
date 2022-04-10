@@ -128,3 +128,20 @@ export const deleteBusinessService = (DbDeleteBusinessService) => async (req, re
         res.status(500).json({ status: "error", message: e.message })
     }
 }
+
+export const getClientList = (DbGetClientList) => async (req, res) => {
+    try {
+        // Get clients
+        const results = await DbGetClientList(req.params.businessId)
+
+        // Check if client list has been returned
+        if(results) {
+            res.status(200).json({ status: "success", clients: results })
+        } else {
+            res.status(404).json({ status: "not found", message: "No clients found" })
+        }
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ status: "error", message: e.message })
+    }
+}

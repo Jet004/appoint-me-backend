@@ -88,7 +88,7 @@ export const createTempUser = (DbCreateUser, DbCreateCRM) => async (req, res) =>
         if(!result) {
             return res.status(500).json({ status: "error", message: "An unexpected error occurred" })
         }
-
+        console.log(result._id)
         // Create a CRM for the user
         const crm = {
             userModel: "TempUser",
