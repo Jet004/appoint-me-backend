@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 // Middleware Imports
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
+import slowDown from 'express-slow-down'
 import { sessionHandler } from './middleware/sessionHandler.js'
 import requestLogger from './middleware/requestLogger.js' 
 import { createRequestLog } from './models/requestLogModel.js' 
@@ -26,14 +27,24 @@ const app = () => {
         origin: process.env.CORS_ORIGIN,
     }))
 
-    // Check if user has reached their daily rate limit
+    // Rate limiting middleware
     // Disable the rate limiter for testing
     if (process.env.NODE_ENV !== 'test') {
+        // Check if user has reached their daily rate limit
         server.use(rateLimit({
-            windowMs: 60 * 1000, // 1 minute
-            max: 20, // limit each IP to 10 requests per windowMs
+            windowMs: 24 * 60 * 60 * 1000, // 24 hours: 1000 milliseconds * 60 seconds * 60 minutes * 24 hours
+            max: 1000, // limit each IP to 1000 requests per windowMs
             standardHeaders: true,
             message: 'Too many requests, please try again later.'
+        }))
+    
+
+        // Slow user requests to one per second
+        server.use(slowDown({
+            windowMs: 1000, // 1 second
+            delayAfter: 1, // limit each IP to 1 requests per windowMs
+            delayMs: 1000, // Delays the response by 1 second
+            maxDelayMs: 1000, // Max delay is 1 second
         }))
     }
 
