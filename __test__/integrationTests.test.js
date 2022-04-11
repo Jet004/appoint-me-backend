@@ -23,7 +23,8 @@ import Appointment from '../models/appointmentModel'
 
 import app from '../app'
 
-const domain = `http:localhost:${process.env.PORT}`
+const PORT = 3200
+const domain = `http:localhost:${PORT}`
 
 describe('Integration Tests:', () => {
     let runningServer
@@ -35,7 +36,7 @@ describe('Integration Tests:', () => {
 
         // Instantiate express server and start listening
         const server = app()
-        runningServer = server.listen(process.env.PORT)
+        runningServer = server.listen(PORT)
     })
 
     afterAll(async () => {
