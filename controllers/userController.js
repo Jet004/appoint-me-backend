@@ -18,8 +18,6 @@ export const getAllUsers = (DbGetAllUsers) => async (req, res) => {
     }
 }
 
-// This controller is not needed at the moment, it is still here 
-// so the related imports don't throw errors
 export const getUserByEmail = (DbGetUserByEmail) => async (req, res) => {
     try {
         // Get user by email

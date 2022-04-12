@@ -25,7 +25,7 @@ router.route('/')
         createUser(DbCreateUser)
     )
 
-router.route('/:email')// Not needed at this point in time
+router.route('/:email')
     .get(
         emailValidator,
         validationCheck,
