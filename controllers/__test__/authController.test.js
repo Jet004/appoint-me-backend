@@ -46,7 +46,7 @@ describe('Auth Controller Unit Tests: ', () => {
             jest.resetAllMocks();
         })
 
-        test('returns 200 OK and registers a new user with valid inputs', async () => {
+        test('returns 201 Created and registers a new user with valid inputs', async () => {
             let user = JSON.parse(JSON.stringify(mockUser))
             delete user.appointments
             const fakeDbRegisterUser = jest.fn().mockResolvedValue(user);
@@ -69,7 +69,7 @@ describe('Auth Controller Unit Tests: ', () => {
             expect(fakeDbRegisterUser).toHaveBeenCalledTimes(1)
             expect(fakeDbRegisterUser).toHaveBeenCalledWith(req.body)
             expect(res.status).toHaveBeenCalledTimes(1)
-            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.status).toHaveBeenCalledWith(201)
             expect(res.json).toHaveBeenCalledTimes(1)
             expect(res.json).toHaveBeenCalledWith({ status: "success", message: "User successfully registered" })
         })
@@ -131,7 +131,7 @@ describe('Auth Controller Unit Tests: ', () => {
         })
 
 
-        test('returns 200 OK and registers a new business rep with valid inputs', async () => {
+        test('returns 201 Created and registers a new business rep with valid inputs', async () => {
             let businessRep = JSON.parse(JSON.stringify(mockBusinessRep))
             const fakeDbRegisterBusinessRep = jest.fn().mockResolvedValue(mockBusinessRep);
             const fakeDbRegisterUser = jest.fn()
@@ -153,7 +153,7 @@ describe('Auth Controller Unit Tests: ', () => {
             expect(fakeDbRegisterBusinessRep).toHaveBeenCalledTimes(1)
             expect(fakeDbRegisterBusinessRep).toHaveBeenCalledWith(req.body)
             expect(res.status).toHaveBeenCalledTimes(1)
-            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.status).toHaveBeenCalledWith(201)
             expect(res.json).toHaveBeenCalledTimes(1)
             expect(res.json).toHaveBeenCalledWith({ status: "success", message: "User successfully registered" })
         })

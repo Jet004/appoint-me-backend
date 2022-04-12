@@ -58,6 +58,8 @@ const app = () => {
     server.use(express.json())
     server.use(express.urlencoded({ extended: true }))
 
+    server.get('/', (req, res) => res.status(418).json({ status: "Refused to brew coffee", message: 'I\'m a teapot' }))
+
     // Import route handlers
     server.use('/api/users', userRoutes)
     server.use('/api/temp-users', tempUserRoutes)

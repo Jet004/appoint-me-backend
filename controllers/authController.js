@@ -22,7 +22,7 @@ export const registerUser = (DbRegisterUser, DbRegisterBusinessRep) => async (re
         }
 
         if(results) {
-            res.status(200).json({ status: "success", message: "User successfully registered" })
+            res.status(201).json({ status: "success", message: "User successfully registered" })
         } else {
             res.status(400).json({ status: "error", message: "Something went wrong..." })
         }

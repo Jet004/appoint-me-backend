@@ -2346,7 +2346,7 @@ describe('Integration Tests:', () => {
             }
 
             // User Registration Tests
-            test('POST returns 200 OK and registers a "user" in the DB with valid inputs', async () => {
+            test('POST returns 201 Created and registers a "user" in the DB with valid inputs', async () => {
                 const user = JSON.parse(JSON.stringify(mockUser))
                 const userType = 'user'
                 const payload = {
@@ -2360,9 +2360,9 @@ describe('Integration Tests:', () => {
                 const response = await fetch(`${domain}/api/auth/register/${userType}`, payload)
                 const json = await response.json()
                 
-                if(response.status !== 200) console.log(response, json)
+                if(response.status !== 201) console.log(response, json)
 
-                expect(response.status).toBe(200)
+                expect(response.status).toBe(201)
                 expect(json.status).toBe("success")
                 expect(json.message).toBe("User successfully registered")
             })
@@ -2410,7 +2410,7 @@ describe('Integration Tests:', () => {
 
            
             // Business Rep Registration Tests
-            test('POST returns 200 OK and registers a "businessRep" in the DB with valid inputs', async () => {
+            test('POST returns 201 Created and registers a "businessRep" in the DB with valid inputs', async () => {
                 const businessRep = JSON.parse(JSON.stringify(mockBusinessRep))
                 const userType = 'businessRep'
                 const payload = {
@@ -2424,9 +2424,9 @@ describe('Integration Tests:', () => {
                 const response = await fetch(`${domain}/api/auth/register/${userType}`, payload)
                 const json = await response.json()
                 
-                if(response.status !== 200) console.log(response, json)
+                if(response.status !== 201) console.log(response, json)
 
-                expect(response.status).toBe(200)
+                expect(response.status).toBe(201)
                 expect(json.status).toBe("success")
                 expect(json.message).toBe("User successfully registered")
             })
