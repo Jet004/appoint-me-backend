@@ -5,17 +5,25 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv';
 dotenv.config();
 
-export const registerUser = (DbRegisterUser, DbRegisterBusinessRep) => async (req, res) => {
+export const registerUser = (DbRegisterUser, DbGetUserByEmail, DbRegisterBusinessRep, DbGetRepByEmail) => async (req, res) => {
     // This controller can register both a normal user and a businessRep user via the userType parameter
     try {
         // Hash user password
         if(req.body.password) req.body.password = bcrypt.hashSync(req.body.password, 6)
-
+console.log(req.body)
         // Check if userType is valid and call the appropriate model method
         let results
         if(req.params.userType === 'user') {
+            // Check if user already exists with the given email address
+            if(await DbGetUserByEmail(req.body.email) !== null) {
+                return res.status(400).json({ status: "Error", message: "A user already exists with this email address" })
+            }
             results = await DbRegisterUser(req.body)
         } else if(req.params.userType === 'businessRep') {
+            // Check if user already exists with the given email address
+            if(await DbGetRepByEmail(req.body.email) !== null) {
+                return res.status(400).json({ status: "Error", message: "A user already exists with this email address" })
+            }
             results = await DbRegisterBusinessRep(req.body)
         } else {
             return res.status(400).json({ status: "error", message: "Something went wrong..." })

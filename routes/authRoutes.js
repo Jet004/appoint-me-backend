@@ -24,7 +24,7 @@ router.route('/register/:userType')
         ubrValidator, 
         passwordValidator, 
         validationCheck, 
-        registerUser(DbRegisterUser, DbRegisterBusinessRep)
+        registerUser(DbRegisterUser, DbGetUserByEmail, DbRegisterBusinessRep, DbGetRepByEmail)
     )
 
 router.route('/login/:userType')
