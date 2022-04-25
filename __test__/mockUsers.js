@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 const users = [
     {
         email: "e.rodder@gmail.com",
-        password: bcrypt.hashSync("Abc_1234", 6),
+        password: bcrypt.hashSync("Abc-1234", 6),
         fname: "Emily",
         lname: "Rodder",
         phone: "0473982982",
@@ -19,7 +19,7 @@ const users = [
         appointments: [],
     }, {
         email: "j.hampton@gmail.com",
-        password: bcrypt.hashSync("Abc_1234", 6),
+        password: bcrypt.hashSync("Abc-1234", 6),
         fname: "John",
         lname: "Hampton",
         phone: "0746372891",
@@ -35,7 +35,7 @@ const users = [
         appointments: [],
     }, {
         email: "choliday@gmail.com",
-        password: bcrypt.hashSync("Abc_1234", 6),
+        password: bcrypt.hashSync("Abc-1234", 6),
         fname: "Chrissy",
         lname: "Holiday",
         phone: "0746372891",
@@ -52,7 +52,7 @@ const users = [
     },{
         _id: "4ee9f9f8f9f9f9f9f9f9f9f9",
         email: "j.squire@gmail.com",
-        password: bcrypt.hashSync("Abc_1234", 6),
+        password: bcrypt.hashSync("Abc-1234", 6),
         fname: "James",
         lname: "Squire",
         phone: "0473982982",

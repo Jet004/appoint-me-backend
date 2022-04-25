@@ -42,26 +42,27 @@ const userSchema = new mongoose.Schema({
 })
 
 // Cascade delete CRMs when user is deleted
-userSchema.post('remove', async function (doc) {
+userSchema.pre('deleteOne', async function () {
     // Delete CRMs
-    await CRM.deleteMany({ user: doc._id })
+    const doc = await this.model.findOne(this.getFilter())
+    if(doc) await CRM.deleteOne({ user: doc._id })
 })
 
 const User = mongoose.model('User', userSchema)
 
 export default User
 
-export const DbGetAllUsers = () => mongoose.model('User').find({})
+export const DbGetAllUsers = () => User.find({}).exclude("password")
 
-export const DbGetUserByEmail = (email) => mongoose.model('User').findOne({email})
+export const DbGetUserByEmail = (email) => User.findOne({email})
 
-export const DbGetUserByID = (id) => mongoose.model('User').findById(id)
+export const DbGetUserByID = (id) => User.findById(id)
 
-export const DbCreateUser = (user) => mongoose.model('User').create(user)
+export const DbCreateUser = (user) => User.create(user)
 
-export const DbUpdateUser = (id, user) => mongoose.model('User').findByIdAndUpdate(id, user)
+export const DbUpdateUser = (id, user) => User.findByIdAndUpdate(id, user)
 
-export const DbDeleteUser = (id) => mongoose.model('User').findByIdAndDelete(id)
+export const DbDeleteUser = (id) => User.deleteOne({ _id: id })
 
 // Authentication operations
-export const DbRegisterUser = (user) => mongoose.model('User').create(user)
+export const DbRegisterUser = (user) => User.create(user)

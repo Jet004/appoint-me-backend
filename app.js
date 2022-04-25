@@ -6,7 +6,8 @@ import rateLimit from 'express-rate-limit'
 import slowDown from 'express-slow-down'
 import { sessionHandler } from './middleware/sessionHandler.js'
 import requestLogger from './middleware/requestLogger.js' 
-import { createRequestLog } from './models/requestLogModel.js' 
+import { createRequestLog } from './models/requestLogModel.js'
+import fileUpload from 'express-fileupload' 
 // Import route handlers 
 import authRoutes from './routes/authRoutes'
 import userRoutes from './routes/userRoutes'
@@ -24,7 +25,7 @@ const app = () => {
 
     // Run CORS middleware before anything else
     server.use(cors({
-        origin: process.env.CORS_ORIGIN,
+        origin: [...process.env.CORS_ORIGIN.split(", ")],
     }))
 
     // Rate limiting middleware
@@ -57,6 +58,12 @@ const app = () => {
     // Enable request body parsing so that the request body is accessible
     server.use(express.json())
     server.use(express.urlencoded({ extended: true }))
+    server.use(fileUpload({
+        createParentPath: true,
+        limits: {
+            fileSize: 2 * 1024 * 1024 // 2MB
+        }
+    }))
 
     server.get('/', (req, res) => res.status(418).json({ status: "Refused to brew coffee", message: 'I\'m a teapot' }))
 

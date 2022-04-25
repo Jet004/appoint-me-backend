@@ -6,6 +6,10 @@ import mockUsers from './mockUsers'
 import mockTempUsers from './mockTempUsers'
 import mockBusinessReps from './mockBusinessReps'
 import mockBusiness from './mockBusiness'
+import { services } from './mockBusiness'
+
+import dotenv from 'dotenv'
+dotenv.config()
 
 export const pushMockUsers = async () => {
     const query = mockUsers.map(user => {
@@ -48,9 +52,18 @@ export const pushMockBusinessReps = async () => {
 
 export const pushMockBusiness = async () => {
     const query = mockBusiness.map(business => {
-        return {
-            insertOne: {
-                document: business
+        if(process.env.NODE_ENV === "test"){
+            return {
+                insertOne: {
+                    document: business
+                }
+            }
+        } else {
+            business.services.push(...services)
+            return {
+                insertOne: {
+                    document: business
+                }
             }
         }
     })

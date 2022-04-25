@@ -23,6 +23,7 @@ const server = app()
 // // // // Load up test data
 import pushMockData from './__test__/pushMockData.js'
 const pushData = () => {return pushMockData(['all'])}
+// pushData()
 server.use(async (req, res, next) => {
     if(await mongoose.model("User").countDocuments() === 0) {
         console.log(pushData())

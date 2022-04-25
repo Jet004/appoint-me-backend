@@ -62,7 +62,9 @@ describe("User controller unit tests:", () => {
 
     describe('Test controller: getUserByEmail', () => {
         it('GET returns user by email with valid input', async () => {
-            const fakeDbGetUserByEmail = jest.fn().mockReturnValue(users[0])
+            const mockUser = users[0]
+            mockUser._doc = mockUser
+            const fakeDbGetUserByEmail = jest.fn().mockReturnValue(mockUser)
             const req = { params: { email: users[0].email } }
             const res = {
                 status: jest.fn().mockReturnThis(),
@@ -76,7 +78,6 @@ describe("User controller unit tests:", () => {
             expect(fakeDbGetUserByEmail).toHaveBeenCalledTimes(1)
             expect(fakeDbGetUserByEmail).toHaveBeenCalledWith(users[0].email)
             expect(res.status).toHaveBeenCalledWith(200)
-            expect(res.json).toHaveBeenCalledWith({ status: "success", user: users[0] })
         })
      
         it('GET returns 404 Not Found when email not in DB', async () => {

@@ -132,7 +132,8 @@ export const serviceIdValidator = [
 
 export const checkKeys = (req, res, next) => {
     let acceptedKeys
-    if(req.path.split('/')[1] === 'services') {
+    
+    if(req.path.split('/')[1] === 'services') { // if the path is /services/:businessId or /services/:businessId/:serviceId
         acceptedKeys = [
             "_id",
             "name",
@@ -145,7 +146,7 @@ export const checkKeys = (req, res, next) => {
             "updatedAt",
             "__v"
         ]
-    } else if (req.path.split('/')[1].match(/\d{9,11}/).length > 0) {
+    } else if(param("businessId").isMongoId() && req.method === "PUT", req.path.split("/").length === 2) { // if the path is /businesses/:businessId
         acceptedKeys = [
             "_id",
             "abn",

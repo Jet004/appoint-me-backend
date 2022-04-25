@@ -26,4 +26,49 @@ const business = [
     }
 ]
 
+export const services = [
+    {
+        name: "Casual Lessons",
+        description: "A 1 hour lesson in Mandarin Chinese",
+        duration: 55,
+        break: 5,
+        fee: 60
+    },
+    {
+        name: "Long Session",
+        description: "A 1 1/2 hour lesson in Mandarin Chinese",
+        duration: 80,
+        break: 10,
+        fee: 85
+    },
+    {
+        name: "Chinese for Kids!",
+        description: "Classes tailored to children aged 3-6. Learn through play!",
+        duration: 40,
+        break: 5,
+        fee: 45
+    },
+    {
+        name: "Chinese for School!",
+        description: "Classes tailored to school aged children in year 1-6.",
+        duration: 55,
+        break: 5,
+        fee: 60
+    },
+    {
+        name: "Chinese for Teens!",
+        description: "Classes tailored to high school sturents year 7-12. Following a curriculum based learning approach, this coursework covers everything needed to achieve a high level of proficiency in Mandarin Chinese.",
+        duration: 55,
+        break: 5,
+        fee: 75
+    },
+    {
+        name: "Chinese for Business and Professionals",
+        description: "A 1 1/2 hour lesson in Mandarin Chinese",
+        duration: 55,
+        break: 5,
+        fee: 75
+    }
+]
+
 export default business

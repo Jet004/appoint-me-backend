@@ -35,23 +35,24 @@ tempUserSchema.path('address').schema.eachPath((path, schema) => {
 })
 
 // Cascade delete CRMs when temp user is deleted
-tempUserSchema.post('remove', async function (doc) {
+tempUserSchema.pre('deleteOne', async function () {
     // Delete CRMs
-    await CRM.deleteMany({ user: doc._id })
+    const doc = await this.model.findOne(this.getFilter())
+    if(doc) await CRM.deleteOne({ user: doc._id })
 })
 
 const TempUser = mongoose.model('TempUser', tempUserSchema)
 
 export default TempUser
 
-export const DbGetAllUsers = () => mongoose.model('TempUser').find({})
+export const DbGetAllUsers = () => TempUser.find({})
 
-export const DbGetUserByEmail = (email) => mongoose.model('TempUser').findOne({email})
+export const DbGetUserByEmail = (email) => TempUser.findOne({email})
 
-export const DbGetUserByID = (id) => mongoose.model('TempUser').findById(id)
+export const DbGetUserByID = (id) => TempUser.findById(id)
 
-export const DbCreateUser = (user) => mongoose.model('TempUser').create(user)
+export const DbCreateUser = (user) => TempUser.create(user)
 
-export const DbUpdateUser = (id, user) => mongoose.model('TempUser').findByIdAndUpdate(id, user)
+export const DbUpdateUser = (id, user) => TempUser.findByIdAndUpdate(id, user)
 
-export const DbDeleteUser = (id) => mongoose.model('TempUser').findByIdAndDelete(id)
+export const DbDeleteUser = (id) => TempUser.deleteOne({ _id: id })

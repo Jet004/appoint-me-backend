@@ -10,29 +10,29 @@ export const registerUser = (DbRegisterUser, DbGetUserByEmail, DbRegisterBusines
     try {
         // Hash user password
         if(req.body.password) req.body.password = bcrypt.hashSync(req.body.password, 6)
-console.log(req.body)
+
         // Check if userType is valid and call the appropriate model method
         let results
         if(req.params.userType === 'user') {
             // Check if user already exists with the given email address
             if(await DbGetUserByEmail(req.body.email) !== null) {
-                return res.status(400).json({ status: "Error", message: "A user already exists with this email address" })
+                return res.status(400).json({ status: "error", message: "A user already exists with this email address" })
             }
             results = await DbRegisterUser(req.body)
         } else if(req.params.userType === 'businessRep') {
             // Check if user already exists with the given email address
             if(await DbGetRepByEmail(req.body.email) !== null) {
-                return res.status(400).json({ status: "Error", message: "A user already exists with this email address" })
+                return res.status(400).json({ status: "error", message: "A user already exists with this email address" })
             }
             results = await DbRegisterBusinessRep(req.body)
         } else {
-            return res.status(400).json({ status: "error", message: "Something went wrong..." })
+            return res.status(400).json({ status: "error", message: "Invalid user type" })
         }
 
         if(results) {
-            res.status(201).json({ status: "success", message: "User successfully registered" })
+            res.status(201).json({ status: "success", message: "Account created successfully" })
         } else {
-            res.status(400).json({ status: "error", message: "Something went wrong..." })
+            res.status(500).json({ status: "error", message: "Something went wrong..." })
         }
     } catch(e) {
         console.log(e.message)
@@ -79,10 +79,14 @@ export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbSaveRefreshToken)
             return res.status(500).json({ status: "error", message: "Something went wrong..." })
         }
 
+        // Remove password from response
+        const { password, ...responseUser } = results._doc
+
         // Return access and refresh tokens
         res.status(200).json({ 
             status: "success", 
-            message: "User successfully logged in", 
+            message: "User successfully logged in",
+            user: responseUser,
             accessToken: accessToken, 
             refreshToken: refreshToken 
         })

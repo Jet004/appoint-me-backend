@@ -69,22 +69,20 @@ export default Business
 // Not implemented yet
 // export const DbGetAllBusinesses = () => mongoose.model('User').find({})
 
-export const DbGetBusinessByABN = (abn) => mongoose.model('Business').findOne({abn: abn})
-
 export const DbGetBusinessByID = (id) => mongoose.model('Business').findById(id)
 
 // Not implemented yet
 // export const DbCreateBusiness = (business) => mongoose.model('Business').create(business)
 
-export const DbUpdateBusiness = (abn, business) => mongoose.model('Business').findOneAndUpdate({abn: abn}, business)
+export const DbUpdateBusiness = (businessId, business) => mongoose.model('Business').findOneAndUpdate({_id: businessId}, business)
 
 // Not implemented yet
 // export const DbDeleteBusiness = (id) => mongoose.model('Business').findByIdAndDelete(id)
 
 
 // CRUD functions for services subdocument
-export const DbGetBusinessServiceById = async (abn, serviceId) => {
-    const business = await mongoose.model("Business").findOne({abn: abn})
+export const DbGetBusinessServiceById = async (businessId, serviceId) => {
+    const business = await mongoose.model("Business").findOne({_id: businessId})
     // Return null if no business found with the given ABN
     if(!business) return null
     // Returns service OR null if no service found with the given ID
@@ -98,8 +96,8 @@ export const DbCreateBusinessService = async (business, service) => {
     return await business.save()
 }
 
-export const DbUpdateBusinessService = async (abn, serviceId, service) => {
-    const business = await mongoose.model("Business").findOne({abn: abn})
+export const DbUpdateBusinessService = async (businessId, serviceId, service) => {
+    const business = await mongoose.model("Business").findOne({_id: businessId})
     // Return null if no business found with the given ABN
     if(!business) return null
     // Returns service OR null if no service found with the given ID
@@ -112,8 +110,8 @@ export const DbUpdateBusinessService = async (abn, serviceId, service) => {
     return await business.save()
 }
 
-export const DbDeleteBusinessService = async (abn, serviceId) => {
-    const business = await mongoose.model("Business").findOne({abn: abn})
+export const DbDeleteBusinessService = async (businessId, serviceId) => {
+    const business = await mongoose.model("Business").findOne({_Id: businessId})
     // Return null if no business found with the given ABN
     if(!business) return null
     // Returns service OR null if no service found with the given ID

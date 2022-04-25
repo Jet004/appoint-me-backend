@@ -49,7 +49,9 @@ describe('Auth Controller Unit Tests: ', () => {
         test('returns 201 Created and registers a new user with valid inputs', async () => {
             let user = JSON.parse(JSON.stringify(mockUser))
             delete user.appointments
-            const fakeDbRegisterUser = jest.fn().mockResolvedValue(user);
+            const fakeDbGetUserByEmail = jest.fn().mockResolvedValue(null)
+            const fakeDbRegisterUser = jest.fn().mockResolvedValue(user)
+            const fakeDbGetRepByEmail = jest.fn()
             const fakeDbRegisterBusinessRep = jest.fn()
             const req = {
                 params: {
@@ -62,7 +64,7 @@ describe('Auth Controller Unit Tests: ', () => {
                 json: jest.fn().mockReturnThis()
             }
 
-            const controller = registerUser(fakeDbRegisterUser, fakeDbRegisterBusinessRep)
+            const controller = registerUser(fakeDbRegisterUser, fakeDbGetUserByEmail, fakeDbRegisterBusinessRep, fakeDbGetRepByEmail)
             expect(typeof controller).toBe('function')
 
             await controller(req, res)
@@ -71,13 +73,15 @@ describe('Auth Controller Unit Tests: ', () => {
             expect(res.status).toHaveBeenCalledTimes(1)
             expect(res.status).toHaveBeenCalledWith(201)
             expect(res.json).toHaveBeenCalledTimes(1)
-            expect(res.json).toHaveBeenCalledWith({ status: "success", message: "User successfully registered" })
+            expect(res.json).toHaveBeenCalledWith({ status: "success", message: "Account created successfully" })
         })
 
         test('returns 400 Bad Input when DB returns null', async () => {
             let user = JSON.parse(JSON.stringify(mockUser))
             delete user.appointments
-            const fakeDbRegisterUser = jest.fn().mockResolvedValue(null);
+            const fakeDbGetUserByEmail = jest.fn().mockResolvedValue(null)
+            const fakeDbRegisterUser = jest.fn().mockResolvedValue(null)
+            const fakeDbGetRepByEmail = jest.fn()
             const fakeDbRegisterBusinessRep = jest.fn()
             const req = {
                 params: {
@@ -90,14 +94,14 @@ describe('Auth Controller Unit Tests: ', () => {
                 json: jest.fn().mockReturnThis()
             }
 
-            const controller = registerUser(fakeDbRegisterUser, fakeDbRegisterBusinessRep)
+            const controller = registerUser(fakeDbRegisterUser, fakeDbGetUserByEmail, fakeDbRegisterBusinessRep, fakeDbGetRepByEmail)
             expect(typeof controller).toBe('function')
 
             await controller(req, res)
             expect(fakeDbRegisterUser).toHaveBeenCalledTimes(1)
             expect(fakeDbRegisterUser).toHaveBeenCalledWith(req.body)
             expect(res.status).toHaveBeenCalledTimes(1)
-            expect(res.status).toHaveBeenCalledWith(400)
+            expect(res.status).toHaveBeenCalledWith(500)
             expect(res.json).toHaveBeenCalledTimes(1)
             expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Something went wrong..." })
         })
@@ -105,7 +109,9 @@ describe('Auth Controller Unit Tests: ', () => {
         test('returns 500 Internal Server Error when DB returns and error', async () => {
             let user = JSON.parse(JSON.stringify(mockUser))
             delete user.appointments
-            const fakeDbRegisterUser = jest.fn().mockRejectedValue(new Error('Database error'));
+            const fakeDbGetUserByEmail = jest.fn().mockResolvedValue(null)
+            const fakeDbRegisterUser = jest.fn().mockRejectedValue(new Error('Database error'))
+            const fakeDbGetRepByEmail = jest.fn()
             const fakeDbRegisterBusinessRep = jest.fn()
             const req = {
                 params: {
@@ -118,7 +124,7 @@ describe('Auth Controller Unit Tests: ', () => {
                 json: jest.fn().mockReturnThis()
             }
 
-            const controller = registerUser(fakeDbRegisterUser, fakeDbRegisterBusinessRep)
+            const controller = registerUser(fakeDbRegisterUser, fakeDbGetUserByEmail, fakeDbRegisterBusinessRep, fakeDbGetRepByEmail)
             expect(typeof controller).toBe('function')
 
             await controller(req, res)
@@ -133,7 +139,9 @@ describe('Auth Controller Unit Tests: ', () => {
 
         test('returns 201 Created and registers a new business rep with valid inputs', async () => {
             let businessRep = JSON.parse(JSON.stringify(mockBusinessRep))
-            const fakeDbRegisterBusinessRep = jest.fn().mockResolvedValue(mockBusinessRep);
+            const fakeDbGetRepByEmail = jest.fn().mockResolvedValue(null)
+            const fakeDbRegisterBusinessRep = jest.fn().mockResolvedValue(mockBusinessRep)
+            const fakeDbGetUserByEmail = jest.fn()
             const fakeDbRegisterUser = jest.fn()
             const req = {
                 params: {
@@ -146,7 +154,7 @@ describe('Auth Controller Unit Tests: ', () => {
                 json: jest.fn().mockReturnThis()
             }
 
-            const controller = registerUser(fakeDbRegisterUser, fakeDbRegisterBusinessRep)
+            const controller = registerUser(fakeDbRegisterUser, fakeDbGetUserByEmail, fakeDbRegisterBusinessRep, fakeDbGetRepByEmail)
             expect(typeof controller).toBe('function')
 
             await controller(req, res)
@@ -155,12 +163,14 @@ describe('Auth Controller Unit Tests: ', () => {
             expect(res.status).toHaveBeenCalledTimes(1)
             expect(res.status).toHaveBeenCalledWith(201)
             expect(res.json).toHaveBeenCalledTimes(1)
-            expect(res.json).toHaveBeenCalledWith({ status: "success", message: "User successfully registered" })
+            expect(res.json).toHaveBeenCalledWith({ status: "success", message: "Account created successfully" })
         })
 
         test('returns 400 Bad Input when DB returns null', async () => {
             let businessRep = JSON.parse(JSON.stringify(mockBusinessRep))
+            const fakeDbGetRepByEmail = jest.fn().mockResolvedValue(null)
             const fakeDbRegisterBusinessRep = jest.fn().mockResolvedValue(null)
+            const fakeDbGetUserByEmail = jest.fn()
             const fakeDbRegisterUser = jest.fn();
             const req = {
                 params: {
@@ -173,21 +183,23 @@ describe('Auth Controller Unit Tests: ', () => {
                 json: jest.fn().mockReturnThis()
             }
 
-            const controller = registerUser(fakeDbRegisterUser, fakeDbRegisterBusinessRep)
+            const controller = registerUser(fakeDbRegisterUser, fakeDbGetUserByEmail, fakeDbRegisterBusinessRep, fakeDbGetRepByEmail)
             expect(typeof controller).toBe('function')
 
             await controller(req, res)
             expect(fakeDbRegisterBusinessRep).toHaveBeenCalledTimes(1)
             expect(fakeDbRegisterBusinessRep).toHaveBeenCalledWith(req.body)
             expect(res.status).toHaveBeenCalledTimes(1)
-            expect(res.status).toHaveBeenCalledWith(400)
+            expect(res.status).toHaveBeenCalledWith(500)
             expect(res.json).toHaveBeenCalledTimes(1)
             expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Something went wrong..." })
         })
 
         test('returns 500 Internal Server Error when DB returns and error', async () => {
             let businessRep = JSON.parse(JSON.stringify(mockBusinessRep))
+            const fakeDbGetRepByEmail = jest.fn().mockResolvedValue(null)
             const fakeDbRegisterBusinessRep = jest.fn().mockRejectedValue(new Error('Database error'))
+            const fakeDbGetUserByEmail = jest.fn()
             const fakeDbRegisterUser = jest.fn()
             const req = {
                 params: {
@@ -200,7 +212,7 @@ describe('Auth Controller Unit Tests: ', () => {
                 json: jest.fn().mockReturnThis()
             }
 
-            const controller = registerUser(fakeDbRegisterUser, fakeDbRegisterBusinessRep)
+            const controller = registerUser(fakeDbRegisterUser, fakeDbGetUserByEmail, fakeDbRegisterBusinessRep, fakeDbGetRepByEmail)
             expect(typeof controller).toBe('function')
 
             await controller(req, res)
@@ -235,7 +247,7 @@ describe('Auth Controller Unit Tests: ', () => {
             expect(res.status).toHaveBeenCalledTimes(1)
             expect(res.status).toHaveBeenCalledWith(400)
             expect(res.json).toHaveBeenCalledTimes(1)
-            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Something went wrong..." })
+            expect(res.json).toHaveBeenCalledWith({ status: "error", message: "Invalid user type" })
         })
     })
 
@@ -250,6 +262,7 @@ describe('Auth Controller Unit Tests: ', () => {
             const fakeDbUser = JSON.parse(JSON.stringify(user))
             fakeDbUser.password = bcrypt.hashSync(fakeDbUser.password, 6)
             fakeDbUser._id = '5eq9f8f8f8f8f8f8f8f8f8f8'
+            fakeDbUser._doc = fakeDbUser // Represents needed mongoose return value
 
             const fakeDbGetUserByEmail = jest.fn().mockResolvedValue(fakeDbUser)
             const fakeDbGetRepByEmail = jest.fn()
@@ -420,6 +433,7 @@ describe('Auth Controller Unit Tests: ', () => {
             const fakeDbUser = JSON.parse(JSON.stringify(user))
             fakeDbUser.password = bcrypt.hashSync(fakeDbUser.password, 6)
             fakeDbUser._id = '5eq9f8f8f8f8f8f8f8f8f8f8'
+            fakeDbUser._doc = fakeDbUser
 
             const fakeDbGetUserByEmail = jest.fn()
             const fakeDbGetRepByEmail = jest.fn().mockResolvedValue(fakeDbUser)

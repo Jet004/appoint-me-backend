@@ -2,7 +2,7 @@ import express from 'express'
 const router = express.Router()
 
 // Controllers
-import { getAllUsers, getUserByEmail, createUser, updateUser, deleteUser } from '../controllers/userController'
+import { getAllUsers, getUserByEmail, createUser, updateUser, deleteUser, saveProfilePicture, getProfilePicture } from '../controllers/userController'
 // ODM methods
 import { DbGetAllUsers, DbGetUserByEmail, DbCreateUser, DbUpdateUser, DbDeleteUser } from '../models/userModel'
 // Validators
@@ -54,6 +54,23 @@ router.route('/:id')
         requireRoles(['user']),
         isOwnAccount(),
         deleteUser(DbDeleteUser)
+    )
+
+router.route('/profile-picture/:id')
+    .get(
+        idValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles(['user', 'businessRep']),
+        (req, res) => getProfilePicture(req, res)
+    )
+    .put(
+        idValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles(['user', 'businessRep']),
+        isOwnAccount(),
+        (req, res) => saveProfilePicture(req, res)
     )
 
 export default router;

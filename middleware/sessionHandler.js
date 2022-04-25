@@ -41,6 +41,7 @@ export const sessionHandler = () => async (req, res, next) => {
             return next()
         }
     } catch(e) {
+        console.log("SessionHandlerError --> Error decoding access token: ", e.message)
         // Error decoding JWT, user is not logged in, so set session variables to false
         req.session.loggedIn = false
         req.session.user = null
@@ -113,7 +114,6 @@ export const sessionHandler = () => async (req, res, next) => {
 
 export const requireLogin = () => (req, res, next) => {
     // Check if user is logged in
-
     if(!req.session.loggedIn) {
         // User is not logged in, respond with 401 Unauthorized
         return res.status(401).json({ status: "error", message: "Unauthorized" })
@@ -143,7 +143,7 @@ export const requireRoles = (allowedRoles) => (req, res, next) => {
 
 export const isAuthorised = () => async (req, res, next) => {
     try {
-        const results = await Business.findOne({ abn: req.params.abn })
+        const results = await Business.findOne({ _id: req.params.businessId })
 
         if(!results) {
             // Business not found, respond with 404 Not Found

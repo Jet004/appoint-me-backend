@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import { appointmentSchema } from "./appointmentModel"
+import Appointment from "./appointmentModel"
 
 const crmSchema = new mongoose.Schema({
     userModel: {
@@ -38,9 +38,10 @@ crmSchema.virtual("appointments", {
     foreignField: "crm"
 })
 
-crmSchema.post('remove', async function (doc) {
+crmSchema.pre('deleteOne', async function () {
     // Delete Appointments
-    await appointmentSchema.deleteMany({ crm: doc._id })
+    const doc = await this.model.findOne(this.getFilter())
+    if(doc) await Appointment.deleteMany({ crm: doc._id })
 })
 
 const CRM = mongoose.model("CRM", crmSchema)
