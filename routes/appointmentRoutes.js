@@ -2,10 +2,10 @@ import express from "express"
 const router = express.Router()
 
 // Import controllers
-import { userCreateAppointment, updateAppointment, businessRepCreateAppointment, getAppointmentById, deleteAppointment, getAllUserAppointments, getAllBusinessAppointments } from "../controllers/appointmentController"
+import { userCreateAppointment, updateAppointment, businessRepCreateAppointment, getAppointmentById, deleteAppointment, getAllUserAppointments, getAllBusinessAppointments, getAvailableAppointmentTimes } from "../controllers/appointmentController"
 // Import DB ODM methods
 import { DbGetCRMByMatch, DbCreateCRM, DbGetAppointmentsByUserId, DbGetAppointmentsByBusinessId } from "../models/crmModel"
-import { DbCreateAppointment, DbGetAppointmentById, DbUpdateAppointment, DbDeleteAppointment } from "../models/appointmentModel"
+import { DbCreateAppointment, DbGetAppointmentById, DbUpdateAppointment, DbDeleteAppointment, DbGetAppointmentByBusinessDate } from "../models/appointmentModel"
 import { DbGetBusinessByID } from "../models/businessModel"
 // Import validators
 import { businessIdValidator, idValidator, verifyOwnAccountByAppointmentId } from "../validation/userValidators"
@@ -13,6 +13,15 @@ import validationCheck from "../validation/checkValidators"
 import { accessTokenValidator, isAuthorisedRep, verifyRepByBusinessId } from "../validation/authValidator"
 import { appointmentIdValidator, appointmentValidator, checkAppointmentKeys, checkRepAuthByAppointmentId } from "../validation/appointmentValidator"
 import { requireLogin, requireRoles } from "../middleware/sessionHandler"
+import { serviceIdValidator } from "../validation/businessValidators"
+
+router.route('/appointment-times/:businessId/:serviceId/:date')
+    .get(
+        businessIdValidator,
+        serviceIdValidator,
+        validationCheck,
+        getAvailableAppointmentTimes(DbGetBusinessByID, DbGetAppointmentByBusinessDate)
+    )
 
 router.route('/user-appointments')
     .get(

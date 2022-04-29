@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import addressSchema from "./addressSchema";
 import { appointmentSchema } from "./appointmentModel";
 import serviceSchema from "./serviceSchema"
+import BusinessSettingsSchema from "./businessSettingsSchema"
 
 const BusinessSchema = new mongoose.Schema({
     abn: {
@@ -49,6 +50,9 @@ const BusinessSchema = new mongoose.Schema({
             },
         },{ _id: false })
     ],
+    settings: {
+        type: BusinessSettingsSchema,
+    },
     services: [serviceSchema],
     appointments: {
         type: [appointmentSchema],

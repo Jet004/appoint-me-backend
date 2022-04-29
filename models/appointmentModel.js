@@ -1,4 +1,5 @@
 const mongoose  = require('mongoose')
+import addDays from 'date-fns/addDays'
 
 export const appointmentSchema = new mongoose.Schema({
     crm: {
@@ -65,6 +66,8 @@ export const appointmentSchema = new mongoose.Schema({
 const Appointment = mongoose.model("Appointment", appointmentSchema)
 
 export default Appointment
+
+export const DbGetAppointmentByBusinessDate = (businessId, date) => Appointment.find({ business: businessId, appointmentTime: { $gte: new Date(date), $lt: addDays(new Date(date), 1) } })
 
 export const DbCreateAppointment = (appointment) => Appointment.create(appointment)
 
