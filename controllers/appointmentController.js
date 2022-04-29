@@ -3,39 +3,84 @@ import addMinutes from 'date-fns/addMinutes'
 import setHours from 'date-fns/setHours'
 import setMinutes from 'date-fns/setMinutes'
 
+//
+// The following functions are needed in multiple controllers so they have been defined here
+//
+
+// Function for adding start and end times to a given date
+const timeToDateTime = (time, date) => {
+    time = Number(time)
+    const hours = Math.floor(time / 100)
+    const minutes = time % (hours * 100)
+    const dateTime = setMinutes(setHours(new Date(date), hours), minutes)
+    // console.log(hours, minutes)
+    // console.log(getHours(dateTime), getMinutes(dateTime))
+    return dateTime
+}
+
+// Function returns a list of all possible appointment times withing a businesses operating hours
+// This list has NOT been filtered to remove times which can't be booked
+const getPossibleAppointmentTimes = (startTime, endTime, timeSlot, date) => {
+    const possibleTimes = []
+    for(let i = timeToDateTime(startTime, date); i <= timeToDateTime(endTime, date); i = addMinutes(i, timeSlot)) {
+        possibleTimes.push(i)
+    }
+    return possibleTimes
+}
+
+// Function returns a list of all available appointment times within a business's operating hours
+// The returned list has been filtered to remove times which can't be booked
+const filterInvalidTimeSlots = (possibleAppointmentTimes, existingAppointments, serviceDurationMinutes, operatingHours, date) => {
+    let availableAppointmentTimes
+    // This filter removes any time slots which are too close to the close of business for the given service
+    // ie. time slot + total service duration > operating hours end time
+    availableAppointmentTimes = possibleAppointmentTimes.filter(time => addMinutes(time, serviceDurationMinutes) <= timeToDateTime(operatingHours.endTime, date))
+
+    // Only run the following filters if there are existing appointments
+    if(existingAppointments.length > 0) {
+        // This filter removes any time slots which would conflict with an existing appointment
+        // ie. time slot, end time or any interim time slots conflict within another appointment
+        availableAppointmentTimes = availableAppointmentTimes.filter(time => {
+            return !existingAppointments.some(appointment => {
+                const timeSlotEnd = addMinutes(time, serviceDurationMinutes)
+                if(time >= appointment.appointmentTime && time < appointment.appointmentEnd){
+                    // appt start <= time slot < appt end
+                    return true
+                } else if(timeSlotEnd > appointment.appointmentTime && timeSlotEnd <= appointment.appointmentEnd){
+                    // appt start < end time <= appt end
+                    return true
+                } else if(time < appointment.appointmentTime && timeSlotEnd > appointment.appointmentEnd){
+                    // interim time slot === appt start || interim time slot === appt end || appt start < interim time slot < appt end
+                    return true
+                }
+
+                return false
+            })
+        })
+    }
+
+    return availableAppointmentTimes
+}
+
+
+//
+// Controllers
+//
+
 export const getAvailableAppointmentTimes = (DbGetBusinessByID, DbGetAppointmentByBusinessDate) => async (req, res) => {
-    // Define helper functions
-    
-    // Function for adding start and end times to a given date
-    const timeToDateTime = (time, date) => {
-        time = Number(time)
-        const hours = Math.floor(time / 100)
-        const minutes = time % (hours * 100)
-        const dateTime = setMinutes(setHours(new Date(date), hours), minutes)
-        // console.log(hours, minutes)
-        // console.log(getHours(dateTime), getMinutes(dateTime))
-        return dateTime
-    }
-
-    const getPossibleAppointmentTimes = (startTime, endTime, timeSlot, date) => {
-        const possibleTimes = []
-        for(let i = timeToDateTime(startTime, date); i <= timeToDateTime(endTime, date); i = addMinutes(i, timeSlot)) {
-            possibleTimes.push(i)
-        }
-        return possibleTimes
-    }
-
     try {
+        // Get required values from URL parameters
         const businessId = req.params.businessId
         const serviceId = req.params.serviceId
         const date = req.params.date
         
-        // Get requested day of the week
+        // Convert the requested day of the week to a string representation so it can be used to
+        // retrieve the business's operating hours
         const dayOfWeek = format(new Date(date), "EEEE")
-        console.log("DOW: ", date, dayOfWeek)
+
         // Get business data
         const business = await DbGetBusinessByID(businessId)
-        // Check that there is a business with the given ID
+        // Check that there is a business with the given ID, respond with 404 if not
         if(!business) return res.status(404).json({status: "error", message: "Business not found"})
         // Business exists, initialise related variables
         const timeSlot = business.settings.appointmentTimeSlot
@@ -48,42 +93,13 @@ export const getAvailableAppointmentTimes = (DbGetBusinessByID, DbGetAppointment
         // Get array of all possible appointment time slots for the given day
         // This is determined by business operating hours and the time slot from settings
         const possibleAppointmentTimes = getPossibleAppointmentTimes(operatingHours?.startTime, operatingHours.endTime, timeSlot, date)
-       
-        console.log("POSSIBLE APPOINTMENT TIMES: ", possibleAppointmentTimes)
-
-
+    
         // Get existing appointments for the requested business, service and date
         const existingAppointments = await DbGetAppointmentByBusinessDate(businessId, date)
 
         // Get available appointment times by filtering existing appointments from the possible times 
         // and times too close to the close of business
-        let availableAppointmentTimes
-        // This filter removes any time slots which are too close to the close of business for the given service
-        // ie. time slot + total service duration > operating hours end time
-        availableAppointmentTimes = possibleAppointmentTimes.filter(time => addMinutes(time, serviceDurationMinutes) <= timeToDateTime(operatingHours.endTime, date))
-
-        // Only run the following filters if there are existing appointments
-        if(existingAppointments.length > 0) {
-            // This filter removes any time slots which would conflict with an existing appointment
-            // ie. time slot, end time or any interim time slots conflict within another appointment
-            availableAppointmentTimes = availableAppointmentTimes.filter(time => {
-                return !existingAppointments.some(appointment => {
-                    const timeSlotEnd = addMinutes(time, serviceDurationMinutes)
-                    if(time >= appointment.appointmentTime && time < appointment.appointmentEnd){
-                        // appt start <= time slot < appt end
-                        return true
-                    } else if(timeSlotEnd > appointment.appointmentTime && timeSlotEnd <= appointment.appointmentEnd){
-                        // appt start < end time <= appt end
-                        return true
-                    } else if(time < appointment.appointmentTime && timeSlotEnd > appointment.appointmentEnd){
-                        // interim time slot === appt start || interim time slot === appt end || appt start < interim time slot < appt end
-                        return true
-                    }
-
-                    return false
-                })
-            })
-        }
+        const availableAppointmentTimes = filterInvalidTimeSlots(possibleAppointmentTimes, existingAppointments, serviceDurationMinutes, operatingHours, date)
 
         return res.status(200).json({ times: availableAppointmentTimes })
     } catch(e) {
