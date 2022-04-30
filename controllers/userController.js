@@ -206,3 +206,15 @@ export const saveProfilePicture = (req, res) => {
         res.status(500).json({ status: "error", message: e.message })
     }
 }
+
+export const getAssociatedBusiness = (DbGetAssociatedBusiness) => async (req, res) => {
+    try {
+        const repId = req.params.id
+        const result = await DbGetAssociatedBusiness(repId)
+        result ? res.status(200).json({ status: "success", message: "Associated business found", business: result })
+            : res.status(404).json({ status: "error", message: "No associated business found" })
+    } catch (e) {
+        console.log(e.message)
+        res.status(500).json({ status: "error", message: e.message });
+    }
+}

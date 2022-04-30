@@ -75,6 +75,9 @@ export default Business
 
 export const DbGetBusinessByID = (id) => mongoose.model('Business').findById(id)
 
+// This query returns a single business using the businessRep's id
+export const DbGetAssociatedBusiness = (repId) => Business.findOne({ businessRep: repId })
+
 // Not implemented yet
 // export const DbCreateBusiness = (business) => mongoose.model('Business').create(business)
 

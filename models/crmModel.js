@@ -7,12 +7,12 @@ const crmSchema = new mongoose.Schema({
         required: true,
     },
     user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Types.ObjectId,
         ref: doc => doc.userModel,
         required: true
     },
     business: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Types.ObjectId,
         ref: "Business",
         required: true
     },
@@ -66,8 +66,8 @@ export const DbDeleteCRM = (crmId) => CRM.findByIdAndDelete(crmId)
 
 // Although the primary purpose of the following queries are to return return complex data,
 // they are included here as they are reliant on the CRM model
-export const DbGetAppointmentsByUserId = (userId) => CRM.find({ user: userId }).populate("appointments")
+export const DbGetAppointmentsByUserId = (userId) => CRM.find({ user: userId }).populate("appointments business user")
 
-export const DbGetAppointmentsByBusinessId = (businessId) => CRM.find({ business: businessId }).populate("appointments")
+export const DbGetAppointmentsByBusinessId = (businessId) => CRM.find({ business: businessId }).populate("user appointments business")
 
 export const DbGetClientList = (businessId) => CRM.find({ business: businessId }).populate("user")

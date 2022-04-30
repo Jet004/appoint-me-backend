@@ -2,9 +2,10 @@ import express from 'express'
 const router = express.Router()
 
 // Controllers
-import { getAllUsers, getUserByEmail, createUser, updateUser, deleteUser } from '../controllers/userController'
+import { getAllUsers, getUserByEmail, createUser, updateUser, deleteUser, getAssociatedBusiness } from '../controllers/userController'
 // ODM methods
 import { DbGetAllReps, DbGetRepByEmail, DbCreateRep, DbUpdateRep, DbDeleteRep } from '../models/businessRepModel'
+import { DbGetAssociatedBusiness } from '../models/businessModel'
 // Validators
 import { userValidator, ubrValidator, emailValidator, passwordValidator, idValidator, checkKeys, isAuthorisedToCreateBusinessRep, isOwnAccount } from '../validation/userValidators'
 // Validation checker - responds with 400 Bad Request if there are validation errors then prevents the request from continuing
@@ -16,7 +17,7 @@ import { requireLogin, requireRoles } from '../middleware/sessionHandler'
 // for easier unit testing of the controllers and their dependencies.
 router.route('/')
     .get(getAllUsers(DbGetAllReps))
-    .post(// This route won't be used yet - it will be used by business admin for adding employees etc.
+    .post(
         userValidator, 
         ubrValidator, 
         passwordValidator, 
@@ -50,6 +51,15 @@ router.route('/:id')
         requireRoles('businessRep'),
         isOwnAccount(),
         deleteUser(DbDeleteRep)
+    )
+
+router.route('/business/:id')
+    .get(
+        idValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles('businessRep'),
+        getAssociatedBusiness(DbGetAssociatedBusiness)
     )
 
 export default router;
