@@ -121,7 +121,8 @@ export const createTempUser = (DbCreateUser, DbCreateCRM) => async (req, res) =>
 export const getProfilePicture = (req, res) => {
     // Require id and userType
     const id = req.params.id
-    const userType = req.session.userType
+    const userType = req.params.userType
+console.log(userType)
     try {
         // Get directory name based on userType
         let dirName

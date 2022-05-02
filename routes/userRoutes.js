@@ -56,7 +56,7 @@ router.route('/:id')
         deleteUser(DbDeleteUser)
     )
 
-router.route('/profile-picture/:id')
+router.route('/profile-picture/:userType/:id')
     .get(
         idValidator,
         validationCheck,
