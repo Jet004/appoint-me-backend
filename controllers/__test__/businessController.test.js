@@ -5,6 +5,7 @@ import { getBusinessByID, updateBusiness, createBusinessService, getBusinessServ
 import mockBusiness from '../../__test__/mockBusiness.js'
 import mockUsers from '../../__test__/mockUsers.js'
 import mongoose from 'mongoose'
+import { jest } from '@jest/globals'
 
 describe('Business controller unit tests:', () => {
     describe('Test controller: getBusinessByID', () => {
@@ -858,7 +859,7 @@ describe('Business controller unit tests:', () => {
             expect(res.status).toHaveBeenCalledTimes(1)
             expect(res.status).toHaveBeenCalledWith(200)
             expect(res.json).toHaveBeenCalledTimes(1)
-            expect(res.json).toHaveBeenCalledWith({ status: "success", message: "Client added successfully", clients: mockClientList })
+            expect(res.json).toHaveBeenCalledWith({ status: "success", clients: mockClientList })
         })
                 
     })

@@ -5,12 +5,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose --ci --reporters=default --coverage",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose --ci --reporters=default --coverage",
     "dev": "nodemon index.js",
     "start": "node index.js"
   },
   "jest": {
     "testEnvironment": "node",
+    "transform": {},
     "resetMocks": true
   },
   "keywords": [],

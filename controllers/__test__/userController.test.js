@@ -1,6 +1,7 @@
 import { getAllUsers, getUserByEmail, createUser, updateUser, deleteUser } from '../userController.js'
 import users from '../../__test__/mockUsers.js'
 import mongoose from 'mongoose'
+import { jest } from '@jest/globals'
 
 describe("User controller unit tests:", () => {
     describe("Test controller: getAllUsers", () => {
@@ -200,7 +201,7 @@ describe("User controller unit tests:", () => {
             expect(fakeDbUpdateUser).toHaveBeenCalledTimes(1)
             expect(fakeDbUpdateUser).toHaveBeenCalledWith(users[0]._id, updatedData)
             expect(res.status).toHaveBeenCalledWith(200)
-            expect(res.json).toHaveBeenCalledWith({ status: "success", originalData: users[0] })
+            expect(res.json).toHaveBeenCalledWith({ status: "success", message: "Data updated successfully", originalData: users[0] })
         })
 
         it('returns 404 Not Found when _id not in DB', async () => {

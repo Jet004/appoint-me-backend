@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import { registerUser, loginUser, logoutUser, tokenRefresh } from '../authController.js';
 import mongoose from 'mongoose'
 import jwt from 'jsonwebtoken'
+import { jest } from '@jest/globals'
 
 // Set up mock users for registration tests
 const mockUser = {
