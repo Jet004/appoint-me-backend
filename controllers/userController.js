@@ -1,6 +1,10 @@
 import { hashSync } from "bcrypt"
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from "url"
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // This controller is not needed at the moment, it is still here 
 // so the related imports don't throw errors
@@ -174,21 +178,21 @@ export const saveProfilePicture = (req, res) => {
         }
 
         // Define the file path
-        let path
+        let filePath
         if(req.session.userType === 'user') {
-            path = `${__dirname}/../images/userProfilePics/${req.params.id}.${fileExtension}`
+            filePath = `${__dirname}/../images/userProfilePics/${req.params.id}.${fileExtension}`
         } else if(req.session.userType === 'businessRep'){
-            path = `${__dirname}/../images/repProfilePics/${req.params.id}.${fileExtension}`
+            filePath = `${__dirname}/../images/repProfilePics/${req.params.id}.${fileExtension}`
         }
 
         // Check if a file already exists
-        if(fs.existsSync(path)) {
+        if(fs.existsSync(filePath)) {
             // Delete the file
-            fs.rmSync(path)
+            fs.rmSync(filePath)
         }
 
         // Save new file to file path
-        file.mv(path, (error) => {
+        file.mv(filePath, (error) => {
             // Check if there were any file upload errors
             if(error){
                 // There was an upload error, log error and respond with server error
