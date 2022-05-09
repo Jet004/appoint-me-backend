@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt'
-import { registerUser, loginUser, logoutUser, tokenRefresh } from '../authController';
+import { registerUser, loginUser, logoutUser, tokenRefresh } from '../authController.js';
 import mongoose from 'mongoose'
 import jwt from 'jsonwebtoken'
 

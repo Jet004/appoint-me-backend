@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import Appointment from "./appointmentModel"
+import Appointment from "./appointmentModel.js"
 
 const crmSchema = new mongoose.Schema({
     userModel: {

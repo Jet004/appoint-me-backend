@@ -1,6 +1,6 @@
 import { body, param } from 'express-validator'
-import { validateAddressRequired } from './addressValidators'
-import checkForUnexpectedKeys from './checkBodyKeys'
+import { validateAddressRequired } from './addressValidators.js'
+import checkForUnexpectedKeys from './checkBodyKeys.js'
 
 // This file sets out all of the input validators for a business entity
 

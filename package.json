@@ -1,13 +1,13 @@
 {
   "name": "appoint-me-backend",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "jest --verbose --ci --reporters=default --coverage",
-    "dev": "nodemon index.js --exec babel-node -e js",
-    "build": "",
-    "start": ""
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
   "jest": {
     "testEnvironment": "node",
@@ -30,9 +30,6 @@
     "mongoose": "^6.2.8"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.8",
-    "@babel/node": "^7.16.8",
-    "@babel/preset-env": "^7.16.11",
     "jest": "^27.5.1",
     "node-fetch": "^2.6.7"
   }

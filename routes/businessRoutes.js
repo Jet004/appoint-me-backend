@@ -2,16 +2,16 @@ import express from "express"
 const router = express.Router()
 
 // Import business controllers
-import { createBusinessService, deleteBusinessService, getBusinessByABN, getBusinessByID, getBusinessServiceById, getBusinessServices, updateBusiness, updateBusinessService, getClientList } from "../controllers/businessController"
-import { requireLogin, requireRoles, isAuthorised } from "../middleware/sessionHandler"
+import { createBusinessService, deleteBusinessService, getBusinessByID, getBusinessServiceById, getBusinessServices, updateBusiness, updateBusinessService, getClientList } from "../controllers/businessController.js"
+import { requireLogin, requireRoles, isAuthorised } from "../middleware/sessionHandler.js"
 // Import Business model ODM methods
-import { DbCreateBusinessService, DbDeleteBusinessService, DbGetBusinessByABN, DbGetBusinessByID, DbGetBusinessServiceById, DbUpdateBusiness, DbUpdateBusinessService } from "../models/businessModel"
-import { DbGetClientList } from "../models/crmModel"
+import { DbCreateBusinessService, DbDeleteBusinessService, DbGetBusinessByID, DbGetBusinessServiceById, DbUpdateBusiness, DbUpdateBusinessService } from "../models/businessModel.js"
+import { DbGetClientList } from "../models/crmModel.js"
 // Import validators
-import { accessTokenValidator, verifyRepByBusinessId } from "../validation/authValidator"
-import { idValidator, abnValidator, businessValidator, checkKeys, serviceValidator, serviceIdValidator } from "../validation/businessValidators"
-import validationCheck  from "../validation/checkValidators"
-import { businessIdValidator } from "../validation/userValidators"
+import { accessTokenValidator, verifyRepByBusinessId } from "../validation/authValidator.js"
+import { idValidator, abnValidator, businessValidator, checkKeys, serviceValidator, serviceIdValidator } from "../validation/businessValidators.js"
+import validationCheck  from "../validation/checkValidators.js"
+import { businessIdValidator } from "../validation/userValidators.js"
 
 // Business routes
 // Get/Create services by business ABN

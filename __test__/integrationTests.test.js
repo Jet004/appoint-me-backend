@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
-import connect from '../models/database'
-import pushMockData from './pushMockData'
+import connect from '../models/database.js'
+import pushMockData from './pushMockData.js'
 
 import fetch from 'node-fetch'
 import bcrypt from 'bcrypt'
@@ -10,18 +10,18 @@ dotenv.config()
 
 import jwt from 'jsonwebtoken'
 
-import users from './mockUsers'
-import businessReps from './mockBusinessReps'
-import businesses from './mockBusiness'
-import User from '../models/userModel'
-import TempUser from '../models/tempUserModel'
-import BusinessRep from '../models/businessRepModel'
-import Business from '../models/businessModel'
-import Auth from '../models/authModel'
-import CRM from '../models/crmModel'
-import Appointment from '../models/appointmentModel'
+import users from './mockUsers.js'
+import businessReps from './mockBusinessReps.js'
+import businesses from './mockBusiness.js'
+import User from '../models/userModel.js'
+import TempUser from '../models/tempUserModel.js'
+import BusinessRep from '../models/businessRepModel.js'
+import Business from '../models/businessModel.js'
+import Auth from '../models/authModel.js'
+import CRM from '../models/crmModel.js'
+import Appointment from '../models/appointmentModel.js'
 
-import app from '../app'
+import app from '../app.js'
 
 const PORT = 3200
 const domain = `http:localhost:${PORT}`

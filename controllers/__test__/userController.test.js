@@ -1,5 +1,5 @@
 import { getAllUsers, getUserByEmail, createUser, updateUser, deleteUser } from '../userController.js'
-import users from '../../__test__/mockUsers'
+import users from '../../__test__/mockUsers.js'
 import mongoose from 'mongoose'
 
 describe("User controller unit tests:", () => {

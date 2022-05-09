@@ -2,21 +2,21 @@ import express from 'express'
 const router = express.Router()
 
 // Import controllers
-import { loginUser, logoutUser, registerUser, tokenRefresh } from '../controllers/authController'
+import { loginUser, logoutUser, registerUser, tokenRefresh } from '../controllers/authController.js'
 // Import model ODM methods from User model
-import { DbRegisterUser, DbGetUserByEmail } from '../models/userModel'
+import { DbRegisterUser, DbGetUserByEmail } from '../models/userModel.js'
 // Import model ODM methods from BusinessRep model
-import { DbRegisterBusinessRep, DbGetRepByEmail } from '../models/businessRepModel'
+import { DbRegisterBusinessRep, DbGetRepByEmail } from '../models/businessRepModel.js'
 //Import model ODM methods from RefreshToken model
-import { DbDeleteRefreshToken, DbSaveRefreshToken } from '../models/authModel'
+import { DbDeleteRefreshToken, DbSaveRefreshToken } from '../models/authModel.js'
 // Import model ODM methods from TokenBlacklist model
-import { DbAddTokenToBlacklist, DbDeleteExpiredTokens } from '../models/authBlacklistModel'
+import { DbAddTokenToBlacklist, DbDeleteExpiredTokens } from '../models/authBlacklistModel.js'
 
 // Import validators
-import { userValidator, ubrValidator, passwordValidator } from '../validation/userValidators'
-import validationCheck from '../validation/checkValidators'
-import { emailValidator, checkAuthKeys, tokenValidator } from '../validation/authValidator'
-import { requireLogin } from '../middleware/sessionHandler'
+import { userValidator, ubrValidator, passwordValidator } from '../validation/userValidators.js'
+import validationCheck from '../validation/checkValidators.js'
+import { emailValidator, checkAuthKeys, tokenValidator } from '../validation/authValidator.js'
+import { requireLogin } from '../middleware/sessionHandler.js'
 
 router.route('/register/:userType')
     .post(

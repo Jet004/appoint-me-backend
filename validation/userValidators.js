@@ -1,7 +1,6 @@
 import { body, param } from 'express-validator'
-import checkForUnexpectedKeys from './checkBodyKeys'
-import { validateAddressRequired, validateAddressOptional } from './addressValidators'
-import { DbGetAppointmentById } from '../models/appointmentModel'
+import checkForUnexpectedKeys from './checkBodyKeys.js'
+import { validateAddressRequired, validateAddressOptional } from './addressValidators.js'
 
 // This file sets out all of the validators for the user, tempUser and businessRep routes
 

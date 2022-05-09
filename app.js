@@ -9,12 +9,12 @@ import requestLogger from './middleware/requestLogger.js'
 import { createRequestLog } from './models/requestLogModel.js'
 import fileUpload from 'express-fileupload' 
 // Import route handlers 
-import authRoutes from './routes/authRoutes'
-import userRoutes from './routes/userRoutes'
-import tempUserRoutes from './routes/tempUserRoutes'
-import businessRoutes from './routes/businessRoutes'
-import businessRepRoutes from './routes/businessRepRoutes'
-import appointmentRoutes from './routes/appointmentRoutes'
+import authRoutes from './routes/authRoutes.js'
+import userRoutes from './routes/userRoutes.js'
+import tempUserRoutes from './routes/tempUserRoutes.js'
+import businessRoutes from './routes/businessRoutes.js'
+import businessRepRoutes from './routes/businessRepRoutes.js'
+import appointmentRoutes from './routes/appointmentRoutes.js'
 
 const app = () => {
 

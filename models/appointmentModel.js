@@ -1,5 +1,5 @@
-const mongoose  = require('mongoose')
-import addDays from 'date-fns/addDays'
+import mongoose from 'mongoose'
+import addDays from 'date-fns/addDays/index.js'
 
 export const appointmentSchema = new mongoose.Schema({
     crm: {

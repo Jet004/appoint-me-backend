@@ -2,17 +2,17 @@ import express from 'express'
 const router = express.Router()
 
 // Controllers
-import { getAllUsers, getUserByEmail, createTempUser, updateUser, deleteUser } from '../controllers/userController'
+import { getAllUsers, getUserByEmail, createTempUser, updateUser, deleteUser } from '../controllers/userController.js'
 // ODM methods
-import { DbGetAllUsers, DbGetUserByEmail, DbCreateUser, DbUpdateUser, DbDeleteUser } from '../models/tempUserModel'
-import { DbCreateCRM, DbGetCRMByMatch, DbSoftDeleteCRM } from '../models/crmModel'
+import { DbGetAllUsers, DbGetUserByEmail, DbCreateUser, DbUpdateUser, DbDeleteUser } from '../models/tempUserModel.js'
+import { DbCreateCRM, DbGetCRMByMatch } from '../models/crmModel.js'
 // Validators
-import { userValidator, tempUserValidator, emailValidator, passwordValidator, idValidator, checkKeys, businessIdValidator } from '../validation/userValidators'
-import { isAuthorisedRep, verifyRepByBusinessId } from '../validation/authValidator'
+import { userValidator, tempUserValidator, emailValidator, passwordValidator, idValidator, checkKeys, businessIdValidator } from '../validation/userValidators.js'
+import { isAuthorisedRep, verifyRepByBusinessId } from '../validation/authValidator.js'
 // Validation checker - responds with 400 Bad Request if there are validation errors then prevents the request from continuing
-import validationCheck from '../validation/checkValidators'
-import { requireLogin, requireRoles } from '../middleware/sessionHandler'
-import { DbGetBusinessByID } from '../models/businessModel'
+import validationCheck from '../validation/checkValidators.js'
+import { requireLogin, requireRoles } from '../middleware/sessionHandler.js'
+import { DbGetBusinessByID } from '../models/businessModel.js'
 
 // Validators and validation error checker run as route middleware
 // Controllers use dependency injection to inject ODM methods. This approach allows 

@@ -2,18 +2,18 @@ import express from "express"
 const router = express.Router()
 
 // Import controllers
-import { userCreateAppointment, updateAppointment, businessRepCreateAppointment, getAppointmentById, deleteAppointment, getAllUserAppointments, getAllBusinessAppointments, getAvailableAppointmentTimes } from "../controllers/appointmentController"
+import { userCreateAppointment, updateAppointment, businessRepCreateAppointment, getAppointmentById, deleteAppointment, getAllUserAppointments, getAllBusinessAppointments, getAvailableAppointmentTimes } from "../controllers/appointmentController.js"
 // Import DB ODM methods
-import { DbGetCRMByMatch, DbCreateCRM, DbGetAppointmentsByUserId, DbGetAppointmentsByBusinessId } from "../models/crmModel"
-import { DbCreateAppointment, DbGetAppointmentById, DbUpdateAppointment, DbDeleteAppointment, DbGetAppointmentByBusinessDate } from "../models/appointmentModel"
-import { DbGetBusinessByID } from "../models/businessModel"
+import { DbGetCRMByMatch, DbCreateCRM, DbGetAppointmentsByUserId, DbGetAppointmentsByBusinessId } from "../models/crmModel.js"
+import { DbCreateAppointment, DbGetAppointmentById, DbUpdateAppointment, DbDeleteAppointment, DbGetAppointmentByBusinessDate } from "../models/appointmentModel.js"
+import { DbGetBusinessByID } from "../models/businessModel.js"
 // Import validators
-import { businessIdValidator, idValidator, verifyOwnAccountByAppointmentId } from "../validation/userValidators"
-import validationCheck from "../validation/checkValidators"
-import { accessTokenValidator, isAuthorisedRep, verifyRepByBusinessId } from "../validation/authValidator"
-import { appointmentIdValidator, appointmentValidator, checkAppointmentKeys, checkRepAuthByAppointmentId } from "../validation/appointmentValidator"
-import { requireLogin, requireRoles } from "../middleware/sessionHandler"
-import { serviceIdValidator } from "../validation/businessValidators"
+import { businessIdValidator, idValidator, verifyOwnAccountByAppointmentId } from "../validation/userValidators.js"
+import validationCheck from "../validation/checkValidators.js"
+import { accessTokenValidator, isAuthorisedRep, verifyRepByBusinessId } from "../validation/authValidator.js"
+import { appointmentIdValidator, appointmentValidator, checkAppointmentKeys, checkRepAuthByAppointmentId } from "../validation/appointmentValidator.js"
+import { requireLogin, requireRoles } from "../middleware/sessionHandler.js"
+import { serviceIdValidator } from "../validation/businessValidators.js"
 
 router.route('/appointment-times/:businessId/:serviceId/:date')
     .get(

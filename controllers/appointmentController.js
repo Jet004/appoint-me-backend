@@ -1,7 +1,7 @@
-import format from 'date-fns/format'
-import addMinutes from 'date-fns/addMinutes'
-import setHours from 'date-fns/setHours'
-import setMinutes from 'date-fns/setMinutes'
+import format from 'date-fns/format/index.js'
+import addMinutes from 'date-fns/addMinutes/index.js'
+import setHours from 'date-fns/setHours/index.js'
+import setMinutes from 'date-fns/setMinutes/index.js'
 
 //
 // The following functions are needed in multiple controllers so they have been defined here

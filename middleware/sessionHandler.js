@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken'
-import User from '../models/userModel'
-import BusinessRep from '../models/businessRepModel'
-import Business from '../models/businessModel'
 import dotenv from 'dotenv'
-import TokenBlacklist from '../models/authBlacklistModel'
 dotenv.config()
+
+import User from '../models/userModel.js'
+import BusinessRep from '../models/businessRepModel.js'
+import Business from '../models/businessModel.js'
+import TokenBlacklist from '../models/authBlacklistModel.js'
 
 export const sessionHandler = () => async (req, res, next) => {
     // Check for JWT in request header and body and initialise session variables checks pass

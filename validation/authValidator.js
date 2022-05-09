@@ -1,7 +1,6 @@
 import { body, header } from 'express-validator';
-import { DbGetBusinessByID } from '../models/businessModel'
 
-import checkForUnexpectedKeys from './checkBodyKeys';
+import checkForUnexpectedKeys from './checkBodyKeys.js';
 
 // Email param validator
 export const emailValidator = [

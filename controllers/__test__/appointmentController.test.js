@@ -1,8 +1,8 @@
-import { userCreateAppointment, businessRepCreateAppointment, updateAppointment, getAppointmentById, deleteAppointment, getAllUserAppointments, getAllBusinessAppointments } from "../appointmentController"
+import { userCreateAppointment, businessRepCreateAppointment, updateAppointment, getAppointmentById, deleteAppointment, getAllUserAppointments, getAllBusinessAppointments } from "../appointmentController.js"
 
-import business from "../../__test__/mockBusiness"
-import users from "../../__test__/mockUsers"
-import businessReps from "../../__test__/mockBusinessReps"
+import business from "../../__test__/mockBusiness.js"
+import users from "../../__test__/mockUsers.js"
+import businessReps from "../../__test__/mockBusinessReps.js"
 import mongoose from "mongoose"
 
 

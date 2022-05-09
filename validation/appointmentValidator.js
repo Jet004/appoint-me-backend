@@ -1,5 +1,4 @@
 import { body, param } from 'express-validator'
-import { DbGetAppointmentById } from '../models/appointmentModel'
 
 export const appointmentValidator = [
     // No need to validate the CRM id here as it will be automatically inserted in the controller

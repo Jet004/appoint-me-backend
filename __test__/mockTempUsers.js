@@ -31,4 +31,4 @@ const tempUsers = [
     },
 ]
 
-module.exports = tempUsers;
+export default tempUsers;

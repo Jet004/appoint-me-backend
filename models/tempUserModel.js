@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
-import addressSchema from './addressSchema'
-import CRM from './crmModel'
+import addressSchema from './addressSchema.js'
+import CRM from './crmModel.js'
 
 const tempUserSchema = new mongoose.Schema({
     email: {

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import addressSchema from './addressSchema'
+import addressSchema from './addressSchema.js'
 
 
 const businessRepSchema = new mongoose.Schema({

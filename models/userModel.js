@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
-import addressSchema from './addressSchema'
-import { appointmentSchema } from './appointmentModel'
-import CRM from './crmModel'
+import addressSchema from './addressSchema.js'
+import { appointmentSchema } from './appointmentModel.js'
+import CRM from './crmModel.js'
 
 
 const userSchema = new mongoose.Schema({

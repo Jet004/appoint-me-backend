@@ -1,5 +1,5 @@
 // Import controllers
-import { getBusinessByABN, getBusinessByID, updateBusiness, createBusinessService, getBusinessServices, getBusinessServiceById, updateBusinessService, deleteBusinessService, getClientList } from '../businessController'
+import { getBusinessByID, updateBusiness, createBusinessService, getBusinessServices, getBusinessServiceById, updateBusinessService, deleteBusinessService, getClientList } from '../businessController.js'
 
 // Import mock business
 import mockBusiness from '../../__test__/mockBusiness.js'

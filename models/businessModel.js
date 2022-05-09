@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
-import addressSchema from "./addressSchema";
-import { appointmentSchema } from "./appointmentModel";
-import serviceSchema from "./serviceSchema"
-import BusinessSettingsSchema from "./businessSettingsSchema"
+import mongoose from "mongoose"
+import addressSchema from "./addressSchema.js"
+import { appointmentSchema } from "./appointmentModel.js"
+import serviceSchema from "./serviceSchema.js"
+import BusinessSettingsSchema from "./businessSettingsSchema.js"
 
 const BusinessSchema = new mongoose.Schema({
     abn: {
