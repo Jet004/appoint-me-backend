@@ -1,11 +1,13 @@
 import bcrypt from 'bcrypt'
 
-// Imprort JWT depenecies
+// Import JWT depenecies
 import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'
 dotenv.config();
 
-export const registerUser = (DbRegisterUser, DbGetUserByEmail, DbRegisterBusinessRep, DbGetRepByEmail) => async (req, res) => {
+import { parseIP, checkIP } from '../middleware/ipWhitelist.js'
+
+export const registerUser = (DbRegisterUser, DbGetUserByEmail, DbRegisterBusinessRep, DbGetRepByEmail, DbRegisterIP, DbDeleteRep) => async (req, res) => {
     // This controller can register both a normal user and a businessRep user via the userType parameter
     try {
         // Hash user password
@@ -25,6 +27,27 @@ export const registerUser = (DbRegisterUser, DbGetUserByEmail, DbRegisterBusines
                 return res.status(400).json({ status: "error", message: "A user already exists with this email address" })
             }
             results = await DbRegisterBusinessRep(req.body)
+
+            if(results) {
+                // Register IP address for whitelisting
+                try {
+                    const userId = results._id
+                    const requestIP = parseIP(req)
+                    const registeredIp = await DbRegisterIP(requestIP, userId)
+                    if(!registeredIp) throw new Error("Failed to register IP address")
+                } catch (e) {
+                    console.log(e)
+                    console.log("The above error occurred while registering the user's IP address, user DB object will be deleted")
+                    try {
+                        const repDeleted = await DbDeleteRep(results._id)
+                        if(!repDeleted) throw new Error("Failed to delete user")
+                    } catch (e) {
+                        console.log(e)
+                        return res.status(500).json({ status: "error", message: "An error occurred while registering the user's IP address" })
+                    }
+                    return res.status(500).json({ status: "error", message: "An error occurred while registering the user's IP address" })
+                }
+            }
         } else {
             return res.status(400).json({ status: "error", message: "Invalid user type" })
         }
@@ -40,7 +63,7 @@ export const registerUser = (DbRegisterUser, DbGetUserByEmail, DbRegisterBusines
     }
 }
 
-export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbSaveRefreshToken) => async (req, res) => {
+export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbGetUserIP, DbSaveRefreshToken) => async (req, res) => {
     // This controller can log in both a normal user and a businessRep user via the userType parameter
     try {
         // Get user from request object
@@ -51,6 +74,22 @@ export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbSaveRefreshToken)
             results = await DbGetUserByEmail(userCredentials.email)
         } else if(req.params.userType === 'businessRep') {
             results = await DbGetRepByEmail(userCredentials.email)
+
+            // Check that user IP is whitelisted
+            if(results) {
+                try {
+                    const userId = results._id
+                    const requestIP = parseIP(req)
+                    const userIP = (await DbGetUserIP(userId)).ip
+                    if(!userIP) throw new Error("Failed to get user IP")
+                    console.log(requestIP, userIP)
+                    if(!checkIP(requestIP, userIP)) throw new Error("User IP is not whitelisted")
+                    // User IP ok, continue with login
+                } catch (e) {
+                    console.log(e)
+                    return res.status(401).json({ status: "error", message: "User is not whitelisted" })
+                }
+            }
         } else {
             return res.status(400).json({ status: "error", message: "Something went wrong..." })
         }
