@@ -3,14 +3,14 @@ const router = express.Router()
 
 // Import controllers
 import { loginUser, logoutUser, registerUser, tokenRefresh } from '../controllers/authController.js'
-// Import model ODM methods from User model
+
+// Import models
 import { DbRegisterUser, DbGetUserByEmail } from '../models/userModel.js'
-// Import model ODM methods from BusinessRep model
-import { DbRegisterBusinessRep, DbGetRepByEmail } from '../models/businessRepModel.js'
-//Import model ODM methods from RefreshToken model
+import { DbRegisterBusinessRep, DbGetRepByEmail, DbDeleteRep } from '../models/businessRepModel.js'
 import { DbDeleteRefreshToken, DbSaveRefreshToken } from '../models/authModel.js'
-// Import model ODM methods from TokenBlacklist model
 import { DbAddTokenToBlacklist, DbDeleteExpiredTokens } from '../models/authBlacklistModel.js'
+import { DbRegisterIP, DbGetUserIP } from '../models/ipWhitelistModel.js'
+
 
 // Import validators
 import { userValidator, ubrValidator, passwordValidator } from '../validation/userValidators.js'
@@ -24,7 +24,7 @@ router.route('/register/:userType')
         ubrValidator, 
         passwordValidator, 
         validationCheck, 
-        registerUser(DbRegisterUser, DbGetUserByEmail, DbRegisterBusinessRep, DbGetRepByEmail)
+        registerUser(DbRegisterUser, DbGetUserByEmail, DbRegisterBusinessRep, DbGetRepByEmail, DbRegisterIP, DbDeleteRep)
     )
 
 router.route('/login/:userType')
@@ -38,7 +38,7 @@ router.route('/login/:userType')
                 return res.status(400).json({ status: "error", message: "User already logged in" })
              }
              return next()},
-        loginUser(DbGetUserByEmail, DbGetRepByEmail, DbSaveRefreshToken)
+        loginUser(DbGetUserByEmail, DbGetRepByEmail, DbGetUserIP, DbSaveRefreshToken)
     )
 
 router.route('/logout')

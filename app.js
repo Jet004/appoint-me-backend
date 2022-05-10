@@ -4,7 +4,8 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 import slowDown from 'express-slow-down'
-import { sessionHandler } from './middleware/sessionHandler.js'
+import sessionHandler from './middleware/sessionHandler.js'
+import ipWhitelist from './middleware/ipWhitelist.js'
 import requestLogger from './middleware/requestLogger.js' 
 import { createRequestLog } from './models/requestLogModel.js'
 import fileUpload from 'express-fileupload' 
@@ -51,6 +52,9 @@ const app = () => {
 
     // Handle user sessions
     server.use(sessionHandler())
+
+    // Handle IP whitelisting for business admin users
+    server.use(ipWhitelist())
 
     // Handle HTTP request logging
     server.use(requestLogger(createRequestLog))

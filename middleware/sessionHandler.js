@@ -7,7 +7,7 @@ import BusinessRep from '../models/businessRepModel.js'
 import Business from '../models/businessModel.js'
 import TokenBlacklist from '../models/authBlacklistModel.js'
 
-export const sessionHandler = () => async (req, res, next) => {
+const sessionHandler = () => async (req, res, next) => {
     // Check for JWT in request header and body and initialise session variables checks pass
     // This could be implemented as application level middleware - checks logged in status, sets session variables
     // and passes to next middleware
@@ -164,3 +164,6 @@ export const isAuthorised = () => async (req, res, next) => {
         return res.status(500).json({ status: "error", message: e.message })
     }
 }
+
+
+export default sessionHandler
