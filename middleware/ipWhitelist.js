@@ -32,13 +32,13 @@ const ipWhitelist = () => async (req, res, next) => {
 
     if(!userIP || !requestIP) {
         // One of the required IP addresses is missing， block access
-        return res.status(403).json({ status: "error", message: "Access denied" })
+        return res.status(403).json({ status: "error", message: "Access denied: Unauthorized IP address" })
     }
 
     // Check if user IP is whitelisted
     if(!checkIP(requestIP, userIP.ip)) {
         // User IP is not whitelisted, block access
-        return res.status(403).json({ status: "error", message: "Access denied" })
+        return res.status(403).json({ status: "error", message: "Access denied: Unauthorized IP address" })
     }
 
     // User IP is whitelisted, pass control to next middleware

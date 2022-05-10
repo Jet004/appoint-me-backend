@@ -83,11 +83,11 @@ export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbGetUserIP, DbSave
                     const userIP = (await DbGetUserIP(userId)).ip
                     if(!userIP) throw new Error("Failed to get user IP")
                     console.log(requestIP, userIP)
-                    if(!checkIP(requestIP, userIP)) throw new Error("User IP is not whitelisted")
+                    if(!checkIP(requestIP, userIP)) throw new Error("Access denied: Unauthorized IP address")
                     // User IP ok, continue with login
                 } catch (e) {
                     console.log(e)
-                    return res.status(401).json({ status: "error", message: "User is not whitelisted" })
+                    return res.status(401).json({ status: "error", message: "Access denied: Unauthorized IP address" })
                 }
             }
         } else {
