@@ -2,13 +2,14 @@ import express from "express"
 const router = express.Router()
 
 // Import business controllers
-import { createBusinessService, deleteBusinessService, getBusinessByID, getBusinessServiceById, getBusinessServices, updateBusiness, updateBusinessService, getClientList } from "../controllers/businessController.js"
+import { createBusinessService, deleteBusinessService, getBusinessByID, getBusinessServiceById, getBusinessServices, updateBusiness, updateBusinessService, getClientList, getIpList, addIP, deleteIP } from "../controllers/businessController.js"
 import { requireLogin, requireRoles, isAuthorised } from "../middleware/sessionHandler.js"
 // Import Business model ODM methods
 import { DbCreateBusinessService, DbDeleteBusinessService, DbGetBusinessByID, DbGetBusinessServiceById, DbUpdateBusiness, DbUpdateBusinessService } from "../models/businessModel.js"
 import { DbGetClientList } from "../models/crmModel.js"
+import { DbGetUserIPs, DbRegisterIP, DbDeleteIP } from "../models/ipWhitelistModel.js"
 // Import validators
-import { accessTokenValidator, verifyRepByBusinessId } from "../validation/authValidator.js"
+import { accessTokenValidator, verifyRepByBusinessId, ipValidator } from "../validation/authValidator.js"
 import { idValidator, abnValidator, businessValidator, checkKeys, serviceValidator, serviceIdValidator } from "../validation/businessValidators.js"
 import validationCheck  from "../validation/checkValidators.js"
 import { businessIdValidator } from "../validation/userValidators.js"
@@ -89,6 +90,34 @@ router.route("/client-list/:businessId")
         requireRoles(['businessRep']),
         verifyRepByBusinessId(DbGetBusinessByID),
         getClientList(DbGetClientList)
+    )
+
+router.route("/admin/access/ip/:businessId")
+    .get(
+        businessIdValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles(['businessRep']),
+        verifyRepByBusinessId(DbGetBusinessByID),
+        getIpList(DbGetUserIPs)
+    )
+    .post(
+        businessIdValidator,
+        ipValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles(['businessRep']),
+        verifyRepByBusinessId(DbGetBusinessByID),
+        addIP(DbGetUserIPs, DbRegisterIP)
+    )
+    .delete(
+        businessIdValidator,
+        ipValidator,
+        validationCheck,
+        requireLogin(),
+        requireRoles(['businessRep']),
+        verifyRepByBusinessId(DbGetBusinessByID),
+        deleteIP(DbDeleteIP)
     )
 
 export default router

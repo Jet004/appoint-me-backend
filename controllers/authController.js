@@ -63,7 +63,7 @@ export const registerUser = (DbRegisterUser, DbGetUserByEmail, DbRegisterBusines
     }
 }
 
-export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbGetUserIP, DbSaveRefreshToken) => async (req, res) => {
+export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbGetUserIPs, DbSaveRefreshToken) => async (req, res) => {
     // This controller can log in both a normal user and a businessRep user via the userType parameter
     try {
         // Get user from request object
@@ -80,10 +80,9 @@ export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbGetUserIP, DbSave
                 try {
                     const userId = results._id
                     const requestIP = parseIP(req)
-                    const userIP = (await DbGetUserIP(userId)).ip
-                    if(!userIP) throw new Error("Failed to get user IP")
-                    console.log(requestIP, userIP)
-                    if(!checkIP(requestIP, userIP)) throw new Error("Access denied: Unauthorized IP address")
+                    const userIPs = await DbGetUserIPs(userId)
+                    if(userIPs <= 0) throw new Error("Failed to get user IP")
+                    if(!checkIP(requestIP, userIPs)) throw new Error("Access denied: Unauthorized IP address")
                     // User IP ok, continue with login
                 } catch (e) {
                     console.log(e)

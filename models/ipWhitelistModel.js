@@ -16,4 +16,6 @@ const IpWhitelist = mongoose.model("IpWhitelist", ipWhitelistSchema)
 
 export const DbRegisterIP = (ip, userId) => IpWhitelist.create({ip: ip, businessRep: userId})
 
-export const DbGetUserIP = (userId) => IpWhitelist.findOne({businessRep: userId}, "ip")
+export const DbGetUserIPs = (userId) => IpWhitelist.find({businessRep: userId})
+
+export const DbDeleteIP = (ip, userId) => IpWhitelist.deleteOne({ip: ip, businessRep: userId})

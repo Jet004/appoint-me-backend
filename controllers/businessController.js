@@ -1,3 +1,4 @@
+import { checkIP } from "../middleware/ipWhitelist.js"
 
 
 export const getBusinessByID = (DbGetBusinessByID) => async (req, res) => {
@@ -127,5 +128,73 @@ export const getClientList = (DbGetClientList) => async (req, res) => {
     } catch (e) {
         console.log(e.message)
         res.status(500).json({ status: "error", message: e.message })
+    }
+}
+
+//
+// Admin Panel Controllers
+//
+
+export const getIpList = (DbGetUserIPs) => async (req, res) => {
+    try {
+        let results = await DbGetUserIPs(req.session.user._id)
+
+        if(!results) {
+            return res.status(404).json({ status: "not found", message: "No IP addresses found" })
+        }
+
+        return res.status(200).json({ status: "success", ipList: results })
+    } catch (e) {
+        console.log(e.message)
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+}
+
+export const addIP = (DbGetUserIPs, DbRegisterIP) => async (req, res) => {
+    try {
+        const newIP = req.body.ip
+        const userID = req.session.user._id
+
+        // Check that IP is not already registered for user
+        const existingIPs = await DbGetUserIPs(userID)
+        if(existingIPs.length > 0) {
+            if(checkIP(newIP, existingIPs)) {
+                // IP already registered, respond with 400
+                return res.status(400).json({ status: "error", message: "IP already registered" })
+            }
+        }
+
+        const results = await DbRegisterIP(newIP, userID)
+
+        if(!results) {
+            return res.status(400).json({ status: "error", message: "An unexpected error occurred" })
+        }
+        
+        // Successful, respond with 201 Created
+        return res.status(201).json({ status: "success", message: "IP address added" })
+
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+}
+
+export const deleteIP = (DbDeleteIP) => async (req, res) => {
+    try {
+        const ip = req.body.ip
+        const userID = req.session.user._id
+
+        const results = await DbDeleteIP(ip, userID)
+
+        if(!results) {
+            return res.status(400).json({ status: "error", message: "An unexpected error occurred" })
+        }
+
+        // Successful, respond with 204 No Content
+        return res.status(204).json({ status: "success", message: "IP address deleted" })
+
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({ status: "error", message: e.message })
     }
 }

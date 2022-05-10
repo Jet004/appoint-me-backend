@@ -27,11 +27,19 @@ export const tokenValidator = [
 
 export const accessTokenValidator = [
     header('Authorization')
-    .exists({ checkFalsy: true }).withMessage("Access token is required")
-    .customSanitizer(value => value.replace('Bearer ', ''))
-    .isJWT().withMessage("Invalid access token")
-    .trim()
-    .escape()
+        .exists({ checkFalsy: true }).withMessage("Access token is required")
+        .customSanitizer(value => value.replace('Bearer ', ''))
+        .isJWT().withMessage("Invalid access token")
+        .trim()
+        .escape()
+]
+
+export const ipValidator = [
+    body('ip')
+        .exists({ checkFalsy: true }).withMessage("IP address is required")
+        .isIP().withMessage("Invalid IP address")
+        .trim()
+        .escape()
 ]
 
 export const checkAuthKeys = (req, res, next) => {

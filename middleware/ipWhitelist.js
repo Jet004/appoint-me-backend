@@ -1,5 +1,5 @@
 // Import Model methods
-import { DbGetUserIP } from '../models/ipWhitelistModel.js'
+import { DbGetUserIPs } from '../models/ipWhitelistModel.js'
 
 export const parseIP = (req) => {
     let requestIP
@@ -12,8 +12,10 @@ export const parseIP = (req) => {
     return requestIP
 }
 
-export const checkIP = (requestIP, userIP) => {
-    if (requestIP === userIP) {
+export const checkIP = (requestIP, userIPs) => {
+    const userIpList = userIPs.map(ip => ip.ip)
+
+    if (userIpList.includes(requestIP)) {
         return true
     }
     return false
@@ -27,16 +29,16 @@ const ipWhitelist = () => async (req, res, next) => {
     }
 
     // Get user IP from database and request IP from request object
-    const userIP = await DbGetUserIP(req.session.user._id)
+    const userIPs = await DbGetUserIPs(req.session.user._id)
     const requestIP = parseIP(req)
 
-    if(!userIP || !requestIP) {
+    if(userIPs <= 0 || !requestIP) {
         // One of the required IP addresses is missing， block access
         return res.status(403).json({ status: "error", message: "Access denied: Unauthorized IP address" })
     }
 
     // Check if user IP is whitelisted
-    if(!checkIP(requestIP, userIP.ip)) {
+    if(!checkIP(requestIP, userIPs)) {
         // User IP is not whitelisted, block access
         return res.status(403).json({ status: "error", message: "Access denied: Unauthorized IP address" })
     }
