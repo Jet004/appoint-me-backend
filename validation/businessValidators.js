@@ -71,13 +71,13 @@ export const businessValidator = [
 export const serviceValidator = [
     body('name')
         .exists({checkFalsy: true}).withMessage("Name is required")
-        .isAlphanumeric("en-AU", {ignore: ".,' -_@"}).withMessage("Name can only contain numbers and letters")
+        .isAlphanumeric("en-AU", {ignore: ".,' -_@!"}).withMessage("Name can only contain numbers and letters")
         .isLength({min: 2, max: 50}).withMessage("Name must be between 2 and 50 characters long")
         .trim()
         .escape(),
     body("description")
         .exists({checkFalsy: true}).withMessage("Description is required")
-        .isAlphanumeric("en-AU", {ignore: ".,' -_@"}).withMessage("Description can only contain numbers and letters")
+        .isAlphanumeric("en-AU", {ignore: ".,' -_@!"}).withMessage("Description can only contain numbers and letters")
         .isLength({min: 2, max: 2000}).withMessage("Description must be between 2 and 2000 characters long")
         .trim()
         .escape(),

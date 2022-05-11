@@ -15,7 +15,7 @@ import validationCheck  from "../validation/checkValidators.js"
 import { businessIdValidator } from "../validation/userValidators.js"
 
 // Business routes
-// Get/Create services by business ABN
+// Get/Create services by businessId
 router.route('/services/:businessId')
     .get(
         businessIdValidator, 
@@ -34,7 +34,7 @@ router.route('/services/:businessId')
         createBusinessService(DbGetBusinessByID, DbCreateBusinessService)
     )
 
-// Get/update service by ID for business with given ABN
+// Get/update service by ID for business with given ID
 router.route('/services/:businessId/:serviceId')
     .get(
         businessIdValidator, 
@@ -63,7 +63,7 @@ router.route('/services/:businessId/:serviceId')
         deleteBusinessService(DbDeleteBusinessService)
     )
 
-// Get/Update business by ABN
+// Get/Update business by ID
 router.route('/:businessId')
     .get(
         businessIdValidator, 

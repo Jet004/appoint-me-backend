@@ -74,7 +74,7 @@ export const createBusinessService = (DbGetBusinessByID, DbCreateBusinessService
         const results = await DbCreateBusinessService(business, req.body)
 
         if(results) {
-            res.status(200).json({ status: "success", updatedData: results })
+            res.status(201).json({ status: "success", message: "New service created", service: results })
         } else {
             res.status(400).json({ status: "error", message: "An unexpected error occurred"})
         }
@@ -89,7 +89,7 @@ export const updateBusinessService = (DbUpdateBusinessService) => async (req, re
         const results = await DbUpdateBusinessService(req.params.businessId, req.params.serviceId, req.body)
 
         if(results) {
-            res.status(200).json({ status: "success", updatedData: results })
+            res.status(200).json({ status: "success", message: "Service details updated", updatedData: results })
         } else {
             res.status(400).json({ status: "error", message: "An unexpected error occurred"})
         }
