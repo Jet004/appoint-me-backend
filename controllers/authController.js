@@ -82,11 +82,11 @@ export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbGetUserIPs, DbSav
                     const requestIP = parseIP(req)
                     const userIPs = await DbGetUserIPs(userId)
                     if(userIPs <= 0) throw new Error("Failed to get user IP")
-                    if(!checkIP(requestIP, userIPs)) throw new Error("Access denied: Unauthorized IP address")
+                    if(!checkIP(requestIP, userIPs)) throw new Error(`Access denied: Unauthorized IP address - ${requestIP}`)
                     // User IP ok, continue with login
                 } catch (e) {
                     console.log(e)
-                    return res.status(401).json({ status: "error", message: "Access denied: Unauthorized IP address" })
+                    return res.status(401).json({ status: "error", message: `Access denied: Unauthorized IP address - ${requestIP}` })
                 }
             }
         } else {

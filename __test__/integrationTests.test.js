@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import connect from '../models/database.js'
+import DbConnection from '../models/database.js'
 import pushMockData from './pushMockData.js'
 
 import fetch from 'node-fetch'
@@ -25,13 +26,16 @@ import app from '../app.js'
 
 const PORT = 3200
 const domain = `http:localhost:${PORT}`
+const conn = new DbConnection('mongodb://127.0.0.1:27017/appointMe?directConnection=true&serverSelectionTimeoutMS=2000')
 
 describe('Integration Tests:', () => {
     let runningServer
     beforeAll(async () => {
         // Set up database
-        await connect('mongodb://127.0.0.1:27017/appointMe?directConnection=true&serverSelectionTimeoutMS=2000')
-        await mongoose.connection.dropDatabase()
+        conn.connect()
+        conn.dropDb()
+        // await connect('mongodb://127.0.0.1:27017/appointMe?directConnection=true&serverSelectionTimeoutMS=2000')
+        // await mongoose.connection.dropDatabase()
         await pushMockData(["all"])
 
         // Instantiate express server and start listening
@@ -40,9 +44,11 @@ describe('Integration Tests:', () => {
     })
 
     afterAll(async () => {
-        // Desctroy database and clost connection
-        await mongoose.connection.dropDatabase()
-        await mongoose.disconnect()
+        // Destroy database and close connection
+        await conn.dropDb()
+        await conn.close()
+        // await mongoose.connection.dropDatabase()
+        // await mongoose.disconnect()
 
         // Stop express server
         runningServer.close()
