@@ -48,6 +48,7 @@ export const tempUserValidator = [
 
         const address = req.body.address
         if (address) {
+            if(!address.unit) delete req.body.address.unit
             if(!address.streetNumber || !address.streetName || !address.city || !address.state || !address.postCode || !address.country) {
                 delete req.body.address
             }
