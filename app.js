@@ -35,7 +35,7 @@ const app = () => {
         // Check if user has reached their daily rate limit
         server.use(rateLimit({
             windowMs: 24 * 60 * 60 * 1000, // 24 hours: 1000 milliseconds * 60 seconds * 60 minutes * 24 hours
-            max: 1000, // limit each IP to 1000 requests per windowMs
+            max: 500, // limit each IP to 500 requests per windowMs
             standardHeaders: true,
             message: 'Too many requests, please try again later.'
         }))
@@ -43,10 +43,10 @@ const app = () => {
 
         // Slow user requests to one per second
         server.use(slowDown({
-            windowMs: 1000, // 1 second
+            windowMs: 500, // 1/2 second
             delayAfter: 1, // limit each IP to 1 requests per windowMs
-            delayMs: 1000, // Delays the response by 1 second
-            maxDelayMs: 1000, // Max delay is 1 second
+            delayMs: 500, // Delays the response by 1/2 second
+            maxDelayMs: 500, // Max delay is 1/2 second
         }))
     }
 
