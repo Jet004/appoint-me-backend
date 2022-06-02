@@ -2,7 +2,6 @@
 import { DbGetUserIPs } from '../models/ipWhitelistModel.js'
 
 export const parseIP = (req) => {
-    console.log("IP:", req.ip)
     let requestIP
     if (req.ip.substr(0, 7) == "::ffff:") {
         requestIP = req.ip.substr(7)
@@ -28,7 +27,7 @@ const ipWhitelist = () => async (req, res, next) => {
         // User is not a logged in businessRep, pass control to next middleware
         return next()
     }
-    return next()
+
     // Get user IP from database and request IP from request object
     const userIPs = await DbGetUserIPs(req.session.user._id)
     const requestIP = parseIP(req)
