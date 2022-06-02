@@ -2,14 +2,14 @@
 import { DbGetUserIPs } from '../models/ipWhitelistModel.js'
 
 export const parseIP = (req) => {
+    console.log("IP:", req.ip)
     let requestIP
     if (req.ip.substr(0, 7) == "::ffff:") {
         requestIP = req.ip.substr(7)
     } else {
         requestIP = req.ip
     }
-    console.log("IP:", req.ip)
-
+    
     return requestIP
 }
 
