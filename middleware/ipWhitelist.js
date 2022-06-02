@@ -8,6 +8,7 @@ export const parseIP = (req) => {
     } else {
         requestIP = req.ip
     }
+    console.log("IP:", req.ip)
 
     return requestIP
 }
