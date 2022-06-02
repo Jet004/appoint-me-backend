@@ -27,7 +27,7 @@ const ipWhitelist = () => async (req, res, next) => {
         // User is not a logged in businessRep, pass control to next middleware
         return next()
     }
-
+    next()
     // Get user IP from database and request IP from request object
     const userIPs = await DbGetUserIPs(req.session.user._id)
     const requestIP = parseIP(req)
