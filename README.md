@@ -88,15 +88,15 @@ To stop the development server press `control + c` (Mac).
 
 This project has been deployed to a Heroku server. To emulate this follow the steps below.
 
-First create an account on the heroku platform (here)[https://www.heroku.com] and log in.
+First create an account on the heroku platform [here](https://www.heroku.com) and log in.
 
-Download the Heroku CLI tool (here)[https://devcenter.heroku.com/articles/heroku-cli] and follow the steps to log in via teh CLI tool.
+Download the Heroku CLI tool [here](https://devcenter.heroku.com/articles/heroku-cli) and follow the steps to log in via teh CLI tool.
 
 Create a new application instance on Heroku replacing <App Name> with the name of your application:
 
 `heroku apps:create <App Name>`
 
-Create a 'Procfile' in the application root directory following the instruction (here)[https://devcenter.heroku.com/articles/procfile] to define the scripts to run when deploying the application. Eg. To simply run the 'start' script defined in package.json simply include the following line in the Procfile:
+Create a 'Procfile' in the application root directory following the instruction [here](https://devcenter.heroku.com/articles/procfile) to define the scripts to run when deploying the application. Eg. To simply run the 'start' script defined in package.json simply include the following line in the Procfile:
 
 `web: npm start`
 
