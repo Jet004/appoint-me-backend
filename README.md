@@ -86,11 +86,45 @@ To stop the development server press `control + c` (Mac).
 
 ## Deployment
 
-### Building production files - not yet implemented
+This project has been deployed to a Heroku server. To emulate this follow the steps below.
 
-This web service uses the Babel compiler to transpile the project code into an earlier version of JavaScript for efficiency and compatibility with a wider range of browsers. As such, the project must first be 'built' (compiled) before it is ready to be deployed to a production server.
+First create an account on the heroku platform (here)[https://www.heroku.com] and log in.
 
-This feature has not yet been implemented. Look out for it in the coming weeks!
+Download the Heroku CLI tool (here)[https://devcenter.heroku.com/articles/heroku-cli] and follow the steps to log in via teh CLI tool.
+
+Create a new application instance on Heroku replacing <App Name> with the name of your application:
+
+`heroku apps:create <App Name>`
+
+Create a 'Procfile' in the application root directory following the instruction (here)[https://devcenter.heroku.com/articles/procfile] to define the scripts to run when deploying the application. Eg. To simply run the 'start' script defined in package.json simply include the following line in the Procfile:
+
+`web: npm start`
+
+To push the existing local repository up to the Heroku server first ensure the latest version of the web service has been committed locally:
+
+`git add .`
+
+`git commit -m 'Prepare to push to Heroku server'`
+
+Push to the Heroku server. If you have changed the name of the master branch you will need to modify the command below to suit:
+
+`git push heroku master`
+
+To set the Heroku environment variables (config vars) via the CLI follow the commands below replacing the values with those appropriate to the environment. For the deployed application there are three required config vars:
+
+- DB_URL: a MongoDB connection url
+- JWT_SECRET: a secret key for securing authentication tokens
+- CORS_ORIGIN: a comma separated list of domains allowed to access the web services resources
+
+Eg.
+
+`heroku config:set JWT_SECRET=IJBsibfi489whc9uc238h9877987dsiounIUBIUB`
+
+That's all! The application should be deployed and running live. You can access the web service using the url given to you after pushing to heroku. Alternately you can find the url in the settings page on Heroku.
+
+If you encounter any errors, check the Heroku log file to see a detailed breakdown of the error:
+
+`heroku logs --tail`
 
 ## Testing the web service
 
