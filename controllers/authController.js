@@ -86,7 +86,7 @@ export const loginUser = (DbGetUserByEmail, DbGetRepByEmail, DbGetUserIPs, DbSav
                     // User IP ok, continue with login
                 } catch (e) {
                     console.log(e)
-                    return res.status(401).json({ status: "error", message: `Access denied: Unauthorized IP address - ${requestIP}` })
+                    return res.status(401).json({ status: "error", message: e.message })
                 }
             }
         } else {
